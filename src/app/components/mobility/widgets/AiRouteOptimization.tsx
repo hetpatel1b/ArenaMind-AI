@@ -1,0 +1,208 @@
+'use client';
+
+import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { MobilityMatchPayload } from '../MobilityCommandWorkspace';
+
+interface AiRouteOptimizationProps {
+  recommendations: any[];
+}
+
+export function AiRouteOptimization({ recommendations }: AiRouteOptimizationProps) {
+  const shouldReduceMotion = useReducedMotion();
+
+  // Filter or fallback to mock route optimizations if none exist in DB
+  let ops = recommendations.filter((r) => r.featureName === 'mobility_suggestions');
+  if (ops.length === 0) {
+    ops = [
+      {
+        id: 'route-opt-1',
+        confidenceScore: 0.89,
+        data: {
+          priority: 'High',
+          suggestedAction: 'Reroute Shuttle Line B to East Perimeter',
+          reason: 'Severe congestion detected on Main Street approach.',
+          evidence: 'Traffic cameras indicate 15mph average speed over last 10 mins.',
+          expectedBenefit: 'Reduces shuttle loop time by 12 minutes.',
+          operationalImpact: 'Minor disruption to East Lot pedestrian flow.',
+          alternativeOptions: 'Hold shuttles at terminal (Not Recommended).',
+          humanApprovalRequired: true,
+        },
+      },
+    ];
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-4)',
+        padding: 'var(--space-4)',
+        borderRadius: 'var(--radius-xl)',
+        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
+        height: '100%',
+        minHeight: '400px',
+        maxHeight: '500px',
+        overflowY: 'auto',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          paddingBottom: 'var(--space-2)',
+        }}
+      >
+        <h3
+          style={{
+            fontSize: 'var(--text-md)',
+            fontWeight: 'var(--font-weight-bold)',
+            color: 'var(--text-primary)',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--ai-accent)"
+            strokeWidth="2"
+          >
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          Route Optimization
+        </h3>
+        <span
+          style={{
+            fontSize: '10px',
+            backgroundColor: 'rgba(10,132,255,0.1)',
+            color: 'var(--ai-accent)',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontWeight: 600,
+          }}
+        >
+          {ops.length} Active Directives
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        {ops.map((rec, idx) => {
+          const confidence = Math.round((rec.confidenceScore || 0) * 100);
+
+          return (
+            <motion.div
+              key={rec.id}
+              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-3)',
+                backgroundColor: 'rgba(10, 132, 255, 0.05)',
+                border: '1px solid rgba(10, 132, 255, 0.1)',
+                borderRadius: 'var(--radius-md)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--text-primary)',
+                    fontWeight: 600,
+                  }}
+                >
+                  {rec.data.suggestedAction}
+                </span>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    color: 'var(--ai-accent)',
+                    fontWeight: 700,
+                    backgroundColor: 'rgba(10,132,255,0.1)',
+                    padding: '2px 4px',
+                    borderRadius: '4px',
+                  }}
+                >
+                  {confidence}% CONF
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.4,
+                }}
+              >
+                <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>Reasoning: </span>
+                {rec.data.reason}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.4,
+                }}
+              >
+                <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>Evidence: </span>
+                {rec.data.evidence}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--status-success)',
+                  backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  marginTop: '4px',
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>Expected Benefit: </span>{' '}
+                {rec.data.expectedBenefit}
+              </div>
+
+              <div
+                style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-2)' }}
+              >
+                <button
+                  style={{
+                    backgroundColor: 'var(--ai-accent)',
+                    border: 'none',
+                    color: '#000',
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Approve Re-route
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

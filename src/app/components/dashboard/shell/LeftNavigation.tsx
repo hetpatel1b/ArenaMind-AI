@@ -16,9 +16,24 @@ export function LeftNavigation() {
           icon: 'M9 20l-5-3v-14l5 3 5-3 5 3v14l-5-3-5 3z M9 20v-14 M14 17v-14',
         },
         {
+          label: 'Crowd Intelligence',
+          href: '/crowd',
+          icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87',
+        },
+        {
           label: 'Incidents',
           href: '/incidents',
           icon: 'M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01',
+        },
+        {
+          label: 'Mobility',
+          href: '/mobility',
+          icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M12 8v4 M12 16h.01',
+        },
+        {
+          label: 'Intelligence',
+          href: '/intelligence',
+          icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12',
         },
       ],
     },
@@ -26,14 +41,29 @@ export function LeftNavigation() {
       title: 'Resources',
       items: [
         {
-          label: 'Staff Roster',
-          href: '/staff',
+          label: 'Workforce',
+          href: '/workforce',
           icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
         },
         {
           label: 'Cameras',
           href: '/cameras',
           icon: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z M9 13a3 3 0 1 0 6 0 3 3 0 0 0-6 0z',
+        },
+      ],
+    },
+    {
+      title: 'Settings',
+      items: [
+        {
+          label: 'Governance',
+          href: '/governance',
+          icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M12 8v4 M12 16h.01',
+        },
+        {
+          label: 'System Status',
+          href: '/system',
+          icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
         },
       ],
     },
