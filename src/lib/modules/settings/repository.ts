@@ -1,0 +1,11 @@
+import { PrismaRepository } from '@/lib/repositories/prisma.repository';
+import { SystemSetting } from '@prisma/client';
+import { prisma } from '@/lib/db/client';
+
+export class SettingRepository extends PrismaRepository<SystemSetting, any, any> {
+  constructor() {
+    super(prisma.systemSetting as any);
+  }
+}
+
+export const settingRepository = new SettingRepository();

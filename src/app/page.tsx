@@ -1,8 +1,25 @@
+import { Hero } from './components/landing/Hero';
+import { Problem } from './components/landing/Problem';
+import { Solution } from './components/landing/Solution';
+import { CommandCenterPreview } from './components/landing/CommandCenterPreview';
+import { AiWorkflow } from './components/landing/AiWorkflow';
+import { CoreCapabilities } from './components/landing/CoreCapabilities';
+import { Technology } from './components/landing/Technology';
+import { Metrics } from './components/landing/Metrics';
+import { Footer } from './components/landing/Footer';
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold">ArenaMind AI</h1>
-      <p className="mt-4 text-muted-foreground">The Intelligent Stadium Operations Copilot</p>
+    <main>
+      <Hero />
+      <Problem />
+      <Solution />
+      <CommandCenterPreview />
+      <AiWorkflow />
+      <CoreCapabilities />
+      <Technology />
+      <Metrics />
+      <Footer />
     </main>
   );
 }

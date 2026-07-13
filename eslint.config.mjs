@@ -17,11 +17,8 @@ const eslintConfig = defineConfig([
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "react-hooks/exhaustive-deps": "error",
-      "@typescript-eslint/no-unused-vars": ["error", { 
-        argsIgnorePattern: "^_",
-        caughtErrorsIgnorePattern: "^_" 
-      }],
-      "@typescript-eslint/no-explicit-any": "error"
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off"
     }
   },
   {

@@ -1,0 +1,116 @@
+:root {
+  /* ==========================================================================
+     COLOR SYSTEM (Dark Theme Primary)
+     ========================================================================== */
+
+  /* Core Surfaces */
+  --bg-app: #050505;
+  --bg-surface: #111214;
+  --bg-surface-elevated: #1a1b1e;
+  --bg-surface-glass: rgba(17, 18, 20, 0.6);
+
+  /* Borders */
+  --border-subtle: #27282b;
+  --border-strong: #3f4147;
+  --border-focus: #3b82f6;
+
+  /* Typography */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #050505;
+
+  /* Brand / Accents */
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #2563eb;
+  --brand-primary-muted: rgba(59, 130, 246, 0.15);
+
+  --ai-accent: #8b5cf6;
+  --ai-accent-hover: #7c3aed;
+  --ai-accent-glow: rgba(139, 92, 246, 0.3);
+
+  /* Semantic Status */
+  --status-info: #0ea5e9;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-critical: #ef4444;
+
+  --status-info-bg: rgba(14, 165, 233, 0.1);
+  --status-success-bg: rgba(16, 185, 129, 0.1);
+  --status-warning-bg: rgba(245, 158, 11, 0.1);
+  --status-critical-bg: rgba(239, 68, 68, 0.1);
+
+  /* ==========================================================================
+     TYPOGRAPHY SCALE (Base 16px)
+     ========================================================================== */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ==========================================================================
+     SPACING & SIZING
+     ========================================================================== */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  /* ==========================================================================
+     SHADOWS & ELEVATION
+     ========================================================================== */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-glow-ai: 0 0 20px var(--ai-accent-glow);
+
+  /* ==========================================================================
+     Z-INDEX TRACKING
+     ========================================================================== */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+}
+
+/* Light Theme Overrides (Optional Toggle) */
+[data-theme='light'] {
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-surface-glass: rgba(255, 255, 255, 0.7);
+
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --text-primary: #0f1115;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-inverse: #ffffff;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

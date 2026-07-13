@@ -1,0 +1,11 @@
+import { PrismaRepository } from '@/lib/repositories/prisma.repository';
+import { Resource } from '@prisma/client';
+import { prisma } from '@/lib/db/client';
+
+export class ResourceRepository extends PrismaRepository<Resource, any, any> {
+  constructor() {
+    super(prisma.resource as any);
+  }
+}
+
+export const resourceRepository = new ResourceRepository();

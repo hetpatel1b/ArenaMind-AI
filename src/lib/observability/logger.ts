@@ -4,8 +4,10 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 interface LogContext {
   [key: string]: unknown;
   correlationId?: string;
+  requestId?: string;
   userId?: string;
   stadiumId?: string;
+  spanId?: string;
 }
 
 /**
