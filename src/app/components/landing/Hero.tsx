@@ -1,10 +1,17 @@
+'use client';
+
 import React, { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { PressFeedback } from '../motion/MicroInteractions';
-import { CinematicTransition } from '../motion/CinematicTransition';
 
 export function Hero() {
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleLaunch = () => {
+    setIsNavigating(true);
+    router.push('/login');
+  };
 
   return (
     <section
@@ -65,14 +72,15 @@ export function Hero() {
             <button
               className="btn btn-primary"
               aria-label="Launch Command Center"
-              onClick={() => setIsTransitioning(true)}
+              onClick={handleLaunch}
+              disabled={isNavigating}
               style={{
                 padding: 'var(--space-3) var(--space-8)',
                 fontSize: 'var(--text-lg)',
                 boxShadow: '0 0 20px rgba(100, 200, 255, 0.2)',
               }}
             >
-              Launch Command Center
+              {isNavigating ? 'Connecting...' : 'Launch Command Center'}
             </button>
           </PressFeedback>
           <button
@@ -84,10 +92,6 @@ export function Hero() {
           </button>
         </div>
       </div>
-
-      <AnimatePresence>
-        {isTransitioning && <CinematicTransition onComplete={() => setIsTransitioning(false)} />}
-      </AnimatePresence>
     </section>
   );
 }

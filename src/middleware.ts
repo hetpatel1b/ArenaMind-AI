@@ -1,36 +1,44 @@
-import { type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+
+// Define explicit route groups
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/incidents',
+  '/crowd',
+  '/resources',
+  '/transport',
+  '/reports',
+  '/settings',
+  '/profile',
+  '/api/private',
+];
 
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  const isPublicRoute =
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/unauthorized') ||
-    pathname.startsWith('/_next') ||
-    pathname.includes('.');
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (!user && !isPublicRoute) {
+  // Rule 1: Unauthenticated user opening protected routes -> Redirect to /login
+  if (!user && isProtectedRoute) {
     if (pathname.startsWith('/api')) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    return Response.redirect(loginUrl);
+    return NextResponse.redirect(loginUrl);
   }
 
+  // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
   if (user && pathname === '/login') {
     const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = '/command-center';
-    return Response.redirect(dashboardUrl);
+    dashboardUrl.pathname = '/dashboard';
+    return NextResponse.redirect(dashboardUrl);
   }
 
-  if (user && pathname === '/') {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = '/command-center';
-    return Response.redirect(dashboardUrl);
-  }
+  // Note: We intentionally DO NOT redirect from '/' if the user is authenticated,
+  // as the landing page is always the default homepage.
 
   return supabaseResponse;
 }

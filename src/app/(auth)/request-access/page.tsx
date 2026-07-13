@@ -1,0 +1,251 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@supabase/ssr';
+import { PressFeedback } from '@/app/components/motion/MicroInteractions';
+import { WarningShake } from '@/app/components/motion/AttentionMotion';
+import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
+
+export default function RequestAccessPage() {
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [organization, setOrganization] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Incident Coordinator');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const handleRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // In a real hackathon environment, this might directly sign them up or hit an edge function
+      // For this demo, we simulate creating the auth account
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            organization: organization,
+            role: role,
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      setIsTransitioning(true);
+    } catch (err: any) {
+      setError(err.message || 'Failed to provision demo access');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <WarningShake trigger={error}>
+        <form
+          onSubmit={handleRequest}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: 'var(--space-2)' }}>
+            <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 'bold' }}>
+              Request Operator Access
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
+              Provision a demo environment for Hackathon evaluation.
+            </p>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                padding: 'var(--space-3)',
+                backgroundColor: 'var(--status-critical-bg)',
+                color: 'var(--status-critical)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: 'var(--text-sm)',
+                border: '1px solid rgba(255, 59, 48, 0.2)',
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+              <label
+                htmlFor="name"
+                style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
+              >
+                Full Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                required
+                disabled={isLoading}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="form-input"
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-2)',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+              <label
+                htmlFor="org"
+                style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
+              >
+                Organization
+              </label>
+              <input
+                id="org"
+                type="text"
+                required
+                disabled={isLoading}
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                className="form-input"
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-2)',
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+            <label
+              htmlFor="email"
+              style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
+            >
+              Work Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              disabled={isLoading}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form-input"
+              style={{
+                width: '100%',
+                padding: 'var(--space-2)',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+            <label
+              htmlFor="role"
+              style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
+            >
+              Demo Role
+            </label>
+            <select
+              id="role"
+              disabled={isLoading}
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{
+                width: '100%',
+                padding: 'var(--space-2)',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+              }}
+            >
+              <option value="FIFA Operations Manager">FIFA Operations Manager</option>
+              <option value="Incident Coordinator">Incident Coordinator</option>
+              <option value="Transport Lead">Transport Lead</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+            <label
+              htmlFor="password"
+              style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
+            >
+              Demo Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              disabled={isLoading}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="form-input"
+              style={{
+                width: '100%',
+                padding: 'var(--space-2)',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
+            <button
+              type="button"
+              onClick={() => router.push('/login')}
+              disabled={isLoading}
+              className="btn btn-outline"
+              style={{ flex: 1, padding: 'var(--space-2)' }}
+            >
+              Cancel
+            </button>
+            <PressFeedback scale={0.97}>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="btn btn-primary"
+                style={{ flex: 2, padding: 'var(--space-2)' }}
+              >
+                {isLoading ? 'Provisioning...' : 'Activate Demo Access'}
+              </button>
+            </PressFeedback>
+          </div>
+        </form>
+      </WarningShake>
+
+      {isTransitioning && <CinematicTransition />}
+    </>
+  );
+}

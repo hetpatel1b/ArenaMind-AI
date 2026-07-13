@@ -20,7 +20,7 @@ export interface RouteConfig {
 
 export type RouteHandler = (
   req: NextRequest,
-  context: { params?: Record<string, string>; bizContext: BusinessContext }
+  context: { params?: any; bizContext: BusinessContext }
 ) => Promise<NextResponse>;
 
 /**
@@ -35,10 +35,8 @@ export function createRouteHandler(
   handler: RouteHandler,
   config: RouteConfig = { requireAuth: true }
 ) {
-  return async (
-    req: NextRequest,
-    { params }: { params?: Record<string, string> }
-  ): Promise<NextResponse> => {
+  return async (req: NextRequest, context?: { params?: any }): Promise<NextResponse> => {
+    const params = context?.params;
     const correlationId = req.headers.get('x-correlation-id') || crypto.randomUUID();
 
     try {
