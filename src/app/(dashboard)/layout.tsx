@@ -5,6 +5,10 @@ import { PersistentAiPanel } from '@/app/components/dashboard/shell/PersistentAi
 import { ContextPanel } from '@/app/components/dashboard/shell/ContextPanel';
 import { CommandPalette } from '@/app/components/dashboard/shell/CommandPalette';
 import { StatusBar } from '@/app/components/dashboard/shell/StatusBar';
+import {
+  DashboardBootstrapper,
+  ShellComponentReveal,
+} from '@/app/components/dashboard/shell/DashboardBootstrapper';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,34 +23,45 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }}
     >
       <CommandPalette />
-      <TopCommandBar />
 
-      <div
-        style={{
-          display: 'flex',
-          flex: 1,
-          overflow: 'hidden',
-        }}
-      >
-        <LeftNavigation />
+      <DashboardBootstrapper>
+        <ShellComponentReveal>
+          <TopCommandBar />
+        </ShellComponentReveal>
 
-        <main
+        <div
           style={{
+            display: 'flex',
             flex: 1,
-            position: 'relative',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            backgroundColor: 'var(--bg-surface)',
+            overflow: 'hidden',
           }}
         >
-          {children}
-          <ContextPanel />
-        </main>
+          <ShellComponentReveal style={{ display: 'flex' }}>
+            <LeftNavigation />
+          </ShellComponentReveal>
 
-        <PersistentAiPanel />
-      </div>
+          <ShellComponentReveal
+            style={{
+              flex: 1,
+              position: 'relative',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              backgroundColor: 'var(--bg-surface)',
+            }}
+          >
+            {children}
+            <ContextPanel />
+          </ShellComponentReveal>
 
-      <StatusBar />
+          <ShellComponentReveal style={{ display: 'flex' }}>
+            <PersistentAiPanel />
+          </ShellComponentReveal>
+        </div>
+
+        <ShellComponentReveal>
+          <StatusBar />
+        </ShellComponentReveal>
+      </DashboardBootstrapper>
     </div>
   );
 }

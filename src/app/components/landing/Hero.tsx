@@ -1,4 +1,11 @@
+import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { PressFeedback } from '../motion/MicroInteractions';
+import { CinematicTransition } from '../motion/CinematicTransition';
+
 export function Hero() {
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   return (
     <section
       className="container flex-center"
@@ -54,14 +61,33 @@ export function Hero() {
         </p>
 
         <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
-          <button className="btn btn-primary" aria-label="Request a Demo">
-            Request Demo
-          </button>
-          <button className="btn btn-outline" aria-label="Explore Platform Features">
-            Explore Platform
+          <PressFeedback scale={0.95}>
+            <button
+              className="btn btn-primary"
+              aria-label="Launch Command Center"
+              onClick={() => setIsTransitioning(true)}
+              style={{
+                padding: 'var(--space-3) var(--space-8)',
+                fontSize: 'var(--text-lg)',
+                boxShadow: '0 0 20px rgba(100, 200, 255, 0.2)',
+              }}
+            >
+              Launch Command Center
+            </button>
+          </PressFeedback>
+          <button
+            className="btn btn-outline"
+            aria-label="Explore Platform Features"
+            style={{ padding: 'var(--space-3) var(--space-8)', fontSize: 'var(--text-lg)' }}
+          >
+            API Docs
           </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isTransitioning && <CinematicTransition onComplete={() => setIsTransitioning(false)} />}
+      </AnimatePresence>
     </section>
   );
 }
