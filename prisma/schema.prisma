@@ -1,0 +1,635 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions", "relationJoins"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [uuidOssp(map: "uuid-ossp"), pgcrypto, pgTrgm(map: "pg_trgm")]
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum UserRole {
+  operations_manager
+  deputy_manager
+  coordinator
+  read_only
+
+  @@map("user_role")
+}
+
+enum MatchPhase {
+  pre_event
+  gate_opening
+  fan_arrival
+  pre_kickoff
+  match_live
+  halftime
+  second_half
+  full_time
+  crowd_exit
+  post_event
+
+  @@map("match_phase")
+}
+
+enum MatchStatus {
+  scheduled
+  active
+  completed
+  cancelled
+
+  @@map("match_status")
+}
+
+enum IncidentStatus {
+  open
+  active
+  monitoring
+  resolved
+  closed
+
+  @@map("incident_status")
+}
+
+enum ResourceStatus {
+  available
+  deployed
+  incident_assigned
+  off_duty
+  unavailable
+
+  @@map("resource_status")
+}
+
+enum AIFeature {
+  operational_summary
+  incident_classify
+  incident_recommend
+  crowd_recommendations
+  resource_suggestions
+  shift_handover
+  executive_summary
+  routing_suggestions
+
+  @@map("ai_feature")
+}
+
+enum ActionTaken {
+  accepted
+  dismissed
+  expired
+  superseded
+
+  @@map("action_taken")
+}
+
+enum JobStatus {
+  pending
+  running
+  complete
+  failed
+  cancelled
+
+  @@map("job_status")
+}
+
+// ─────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────
+
+model Stadium {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name           String   @unique
+  shortName      String   @map("short_name")
+  city           String
+  country        String   @default("Qatar")
+  capacity       Int
+  latitude       Decimal? @db.Decimal(9, 6)
+  longitude      Decimal? @db.Decimal(9, 6)
+  timezone       String   @default("Asia/Riyadh")
+  zoneCount      Int      @default(0) @map("zone_count")
+  surfaceAreaSqm Int?     @map("surface_area_sqm")
+  metadata       Json     @default("{}")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  matches           Match[]
+  zones             Zone[]
+  users             User[]
+  resources         Resource[]
+  crowdData         CrowdData[]
+  aiRecommendations AiRecommendation[]
+  kpiSnapshots      KpiSnapshot[]
+  healthScores      HealthScore[]
+  reports           Report[]
+  systemSettings    SystemSetting[]
+  featureFlags      FeatureFlag[]
+  alertThresholds   AlertThreshold[]
+
+  @@map("stadiums")
+}
+
+model Zone {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId    String   @map("stadium_id") @db.Uuid
+  name         String
+  shortCode    String   @map("short_code")
+  capacity     Int
+  safeCapacity Int      @map("safe_capacity")
+  isActive     Boolean  @default(true) @map("is_active")
+  metadata     Json     @default("{}")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium           Stadium                @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  incidents         Incident[]
+  resources         Resource[]
+  crowdData         CrowdData[]
+  accessibilityReqs AccessibilityRequest[]
+
+  @@index([stadiumId])
+  @@map("zones")
+}
+
+model Match {
+  id                 String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId          String    @map("stadium_id") @db.Uuid
+  matchNumber        Int       @map("match_number")
+  homeTeam           String    @map("home_team")
+  awayTeam           String    @map("away_team")
+  scheduledAt        DateTime  @map("scheduled_at") @db.Timestamptz()
+  kickoffAt          DateTime? @map("kickoff_at") @db.Timestamptz()
+  endedAt            DateTime? @map("ended_at") @db.Timestamptz()
+  currentPhase       String    @default("pre_event") @map("current_phase")
+  matchStatus        String    @default("scheduled") @map("match_status")
+  expectedAttendance Int?      @map("expected_attendance")
+  actualAttendance   Int?      @map("actual_attendance")
+  weatherSummary     String?   @map("weather_summary")
+  notes              String?
+  metadata           Json      @default("{}")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium               Stadium                @relation(fields: [stadiumId], references: [id], onDelete: Restrict)
+  incidents             Incident[]
+  crowdData             CrowdData[]
+  queueData             QueueData[]
+  phaseTransitions      PhaseTransition[]
+  aiRecommendations     AiRecommendation[]
+  aiCallLogs            AiCallLog[]
+  kpiSnapshots          KpiSnapshot[]
+  healthScores          HealthScore[]
+  resources             Resource[]
+  reports               Report[]
+  accessibilityRequests AccessibilityRequest[]
+  weatherData           WeatherData[]
+
+  @@index([stadiumId])
+  @@index([matchStatus])
+  @@index([scheduledAt(sort: Desc)])
+  @@map("matches")
+}
+
+model User {
+  id          String    @id @db.Uuid
+  stadiumId   String    @map("stadium_id") @db.Uuid
+  fullName    String    @map("full_name")
+  role        String    @default("coordinator")
+  department  String?
+  phoneNumber String?   @map("phone_number")
+  employeeId  String?   @unique @map("employee_id")
+  isActive    Boolean   @default(true) @map("is_active")
+  lastSeenAt  DateTime? @map("last_seen_at") @db.Timestamptz()
+  preferences Json      @default("{}")
+  metadata    Json      @default("{}")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium                Stadium            @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  reportedIncidents      Incident[]         @relation("ReportedBy")
+  assignedIncidents      Incident[]         @relation("AssignedTo")
+  resolvedIncidents      Incident[]         @relation("ResolvedBy")
+  incidentActions        IncidentAction[]
+  phaseTransitions       PhaseTransition[]
+  aiRecommendationsActed AiRecommendation[] @relation("ActedBy")
+  reports                Report[]
+  notifications          Notification[]
+  activityLogs           ActivityLog[]
+  aiFeedback             AiFeedback[]
+
+  @@index([stadiumId])
+  @@index([stadiumId, role])
+  @@map("users")
+}
+
+model IncidentType {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String
+  description String?
+  defaultTier Int      @map("default_tier")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  incidents Incident[]
+
+  @@map("incident_types")
+}
+
+model Incident {
+  id             String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId        String  @map("match_id") @db.Uuid
+  stadiumId      String  @map("stadium_id") @db.Uuid
+  zoneId         String? @map("zone_id") @db.Uuid
+  incidentTypeId String? @map("incident_type_id") @db.Uuid
+  reportedBy     String  @map("reported_by") @db.Uuid
+  assignedTo     String? @map("assigned_to") @db.Uuid
+
+  title          String
+  description    String
+  locationDetail String? @map("location_detail")
+  severityTier   Int     @default(4) @map("severity_tier")
+  status         String  @default("open")
+
+  aiType             String?   @map("ai_type")
+  aiTier             Int?      @map("ai_tier")
+  aiConfidence       Decimal?  @map("ai_confidence") @db.Decimal(4, 3)
+  aiClassificationAt DateTime? @map("ai_classification_at") @db.Timestamptz()
+  humanOverrideType  String?   @map("human_override_type")
+
+  resolvedAt      DateTime? @map("resolved_at") @db.Timestamptz()
+  resolvedBy      String?   @map("resolved_by") @db.Uuid
+  resolutionNotes String?   @map("resolution_notes")
+
+  tags      String[]  @default([])
+  metadata  Json      @default("{}")
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz()
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  match             Match                @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  zone              Zone?                @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  incidentType      IncidentType?        @relation(fields: [incidentTypeId], references: [id], onDelete: SetNull)
+  reporter          User                 @relation("ReportedBy", fields: [reportedBy], references: [id], onDelete: Restrict)
+  assignee          User?                @relation("AssignedTo", fields: [assignedTo], references: [id], onDelete: SetNull)
+  resolvedByUser    User?                @relation("ResolvedBy", fields: [resolvedBy], references: [id], onDelete: SetNull)
+  actions           IncidentAction[]
+  attachments       IncidentAttachment[]
+  aiRecommendations AiRecommendation[]
+
+  @@index([matchId])
+  @@index([stadiumId])
+  @@index([matchId, status])
+  @@index([matchId, severityTier])
+  @@map("incidents")
+}
+
+model AiRecommendation {
+  id         String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId    String  @map("match_id") @db.Uuid
+  stadiumId  String  @map("stadium_id") @db.Uuid
+  incidentId String? @map("incident_id") @db.Uuid
+
+  featureName   String @map("feature_name")
+  modelName     String @map("model_name")
+  promptVersion String @map("prompt_version")
+
+  data                   Json
+  confidenceScore        Decimal? @map("confidence_score") @db.Decimal(4, 3)
+  hallucinationDetected  Boolean  @default(false) @map("hallucination_detected")
+  outputValidationPassed Boolean  @default(true) @map("output_validation_passed")
+
+  actionTaken    String?   @map("action_taken")
+  actedBy        String?   @map("acted_by") @db.Uuid
+  actedAt        DateTime? @map("acted_at") @db.Timestamptz()
+  dismissReason  String?   @map("dismiss_reason")
+  feedbackRating Int?      @map("feedback_rating")
+
+  expiresAt DateTime @map("expires_at") @db.Timestamptz()
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  match       Match        @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  stadium     Stadium      @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  actedByUser User?        @relation("ActedBy", fields: [actedBy], references: [id], onDelete: SetNull)
+  incident    Incident?    @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+  feedback    AiFeedback[]
+
+  @@index([matchId, featureName])
+  @@index([matchId, actionTaken])
+  @@map("ai_recommendations")
+}
+
+model ResourceType {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  resources Resource[]
+
+  @@map("resource_types")
+}
+
+model Resource {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId      String    @map("stadium_id") @db.Uuid
+  matchId        String?   @map("match_id") @db.Uuid
+  zoneId         String?   @map("zone_id") @db.Uuid
+  resourceTypeId String    @map("resource_type_id") @db.Uuid
+  name           String
+  status         String    @default("available")
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz()
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium      Stadium      @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  match        Match?       @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  zone         Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  resourceType ResourceType @relation(fields: [resourceTypeId], references: [id], onDelete: Restrict)
+
+  @@index([matchId, zoneId, resourceTypeId])
+  @@index([matchId, status, zoneId, resourceTypeId])
+  @@map("resources")
+}
+
+model CrowdData {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId      String   @map("match_id") @db.Uuid
+  stadiumId    String   @map("stadium_id") @db.Uuid
+  zoneId       String   @map("zone_id") @db.Uuid
+  fanCount     Int      @map("fan_count")
+  safeCapacity Int      @map("safe_capacity")
+  densityPct   Decimal  @map("density_pct") @db.Decimal(5, 2)
+  ingressRate  Int?     @map("ingress_rate")
+  egressRate   Int?     @map("egress_rate")
+  recordedAt   DateTime @default(now()) @map("recorded_at") @db.Timestamptz()
+
+  match   Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  stadium Stadium @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  zone    Zone    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, zoneId, recordedAt(sort: Desc)])
+  @@map("crowd_data")
+}
+
+model KpiSnapshot {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId            String   @map("match_id") @db.Uuid
+  stadiumId          String   @map("stadium_id") @db.Uuid
+  phase              String
+  openIncidents      Int      @default(0) @map("open_incidents")
+  tier1Incidents     Int      @default(0) @map("tier1_incidents")
+  resolvedIncidents  Int      @default(0) @map("resolved_incidents")
+  avgCrowdDensityPct Decimal  @map("avg_crowd_density_pct") @db.Decimal(5, 2)
+  zonesAboveAlert    Int      @default(0) @map("zones_above_alert")
+  resourcesDeployed  Int      @default(0) @map("resources_deployed")
+  resourcesAvailable Int      @default(0) @map("resources_available")
+  healthScore        Int      @default(100) @map("health_score")
+  capturedAt         DateTime @default(now()) @map("captured_at") @db.Timestamptz()
+
+  match   Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  stadium Stadium @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, capturedAt(sort: Desc)])
+  @@map("kpi_snapshots")
+}
+
+model HealthScore {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId       String   @map("match_id") @db.Uuid
+  stadiumId     String   @map("stadium_id") @db.Uuid
+  score         Int
+  incidentScore Int      @map("incident_score")
+  crowdScore    Int      @map("crowd_score")
+  resourceScore Int      @map("resource_score")
+  capturedAt    DateTime @default(now()) @map("captured_at") @db.Timestamptz()
+
+  match   Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  stadium Stadium @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@index([matchId, capturedAt(sort: Desc)])
+  @@map("health_scores")
+}
+
+model PhaseTransition {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId     String   @map("match_id") @db.Uuid
+  fromPhase   String   @map("from_phase")
+  toPhase     String   @map("to_phase")
+  initiatedBy String   @map("initiated_by") @db.Uuid
+  timestamp   DateTime @default(now()) @db.Timestamptz()
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [initiatedBy], references: [id], onDelete: Restrict)
+
+  @@map("phase_transitions")
+}
+
+model AccessibilityRequest {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId     String    @map("match_id") @db.Uuid
+  zoneId      String?   @map("zone_id") @db.Uuid
+  requestType String    @map("request_type")
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  zone  Zone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+
+  @@map("accessibility_requests")
+}
+
+model WeatherData {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId          String   @map("match_id") @db.Uuid
+  temperatureC     Decimal  @map("temperature_c") @db.Decimal(4, 1)
+  feelsLikeC       Decimal  @map("feels_like_c") @db.Decimal(4, 1)
+  weatherCondition String   @map("weather_condition")
+  recordedAt       DateTime @default(now()) @map("recorded_at") @db.Timestamptz()
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("weather_data")
+}
+
+model AiCallLog {
+  id                    String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId               String?  @map("match_id") @db.Uuid
+  featureName           String   @map("feature_name")
+  modelName             String   @map("model_name")
+  promptVersion         String   @map("prompt_version")
+  success               Boolean
+  latencyMs             Int      @map("latency_ms")
+  promptTokens          Int?     @map("prompt_tokens")
+  outputTokens          Int?     @map("output_tokens")
+  hallucinationDetected Boolean  @default(false) @map("hallucination_detected")
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  match Match? @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@index([featureName, latencyMs(sort: Desc), createdAt(sort: Desc)])
+  @@map("ai_call_logs")
+}
+
+model JobQueue {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  priority      Int       @default(0)
+  runAt         DateTime  @map("run_at") @db.Timestamptz()
+  status        String    @default("pending")
+  lockedBy      String?   @map("locked_by") @db.Uuid
+  lockedAt      DateTime? @map("locked_at") @db.Timestamptz()
+  lockExpiresAt DateTime? @map("lock_expires_at") @db.Timestamptz()
+  attempts      Int       @default(0)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@index([priority(sort: Desc), runAt(sort: Asc)])
+  @@map("job_queue")
+}
+
+model Report {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId   String   @map("stadium_id") @db.Uuid
+  matchId     String?  @map("match_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  type        String
+  generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz()
+
+  stadium Stadium @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+  match   Match?  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("reports")
+}
+
+model SystemSetting {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId String?  @map("stadium_id") @db.Uuid
+  key       String
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium Stadium? @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@map("system_settings")
+}
+
+model FeatureFlag {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId String?  @map("stadium_id") @db.Uuid
+  key       String
+  isEnabled Boolean  @default(false) @map("is_enabled")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium Stadium? @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@map("feature_flags")
+}
+
+model AlertThreshold {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  stadiumId      String?  @map("stadium_id") @db.Uuid
+  metric         String
+  thresholdValue Decimal  @map("threshold_value")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  stadium Stadium? @relation(fields: [stadiumId], references: [id], onDelete: Cascade)
+
+  @@map("alert_thresholds")
+}
+
+model QueueData {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  matchId   String   @map("match_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("queue_data")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  matchId   String?  @map("match_id") @db.Uuid
+  type      String
+  title     String
+  body      String
+  data      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model AiFeedback {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  aiRecommendationId String   @map("ai_recommendation_id") @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  aiRecommendation AiRecommendation @relation(fields: [aiRecommendationId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("ai_feedback")
+}
+
+model IncidentAction {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  incidentId String   @map("incident_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@map("incident_actions")
+}
+
+model IncidentAttachment {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  incidentId String   @map("incident_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("incident_attachments")
+}
+
+model RateLimit {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  windowEnd DateTime @map("window_end") @db.Timestamptz()
+
+  @@map("rate_limits")
+}
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  recordId  String   @map("record_id") @db.Uuid
+  action    String
+  timestamp DateTime @default(now()) @db.Timestamptz()
+
+  @@map("audit_logs")
+}
