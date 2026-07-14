@@ -7,19 +7,24 @@ import { CoreCapabilities } from './components/landing/CoreCapabilities';
 import { Technology } from './components/landing/Technology';
 import { Metrics } from './components/landing/Metrics';
 import { Footer } from './components/landing/Footer';
+import { StartupProvider } from './components/startup/StartupProvider';
+import { StartupOverlay } from './components/startup/StartupOverlay';
 
 export default function Home() {
   return (
-    <main>
-      <Hero />
-      <Problem />
-      <Solution />
-      <CommandCenterPreview />
-      <AiWorkflow />
-      <CoreCapabilities />
-      <Technology />
-      <Metrics />
-      <Footer />
-    </main>
+    <StartupProvider>
+      <StartupOverlay />
+      <main>
+        <Hero />
+        <Problem />
+        <Solution />
+        <CommandCenterPreview />
+        <AiWorkflow />
+        <CoreCapabilities />
+        <Technology />
+        <Metrics />
+        <Footer />
+      </main>
+    </StartupProvider>
   );
 }
