@@ -12,29 +12,8 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
   const teams = resources.slice(0, 10);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-4)',
-        padding: 'var(--space-4)',
-        borderRadius: 'var(--radius-xl)',
-        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        height: '100%',
-        minHeight: '350px',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          paddingBottom: 'var(--space-2)',
-        }}
-      >
+    <div className="glass-panel" style={{ minHeight: '350px' }}>
+      <div className="glass-panel-header">
         <h3
           style={{
             fontSize: 'var(--text-md)',
@@ -45,28 +24,19 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
         >
           Active Units Status
         </h3>
-        <span
-          style={{
-            fontSize: '10px',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            color: 'var(--text-tertiary)',
-            padding: '2px 6px',
-            borderRadius: '4px',
-          }}
-        >
-          Live Tracking
-        </span>
+        <span className="badge badge-live">Live Tracking</span>
       </div>
 
       <div
+        className="flex-col"
         style={{
           flex: 1,
           overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
           gap: 'var(--space-2)',
           paddingRight: '4px',
         }}
+        role="feed"
+        aria-label="Active Units Feed"
       >
         {teams.map((team) => {
           let statusColor = 'var(--status-success)'; // available
@@ -85,7 +55,7 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
           const isFatigued = fatigueLevel > 75;
 
           return (
-            <div
+            <article
               key={team.id}
               style={{
                 display: 'grid',
@@ -97,8 +67,9 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
                 borderRadius: 'var(--radius-md)',
                 borderLeft: `2px solid ${statusColor}`,
               }}
+              aria-label={`${team.name} status: ${team.status.replace('_', ' ')}`}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <div className="flex-col" style={{ gap: '2px' }}>
                 <span
                   style={{
                     fontSize: 'var(--text-sm)',
@@ -109,46 +80,33 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
                   {team.name}
                 </span>
                 <span
-                  style={{
-                    fontSize: '10px',
-                    color: 'var(--text-tertiary)',
-                    textTransform: 'capitalize',
-                  }}
+                  className="text-subtle"
+                  style={{ fontSize: '10px', textTransform: 'capitalize' }}
                 >
                   {team.zone?.name || 'Mobile'} • {team.status.replace('_', ' ')}
                 </span>
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                  alignItems: 'center',
-                }}
-              >
+              <div className="flex-col" style={{ gap: '2px', alignItems: 'center' }}>
                 <span
-                  style={{
-                    fontSize: '10px',
-                    color: 'var(--text-tertiary)',
-                    textTransform: 'uppercase',
-                  }}
+                  className="text-subtle"
+                  style={{ fontSize: '10px', textTransform: 'uppercase' }}
                 >
                   Fatigue
                 </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div className="flex-between" style={{ gap: '4px' }}>
                   <div
-                    style={{
-                      width: '32px',
-                      height: '4px',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      borderRadius: '2px',
-                      overflow: 'hidden',
-                    }}
+                    className="progress-track"
+                    style={{ width: '32px' }}
+                    role="progressbar"
+                    aria-valuenow={fatigueLevel}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${team.name} fatigue level`}
                   >
                     <div
+                      className="progress-fill"
                       style={{
-                        height: '100%',
                         width: `${fatigueLevel}%`,
                         backgroundColor: isFatigued ? 'var(--status-critical)' : 'var(--ai-accent)',
                       }}
@@ -159,28 +117,19 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
                       fontSize: '10px',
                       color: isFatigued ? 'var(--status-critical)' : 'var(--text-secondary)',
                     }}
+                    aria-hidden="true"
                   >
                     {fatigueLevel}%
                   </span>
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                  alignItems: 'flex-end',
-                }}
-              >
+              <div className="flex-col" style={{ gap: '2px', alignItems: 'flex-end' }}>
                 {team.status === 'deployed' ? (
                   <>
                     <span
-                      style={{
-                        fontSize: '10px',
-                        color: 'var(--text-tertiary)',
-                        textTransform: 'uppercase',
-                      }}
+                      className="text-subtle"
+                      style={{ fontSize: '10px', textTransform: 'uppercase' }}
                     >
                       ETA
                     </span>
@@ -197,21 +146,18 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
                 ) : (
                   <>
                     <span
-                      style={{
-                        fontSize: '10px',
-                        color: 'var(--text-tertiary)',
-                        textTransform: 'uppercase',
-                      }}
+                      className="text-subtle"
+                      style={{ fontSize: '10px', textTransform: 'uppercase' }}
                     >
                       Shift
                     </span>
-                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+                    <span className="text-muted" style={{ fontSize: 'var(--text-xs)' }}>
                       08:00 - 16:00
                     </span>
                   </>
                 )}
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

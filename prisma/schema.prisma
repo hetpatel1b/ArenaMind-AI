@@ -70,8 +70,8 @@ model Match {
   scheduledAt           DateTime               @map("scheduled_at") @db.Timestamptz(6)
   kickoffAt             DateTime?              @map("kickoff_at") @db.Timestamptz(6)
   endedAt               DateTime?              @map("ended_at") @db.Timestamptz(6)
-  currentPhase          String                 @default("pre_event") @map("current_phase")
-  matchStatus           String                 @default("scheduled") @map("match_status")
+  currentPhase          MatchPhase             @default(pre_event) @map("current_phase")
+  matchStatus           MatchStatus            @default(scheduled) @map("match_status")
   expectedAttendance    Int?                   @map("expected_attendance")
   actualAttendance      Int?                   @map("actual_attendance")
   weatherSummary        String?                @map("weather_summary")
@@ -103,7 +103,7 @@ model User {
   id                     String             @id @db.Uuid
   stadiumId              String             @map("stadium_id") @db.Uuid
   fullName               String             @map("full_name")
-  role                   String             @default("coordinator")
+  role                   UserRole           @default(coordinator)
   department             String?
   phoneNumber            String?            @map("phone_number")
   employeeId             String?            @unique @map("employee_id")
@@ -114,6 +114,7 @@ model User {
   createdAt              DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt              DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
   activityLogs           ActivityLog[]
+  auditLogs              AuditLog[]
   aiFeedback             AiFeedback[]
   aiRecommendationsActed AiRecommendation[] @relation("ActedBy")
   incidentActions        IncidentAction[]
@@ -154,7 +155,7 @@ model Incident {
   description        String
   locationDetail     String?              @map("location_detail")
   severityTier       Int                  @default(4) @map("severity_tier")
-  status             String               @default("open")
+  status             IncidentStatus       @default(open)
   aiType             String?              @map("ai_type")
   aiTier             Int?                 @map("ai_tier")
   aiConfidence       Decimal?             @map("ai_confidence") @db.Decimal(4, 3)
@@ -197,7 +198,7 @@ model AiRecommendation {
   confidenceScore        Decimal?     @map("confidence_score") @db.Decimal(4, 3)
   hallucinationDetected  Boolean      @default(false) @map("hallucination_detected")
   outputValidationPassed Boolean      @default(true) @map("output_validation_passed")
-  actionTaken            String?      @map("action_taken")
+  actionTaken            ActionTaken? @map("action_taken")
   actedBy                String?      @map("acted_by") @db.Uuid
   actedAt                DateTime?    @map("acted_at") @db.Timestamptz(6)
   dismissReason          String?      @map("dismiss_reason")
@@ -233,7 +234,7 @@ model Resource {
   zoneId         String?      @map("zone_id") @db.Uuid
   resourceTypeId String       @map("resource_type_id") @db.Uuid
   name           String
-  status         String       @default("available")
+  status         ResourceStatus @default(available)
   deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -313,6 +314,7 @@ model PhaseTransition {
   user        User     @relation(fields: [initiatedBy], references: [id])
   match       Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
+  @@index([matchId])
   @@map("phase_transitions")
 }
 
@@ -366,7 +368,7 @@ model JobQueue {
   id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   priority      Int       @default(0)
   runAt         DateTime  @map("run_at") @db.Timestamptz(6)
-  status        String    @default("pending")
+  status        JobStatus @default(pending)
   lockedBy      String?   @map("locked_by") @db.Uuid
   lockedAt      DateTime? @map("locked_at") @db.Timestamptz(6)
   lockExpiresAt DateTime? @map("lock_expires_at") @db.Timestamptz(6)
@@ -468,6 +470,8 @@ model AiFeedback {
   aiRecommendation   AiRecommendation @relation(fields: [aiRecommendationId], references: [id], onDelete: Cascade)
   user               User             @relation(fields: [userId], references: [id])
 
+  @@index([aiRecommendationId])
+  @@index([userId])
   @@map("ai_feedback")
 }
 
@@ -488,12 +492,15 @@ model IncidentAttachment {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
+  @@index([incidentId])
   @@map("incident_attachments")
 }
 
 model RateLimit {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  windowEnd DateTime @map("window_end") @db.Timestamptz(6)
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  identifier   String
+  requestCount Int      @default(0) @map("request_count")
+  windowEnd    DateTime @map("window_end") @db.Timestamptz(6)
 
   @@map("rate_limits")
 }
@@ -501,8 +508,13 @@ model RateLimit {
 model AuditLog {
   id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   recordId  String   @map("record_id") @db.Uuid
+  tableName String   @map("table_name")
+  userId    String?  @map("user_id") @db.Uuid
   action    String
+  oldData   Json?    @map("old_data")
+  newData   Json?    @map("new_data")
   timestamp DateTime @default(now()) @db.Timestamptz(6)
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
 }

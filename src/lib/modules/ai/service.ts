@@ -29,10 +29,15 @@ export class AiService extends BaseService {
         // 2. Orchestrate Prompts
         const systemPrompt = promptOrchestrator.getSystemPrompt(feature);
         const userPrompt = promptOrchestrator.buildUserPrompt(contextData);
+        const schemaDef = promptOrchestrator.getSchema(feature);
 
         // 3. Call Gemini
         const chatSession = geminiModel.startChat({
           systemInstruction: systemPrompt,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            responseSchema: schemaDef.geminiSchema,
+          },
         });
 
         const result = await chatSession.sendMessage(userPrompt);
@@ -47,16 +52,19 @@ export class AiService extends BaseService {
           .replace(/```json/g, '')
           .replace(/```/g, '')
           .trim();
-        const data = JSON.parse(sanitizedText);
+        const rawData = JSON.parse(sanitizedText);
+
+        // Strict Zod Validation (LLM02 Fix)
+        const data = schemaDef.zodSchema.parse(rawData);
 
         success = true;
 
-        // Extract confidence from output if present
+        // Extract confidence from output safely
         let confidenceScore = 100;
-        if (Array.isArray(data) && data[0] && typeof data[0].confidence === 'number') {
+        if (Array.isArray(data) && data.length > 0 && typeof data[0].confidence === 'number') {
           confidenceScore = data[0].confidence;
-        } else if (data.confidence && typeof data.confidence === 'number') {
-          confidenceScore = data.confidence;
+        } else if (data && typeof (data as any).confidence === 'number') {
+          confidenceScore = (data as any).confidence;
         }
 
         // 4. Save to Repository
@@ -66,7 +74,7 @@ export class AiService extends BaseService {
           featureName: feature,
           modelName: 'gemini-2.0-flash',
           promptVersion: 'v1.0',
-          data: data,
+          data: data as any,
           confidenceScore,
           expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours expiry
         });

@@ -59,20 +59,7 @@ export function AiExecutiveSummary({
   const healthColor = isHealthy ? 'var(--status-success)' : 'var(--status-warning)';
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-4)',
-        padding: 'var(--space-6)',
-        borderRadius: 'var(--radius-xl)',
-        backgroundColor: 'rgba(255, 255, 255, 0.02)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="glass-panel" style={{ padding: 'var(--space-6)' }}>
       {/* Decorative gradient for intelligence styling */}
       <div
         style={{
@@ -87,6 +74,7 @@ export function AiExecutiveSummary({
           transform: 'translate(30%, -30%)',
           pointerEvents: 'none',
         }}
+        aria-hidden="true"
       />
 
       <header
@@ -106,21 +94,8 @@ export function AiExecutiveSummary({
               marginBottom: 'var(--space-2)',
             }}
           >
-            <span
-              style={{
-                backgroundColor: 'rgba(10, 132, 255, 0.1)',
-                color: 'var(--ai-accent)',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              Executive Summary
-            </span>
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
+            <span className="badge badge-ai">Executive Summary</span>
+            <span className="text-subtle" style={{ fontSize: 'var(--text-sm)' }}>
               {matchData.stadium.name}
             </span>
           </div>
@@ -154,6 +129,7 @@ export function AiExecutiveSummary({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
+                aria-hidden="true"
               >
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
@@ -171,6 +147,7 @@ export function AiExecutiveSummary({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
+                aria-hidden="true"
               >
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
@@ -192,6 +169,7 @@ export function AiExecutiveSummary({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
+                aria-hidden="true"
               >
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
@@ -201,7 +179,7 @@ export function AiExecutiveSummary({
         </div>
 
         <div style={{ display: 'flex', gap: 'var(--space-4)', textAlign: 'right' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="flex-col">
             <span
               style={{
                 fontSize: 'var(--text-xs)',
@@ -221,7 +199,7 @@ export function AiExecutiveSummary({
               Avg: {reportingPayload.incidentSummary.avgResponseTime}
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="flex-col">
             <span
               style={{
                 fontSize: 'var(--text-xs)',
@@ -279,6 +257,7 @@ export function AiExecutiveSummary({
                 fill="none"
                 stroke="var(--ai-accent)"
                 strokeWidth="2"
+                aria-hidden="true"
               >
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
@@ -294,18 +273,12 @@ export function AiExecutiveSummary({
               >
                 AI Post-Match Assessment & Recommendation
                 <button
+                  className="btn btn-outline"
                   onClick={generateSummary}
                   disabled={loading}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: '1px solid var(--ai-accent)',
-                    color: 'var(--ai-accent)',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontSize: '10px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.7 : 1,
-                  }}
+                  aria-label={loading ? 'Generating AI Summary' : 'Regenerate AI Summary'}
+                  aria-busy={loading}
+                  style={{ padding: '2px 8px', fontSize: '10px' }}
                 >
                   {loading ? 'Generating...' : 'Regenerate'}
                 </button>
@@ -348,14 +321,7 @@ export function AiExecutiveSummary({
           </div>
 
           {(recommendation.data?.humanApprovalRequired || !recommendation.actionTaken) && (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--space-2)',
-                alignItems: 'center',
-              }}
-            >
+            <div className="flex-col" style={{ gap: 'var(--space-2)', alignItems: 'center' }}>
               <span
                 style={{
                   fontSize: '10px',
@@ -368,6 +334,8 @@ export function AiExecutiveSummary({
                 Human Approval Required
               </span>
               <button
+                className="btn-ai-action"
+                aria-label="Approve AI Protocol"
                 onClick={async () => {
                   try {
                     await fetch(
@@ -381,20 +349,6 @@ export function AiExecutiveSummary({
                     setRecommendation({ ...recommendation, actionTaken: 'accepted' });
                   } catch (e) {}
                 }}
-                style={{
-                  backgroundColor: 'var(--ai-accent)',
-                  color: '#000',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  transition: 'opacity 0.2s',
-                  width: '100%',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.opacity = '0.9')}
-                onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
               >
                 Approve Protocol
               </button>

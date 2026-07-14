@@ -1,15 +1,18 @@
 import { BaseService } from '@/lib/services/base.service';
 import { BusinessContext } from '@/lib/services/business.context';
-import { incidentRepository } from './repository';
 import { toIncidentDto } from './mapper';
 import { IncidentDto, CreateIncidentDto, UpdateIncidentDto } from './dto';
 import { NotFoundError, ValidationError } from '@/lib/errors/http.errors';
 import { QueryParamsDTO, extractAllowedFilters } from '@/lib/api/dto';
 import { PaginatedResult } from '@/types/api.types';
-import { prisma } from '@/lib/db/client';
+import { IIncidentRepository } from '@/lib/domain/repositories/incident.repository.interface';
+import { IMatchRepository } from '@/lib/domain/repositories/match.repository.interface';
 
 export class IncidentService extends BaseService {
-  constructor() {
+  constructor(
+    private readonly incidentRepository: IIncidentRepository,
+    private readonly matchRepository: IMatchRepository
+  ) {
     super('IncidentService');
   }
 
@@ -19,7 +22,7 @@ export class IncidentService extends BaseService {
     incidentId: string
   ): Promise<IncidentDto> {
     return this.execute('getIncidentById', ctx, async () => {
-      const incident = await incidentRepository.findById(incidentId);
+      const incident = await this.incidentRepository.findById(incidentId);
       if (!incident || incident.matchId !== matchId) {
         throw new NotFoundError(`Incident with ID ${incidentId} not found`);
       }
@@ -36,14 +39,12 @@ export class IncidentService extends BaseService {
     query: QueryParamsDTO
   ): Promise<PaginatedResult<IncidentDto>> {
     return this.execute('listMatchIncidents', ctx, async () => {
-      // Safe query validation and extraction using shared utility
       const userFilters = extractAllowedFilters(
         query.filters,
         ['status', 'severityTier', 'zoneId', 'reportedBy', 'incidentTypeId'],
         { severityTier: (val) => parseInt(String(val), 10) }
       );
 
-      // Add full-text search (case-insensitive partial matching)
       if (query.search?.query) {
         userFilters.OR = [
           { title: { contains: query.search.query, mode: 'insensitive' } },
@@ -57,7 +58,7 @@ export class IncidentService extends BaseService {
         ...userFilters,
       };
 
-      const { data, meta } = await incidentRepository.findAll({
+      const { data, meta } = await this.incidentRepository.findAll({
         filter,
         pagination: query.pagination,
         sort: query.sort,
@@ -78,40 +79,16 @@ export class IncidentService extends BaseService {
     return this.execute('createIncident', ctx, async () => {
       if (!ctx.userId) throw new Error('User ID required to create incident');
 
-      // Verify Match exists and belongs to the active tenant
-      const match = await prisma.match.findUnique({ where: { id: matchId } });
+      const match = await this.matchRepository.findById(matchId);
       if (!match) throw new NotFoundError('Match not found');
       this.enforceTenantIsolation(ctx, match.stadiumId);
 
-      // Perform a transaction to create the incident and its first audit action
-      const incident = await prisma.$transaction(async (tx) => {
-        const newIncident = await tx.incident.create({
-          data: {
-            matchId,
-            stadiumId: match.stadiumId,
-            reportedBy: ctx.userId!,
-            title: payload.title,
-            description: payload.description,
-            zoneId: payload.zoneId,
-            incidentTypeId: payload.incidentTypeId,
-            locationDetail: payload.locationDetail,
-            severityTier: payload.severityTier,
-            tags: payload.tags,
-            status: 'open',
-          },
-        });
-
-        await tx.incidentAction.create({
-          data: {
-            incidentId: newIncident.id,
-            userId: ctx.userId!,
-            // Since we can't add an arbitrary 'action' column string without updating Prisma schema,
-            // the IncidentAction table natively records that an action occurred via its presence.
-          },
-        });
-
-        return newIncident;
-      });
+      const incident = await this.incidentRepository.createIncidentWithAction(
+        matchId,
+        match.stadiumId,
+        ctx.userId,
+        payload
+      );
 
       return toIncidentDto(incident);
     });
@@ -126,45 +103,28 @@ export class IncidentService extends BaseService {
     return this.execute('updateIncident', ctx, async () => {
       if (!ctx.userId) throw new Error('User ID required to update incident');
 
-      // Validate existence and tenant
-      const existing = await incidentRepository.findById(incidentId);
+      const existing = await this.incidentRepository.findById(incidentId);
       if (!existing || existing.matchId !== matchId) {
         throw new NotFoundError('Incident not found');
       }
       this.enforceTenantIsolation(ctx, existing.stadiumId);
 
-      // Protect resolved incidents from casual updates unless explicitly reopening
       if (['resolved', 'closed'].includes(existing.status) && !payload.status) {
         throw new ValidationError('Cannot modify a resolved incident without reopening it.');
       }
 
-      // Prepare updates
-      const updateData: any = { ...payload };
-      if (payload.status === 'resolved' || payload.status === 'closed') {
-        updateData.resolvedAt = new Date();
-        updateData.resolvedBy = ctx.userId;
-      }
-
-      const updated = await prisma.$transaction(async (tx) => {
-        const result = await tx.incident.update({
-          where: { id: incidentId },
-          data: updateData,
-        });
-
-        // Audit log
-        await tx.incidentAction.create({
-          data: {
-            incidentId: result.id,
-            userId: ctx.userId!,
-          },
-        });
-
-        return result;
-      });
+      const updated = await this.incidentRepository.updateIncidentWithAction(
+        incidentId,
+        ctx.userId,
+        payload
+      );
 
       return toIncidentDto(updated);
     });
   }
 }
 
-export const incidentService = new IncidentService();
+// Temporary export for backward compatibility during refactoring
+import { incidentRepository } from './repository';
+import { matchRepository } from '../matches/repository';
+export const incidentService = new IncidentService(incidentRepository, matchRepository);
