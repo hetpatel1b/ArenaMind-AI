@@ -97,21 +97,39 @@ export function StoryAiReasoning() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 0 30px rgba(100, 150, 255, 0.2)',
           }}
         >
           {!shouldReduceMotion && (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-              style={{
-                position: 'absolute',
-                inset: '-10px',
-                border: '1px dashed rgba(100, 150, 255, 0.3)',
-                borderRadius: '50%',
-              }}
-            />
+            <>
+              {/* Data Flow Ring */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                style={{
+                  position: 'absolute',
+                  inset: '-10px',
+                  border: '1px dashed rgba(100, 150, 255, 0.3)',
+                  borderRadius: '50%',
+                }}
+              />
+              {/* Organic Pulse/Thinking Indicator */}
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundColor: 'rgba(100, 150, 255, 0.2)',
+                  borderRadius: '50%',
+                  filter: 'blur(10px)',
+                }}
+              />
+            </>
           )}
-          <span style={{ color: '#fff', fontWeight: 'bold' }}>AI CORE</span>
+          <span style={{ color: '#fff', fontWeight: 'bold', position: 'relative', zIndex: 1 }}>
+            AI CORE
+          </span>
         </motion.div>
 
         {/* Output Action - Replaced with Real Components */}

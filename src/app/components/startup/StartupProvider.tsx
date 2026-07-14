@@ -23,11 +23,10 @@ export function StartupProvider({ children }: { children: React.ReactNode }) {
       return () => clearTimeout(timer);
     }
 
-    // The startup experience lasts 2.3 - 3.0 seconds.
-    // We'll set the complete flag at 2.8s to trigger the fade out.
+    // The startup experience lasts exactly 2.0 seconds.
     const timer = setTimeout(() => {
       setIsStartupComplete(true);
-    }, 2800);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [shouldReduceMotion]);

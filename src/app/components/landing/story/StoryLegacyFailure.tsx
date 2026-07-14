@@ -28,6 +28,7 @@ export function StoryLegacyFailure() {
           flexWrap: 'wrap',
           gap: '64px',
           alignItems: 'center',
+          flexDirection: 'row-reverse',
         }}
       >
         <div style={{ flex: '1 1 400px' }}>

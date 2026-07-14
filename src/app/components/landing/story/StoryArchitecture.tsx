@@ -115,6 +115,37 @@ export function StoryArchitecture() {
             <span style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 600 }}>
               {layer.name}
             </span>
+
+            {/* Task 9: Animated Data Packets (Upward Flow) */}
+            {!shouldReduceMotion && i < LAYERS.length - 1 && (
+              <motion.div
+                animate={{
+                  y: [0, -100],
+                  opacity: [0, 1, 0],
+                  scale: [1, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: 'easeIn',
+                  delay: i * 0.5,
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '-40px', // Start above current layer
+                  left: '50%',
+                  width: '4px',
+                  height: '20px',
+                  marginLeft: '-2px',
+                  background: `linear-gradient(to top, transparent, ${layer.color})`,
+                  borderRadius: '2px',
+                  boxShadow: `0 0 10px ${layer.color}`,
+                  // Rotate to stand up in the 3D space
+                  transformOrigin: 'bottom',
+                  rotateX: -60,
+                }}
+              />
+            )}
           </motion.div>
         ))}
       </div>

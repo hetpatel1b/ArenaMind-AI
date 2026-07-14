@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
+import { MagneticHover, DynamicGlassBorder } from '../../motion/MicroInteractions';
 
 export function HeroContent() {
   const router = useRouter();
@@ -78,10 +79,10 @@ export function HeroContent() {
       <motion.h1
         variants={itemVariants}
         style={{
-          fontSize: 'clamp(3rem, 6vw, 5rem)',
+          fontSize: 'clamp(3rem, 6vw, 5.5rem)', // Slightly larger
           fontWeight: 700,
-          lineHeight: 1.1,
-          letterSpacing: '-0.02em',
+          lineHeight: 1.05, // Tighter leading
+          letterSpacing: '-0.04em', // Tighter tracking for display
           color: '#ffffff',
           marginBottom: '24px',
           textShadow: '0 0 40px rgba(255, 255, 255, 0.1)',
@@ -118,57 +119,62 @@ export function HeroContent() {
         variants={itemVariants}
         style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}
       >
-        <motion.button
-          onClick={handleLaunch}
-          disabled={isNavigating}
-          whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255,255,255,0.4)' }}
-          whileTap={{ scale: 0.95 }}
-          whileFocus={{ scale: 1.05, boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)' }}
-          style={{
-            position: 'relative',
-            padding: '16px 32px',
-            borderRadius: '12px',
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            fontSize: '16px',
-            fontWeight: 600,
-            border: 'none',
-            cursor: isNavigating ? 'wait' : 'pointer',
-            overflow: 'hidden',
-            boxShadow: '0 0 0 rgba(255,255,255,0)',
-            outline: 'none', // Managed by whileFocus
-          }}
-          aria-label="Launch Command Center"
-        >
-          {isNavigating ? 'Initializing...' : 'Launch Command Center'}
-        </motion.button>
+        <MagneticHover pull={0.15}>
+          <motion.button
+            onClick={handleLaunch}
+            disabled={isNavigating}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(255,255,255,0.6)' }}
+            whileTap={{ scale: 0.98 }}
+            whileFocus={{ scale: 1.05, boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)' }}
+            style={{
+              position: 'relative',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              fontSize: '16px',
+              fontWeight: 600,
+              border: 'none',
+              cursor: isNavigating ? 'wait' : 'pointer',
+              overflow: 'hidden',
+              outline: 'none', // Managed by whileFocus
+            }}
+            aria-label="Launch Command Center"
+          >
+            {isNavigating ? 'Initializing...' : 'Launch Command Center'}
+          </motion.button>
+        </MagneticHover>
 
-        <motion.button
-          whileHover={{
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderColor: 'rgba(255,255,255,0.4)',
-          }}
-          whileTap={{ scale: 0.95 }}
-          whileFocus={{
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderColor: 'rgba(255,255,255,0.4)',
-            boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)',
-          }}
-          style={{
-            padding: '16px 32px',
-            borderRadius: '12px',
-            backgroundColor: 'rgba(255,255,255,0)',
-            color: '#ffffff',
-            fontSize: '16px',
-            fontWeight: 600,
-            border: '1px solid rgba(255,255,255,0.2)',
-            cursor: 'pointer',
-            outline: 'none', // Managed by whileFocus
-          }}
-          aria-label="View API Documentation"
-        >
-          API Docs
-        </motion.button>
+        <MagneticHover pull={0.1}>
+          <DynamicGlassBorder color="rgba(255,255,255,0.2)">
+            <motion.button
+              whileHover={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                borderColor: 'rgba(255,255,255,0.4)',
+              }}
+              whileTap={{ scale: 0.98 }}
+              whileFocus={{
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                borderColor: 'rgba(255,255,255,0.4)',
+                boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)',
+              }}
+              style={{
+                padding: '16px 32px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(255,255,255,0)',
+                color: '#ffffff',
+                fontSize: '16px',
+                fontWeight: 600,
+                border: '1px solid rgba(255,255,255,0.2)',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+              aria-label="View API Documentation"
+            >
+              API Docs
+            </motion.button>
+          </DynamicGlassBorder>
+        </MagneticHover>
       </motion.div>
     </motion.div>
   );

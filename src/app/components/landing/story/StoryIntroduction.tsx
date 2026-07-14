@@ -19,7 +19,7 @@ export function StoryIntroduction() {
         padding: '0 24px',
       }}
     >
-      <div style={{ maxWidth: '800px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '800px', width: '100%', paddingLeft: '10vw' }}>
         <motion.h2
           initial={{
             opacity: 0,
@@ -50,6 +50,7 @@ export function StoryIntroduction() {
             fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
             color: 'rgba(255,255,255,0.6)',
             lineHeight: 1.6,
+            maxWidth: '600px',
           }}
         >
           ArenaMind AI was engineered specifically for the sheer scale and complexity of the FIFA
