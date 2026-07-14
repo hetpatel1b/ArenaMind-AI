@@ -22,7 +22,7 @@ export function AiRiskPrediction({
   const riskScore = riskRec ? Math.round((riskRec.confidenceScore || 0) * 100) : 0;
   const isHighRisk = riskScore > 80;
 
-  const riskLevel = isHighRisk ? 'Critical' : 'Low';
+  const riskLevel: string = isHighRisk ? 'Critical' : 'Low';
   const probability = riskRec ? riskScore : 15;
   const impact = riskRec ? riskRec.data.expectedBenefit : 'Minimal disruption expected.';
   const evidence = riskRec ? riskRec.data.reason : 'Crowd flow is nominal for this phase.';
