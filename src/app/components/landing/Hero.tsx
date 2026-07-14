@@ -1,97 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { PressFeedback } from '../motion/MicroInteractions';
+import React from 'react';
+import { HeroBackground } from './hero/HeroBackground';
+import { MouseSpotlight } from './hero/MouseSpotlight';
+import { HeroHUD } from './hero/HeroHUD';
+import { HeroContent } from './hero/HeroContent';
+import { ScrollIndicator } from './hero/ScrollIndicator';
 
 export function Hero() {
-  const router = useRouter();
-  const [isNavigating, setIsNavigating] = useState(false);
-
-  const handleLaunch = () => {
-    setIsNavigating(true);
-    router.push('/login');
-  };
-
   return (
     <section
-      className="container flex-center"
       style={{
-        minHeight: '100vh',
         position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
         overflow: 'hidden',
-        backgroundImage: 'url(/images/hero-bg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#050507',
       }}
+      aria-label="ArenaMind AI Command Center"
     >
-      {/* Dark overlay to ensure text contrast */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to bottom, rgba(5,5,5,0.4), var(--bg-app))',
-        }}
-      />
-
-      <div
-        className="glass-panel animate-slide-up"
-        style={{
-          position: 'relative',
-          zIndex: 'var(--z-overlay)',
-          padding: 'var(--space-12)',
-          borderRadius: 'var(--radius-lg)',
-          textAlign: 'center',
-          maxWidth: '800px',
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 'var(--text-4xl)',
-            fontWeight: 'var(--font-weight-bold)',
-            lineHeight: 1.2,
-            marginBottom: 'var(--space-4)',
-          }}
-        >
-          The Intelligent Stadium <br />
-          <span style={{ color: 'var(--ai-accent)' }}>Operations Copilot</span>
-        </h1>
-        <p
-          style={{
-            fontSize: 'var(--text-lg)',
-            color: 'var(--text-secondary)',
-            marginBottom: 'var(--space-8)',
-          }}
-        >
-          ArenaMind AI unifies crowd intelligence, incident response, and resource coordination for
-          the FIFA World Cup 2026.
-        </p>
-
-        <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'center' }}>
-          <PressFeedback scale={0.95}>
-            <button
-              className="btn btn-primary"
-              aria-label="Launch Command Center"
-              onClick={handleLaunch}
-              disabled={isNavigating}
-              style={{
-                padding: 'var(--space-3) var(--space-8)',
-                fontSize: 'var(--text-lg)',
-                boxShadow: '0 0 20px rgba(100, 200, 255, 0.2)',
-              }}
-            >
-              {isNavigating ? 'Connecting...' : 'Launch Command Center'}
-            </button>
-          </PressFeedback>
-          <button
-            className="btn btn-outline"
-            aria-label="Explore Platform Features"
-            style={{ padding: 'var(--space-3) var(--space-8)', fontSize: 'var(--text-lg)' }}
-          >
-            API Docs
-          </button>
-        </div>
-      </div>
+      <HeroBackground />
+      <MouseSpotlight />
+      <HeroHUD />
+      <HeroContent />
+      <ScrollIndicator />
     </section>
   );
 }
