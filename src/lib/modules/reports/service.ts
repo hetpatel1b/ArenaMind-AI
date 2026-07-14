@@ -67,6 +67,7 @@ export class ReportService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: report.id,
+            tableName: 'unknown',
             action: 'CREATE_REPORT',
           },
         });

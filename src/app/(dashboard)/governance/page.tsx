@@ -53,7 +53,7 @@ export default async function GovernanceCommandPage() {
     aiVersion: 'v4.2.1-enterprise',
     securityStatus: 'Secure (SOC2 Compliant)',
     lastAudit: new Date().toISOString(),
-    operationalHealth: match.currentPhase === 'egress' ? 82 : 94,
+    operationalHealth: match.currentPhase === 'crowd_exit' ? 82 : 94,
     recommendedAction: 'Rotate API Keys for Edge Sensors',
     policies: {
       confidenceThreshold: 0.85,

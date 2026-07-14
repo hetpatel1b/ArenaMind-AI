@@ -48,6 +48,7 @@ export class SettingService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: setting.id,
+            tableName: 'unknown',
             action: 'UPDATE_SYSTEM_SETTING',
           },
         });

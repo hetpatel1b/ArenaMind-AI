@@ -74,6 +74,7 @@ export class AlertService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: notification.id,
+            tableName: 'unknown',
             action: 'CREATE_ALERT',
           },
         });
@@ -113,6 +114,7 @@ export class AlertService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: updatedNotif.id,
+            tableName: 'unknown',
             action: 'ACKNOWLEDGE_ALERT',
           },
         });

@@ -55,7 +55,7 @@ export default async function MobilityCommandPage() {
     );
   }
 
-  const isEgress = match.currentPhase === 'egress' || match.currentPhase === 'crowd_exit';
+  const isEgress = match.currentPhase === 'crowd_exit';
 
   // Try to load external mobility telemetry from SystemSettings
   const telemetrySetting = match.stadium?.systemSettings?.find(

@@ -90,6 +90,7 @@ export class AccessibilityService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: req.id,
+            tableName: 'unknown',
             action: 'CREATE_ACCESSIBILITY_REQUEST',
           },
         });
@@ -131,6 +132,7 @@ export class AccessibilityService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: result.id,
+            tableName: 'unknown',
             action: 'UPDATE_ACCESSIBILITY_REQUEST',
           },
         });

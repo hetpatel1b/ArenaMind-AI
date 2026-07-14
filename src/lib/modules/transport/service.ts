@@ -81,7 +81,7 @@ export class TransportService extends BaseService {
 
         await tx.match.update({ where: { id: matchId }, data: { metadata: meta } });
         await tx.auditLog.create({
-          data: { recordId: matchId, action: 'UPDATE_TRANSPORT_PARKING' },
+          data: { recordId: matchId, tableName: 'unknown', action: 'UPDATE_TRANSPORT_PARKING' },
         });
       });
       return { success: true };

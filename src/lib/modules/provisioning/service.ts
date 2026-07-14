@@ -106,7 +106,7 @@ export class ProvisioningService {
             awayTeam: template.match.awayTeam,
             scheduledAt: new Date(),
             kickoffAt: new Date(Date.now() + template.match.kickoffOffsetMinutes * 60000),
-            currentPhase: template.match.currentPhase,
+            currentPhase: template.match.currentPhase as any,
             matchStatus: 'active',
             expectedAttendance: template.match.expectedAttendance,
             actualAttendance: template.match.actualAttendance,
@@ -146,7 +146,7 @@ export class ProvisioningService {
               title: incident.title,
               description: incident.description,
               severityTier: incident.severityTier,
-              status: incident.status,
+              status: incident.status as any,
               aiType: incident.aiType,
               aiTier: incident.aiTier,
               aiConfidence: incident.aiConfidence,
@@ -166,7 +166,7 @@ export class ProvisioningService {
             zoneId: dbZoneId,
             resourceTypeId: typeId,
             name: res.name,
-            status: res.status,
+            status: res.status as any,
           };
         });
         if (resourcePayloads.length > 0) {

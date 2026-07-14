@@ -37,6 +37,7 @@ export async function enforceRateLimit(
     await prisma.rateLimit.create({
       data: {
         id: `${identifier}_${Date.now()}`, // Create unique event for the window
+        identifier,
         windowEnd,
       },
     });

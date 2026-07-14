@@ -104,6 +104,7 @@ export class ResourceService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: result.id,
+            tableName: 'unknown',
             action: 'UPDATE_RESOURCE',
           },
         });

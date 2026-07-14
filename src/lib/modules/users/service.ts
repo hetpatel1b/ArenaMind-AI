@@ -40,6 +40,7 @@ export class UserService extends BaseService {
         await tx.auditLog.create({
           data: {
             recordId: user.id,
+            tableName: 'unknown',
             action: 'UPDATE_USER_PROFILE',
           },
         });

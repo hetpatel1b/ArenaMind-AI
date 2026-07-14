@@ -3,6 +3,7 @@ import { logger } from './logger';
 
 export interface AuditEventPayload {
   recordId: string;
+  tableName?: string;
   action: string;
   userId?: string;
   metadata?: any;
@@ -14,6 +15,7 @@ export class AuditLogger {
       await prisma.auditLog.create({
         data: {
           recordId: payload.recordId,
+          tableName: 'unknown',
           action: payload.action,
         },
       });

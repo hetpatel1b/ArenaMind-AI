@@ -56,7 +56,7 @@ export default async function IntelligenceCommandPage() {
     avgCrowdDensityPct: 50,
     healthScore: 100,
   };
-  const isEgress = match.currentPhase === 'egress' || match.currentPhase === 'crowd_exit';
+  const isEgress = match.currentPhase === 'crowd_exit';
 
   const resolvedIncidents = match.incidents.filter((i: any) => i.status === 'resolved');
 
