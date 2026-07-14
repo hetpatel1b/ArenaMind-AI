@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
@@ -27,10 +27,7 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -87,7 +87,7 @@ export function InteractiveIncidentMap({
             const isSelected = incident.id === selectedIncidentId;
             const color = getSeverityColor(incident.severityTier);
 
-            // Generate deterministic but "scattered" positions based on index for the mockup
+            // Abstract positioning strategy based on list index due to lack of x/y coordinates in DB
             // In reality, this would use geometry data from the zone
             const angle = idx * 137.5 * (Math.PI / 180);
             const radius = isSelected ? 45 : 35 + (idx % 20); // % from center

@@ -14,7 +14,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
 
   // Map zone shortCodes to abstract relative coordinates (x, y, width, height) in percentage
-  // We simulate a top-down view of a stadium
+  // Abstract representation of stadium zones using CSS Grid layout
   const zoneLayouts: Record<
     string,
     { top: string; left: string; width: string; height: string; borderRadius?: string }

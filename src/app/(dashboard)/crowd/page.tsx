@@ -9,7 +9,7 @@ export default async function CrowdIntelligencePage() {
   const session = await getServerSession();
 
   if (!session) {
-    redirect('/login');
+    redirect('/unauthorized');
   }
 
   const stadiumId = session.stadiumId;

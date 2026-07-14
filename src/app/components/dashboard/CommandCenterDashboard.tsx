@@ -144,6 +144,7 @@ export function CommandCenterDashboard({ matchData }: { matchData: DashboardMatc
             (i) => i.status !== 'resolved' && i.status !== 'closed'
           ).length,
         }}
+        recommendations={matchData.aiRecommendations}
       />
     </main>
   );

@@ -11,26 +11,8 @@ interface AiRouteOptimizationProps {
 export function AiRouteOptimization({ recommendations }: AiRouteOptimizationProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Filter or fallback to mock route optimizations if none exist in DB
-  let ops = recommendations.filter((r) => r.featureName === 'mobility_suggestions');
-  if (ops.length === 0) {
-    ops = [
-      {
-        id: 'route-opt-1',
-        confidenceScore: 0.89,
-        data: {
-          priority: 'High',
-          suggestedAction: 'Reroute Shuttle Line B to East Perimeter',
-          reason: 'Severe congestion detected on Main Street approach.',
-          evidence: 'Traffic cameras indicate 15mph average speed over last 10 mins.',
-          expectedBenefit: 'Reduces shuttle loop time by 12 minutes.',
-          operationalImpact: 'Minor disruption to East Lot pedestrian flow.',
-          alternativeOptions: 'Hold shuttles at terminal (Not Recommended).',
-          humanApprovalRequired: true,
-        },
-      },
-    ];
-  }
+  // Use DB recommendations directly, fallback to empty array if none exist
+  const ops = recommendations.filter((r) => r.featureName === 'mobility_suggestions');
 
   return (
     <div
@@ -96,112 +78,131 @@ export function AiRouteOptimization({ recommendations }: AiRouteOptimizationProp
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        {ops.map((rec, idx) => {
-          const confidence = Math.round((rec.confidenceScore || 0) * 100);
+        {ops.length > 0 ? (
+          ops.map((rec, idx) => {
+            const confidence = Math.round((rec.confidenceScore || 0) * 100);
 
-          return (
-            <motion.div
-              key={rec.id}
-              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: idx * 0.1 }}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3)',
-                backgroundColor: 'rgba(10, 132, 255, 0.05)',
-                border: '1px solid rgba(10, 132, 255, 0.1)',
-                borderRadius: 'var(--radius-md)',
-              }}
-            >
-              <div
+            return (
+              <motion.div
+                key={rec.id}
+                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.1 }}
                 style={{
                   display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
+                  flexDirection: 'column',
+                  gap: 'var(--space-2)',
+                  padding: 'var(--space-3)',
+                  backgroundColor: 'rgba(10, 132, 255, 0.05)',
+                  border: '1px solid rgba(10, 132, 255, 0.1)',
+                  borderRadius: 'var(--radius-md)',
                 }}
               >
-                <span
+                <div
                   style={{
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--text-primary)',
-                    fontWeight: 600,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
                   }}
                 >
-                  {rec.data.suggestedAction}
-                </span>
-                <span
+                  <span
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--text-primary)',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {rec.data.suggestedAction}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      color: 'var(--ai-accent)',
+                      fontWeight: 700,
+                      backgroundColor: 'rgba(10,132,255,0.1)',
+                      padding: '2px 4px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    {confidence}% CONF
+                  </span>
+                </div>
+
+                <div
                   style={{
-                    fontSize: '10px',
-                    color: 'var(--ai-accent)',
-                    fontWeight: 700,
-                    backgroundColor: 'rgba(10,132,255,0.1)',
-                    padding: '2px 4px',
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>
+                    Reasoning:{' '}
+                  </span>
+                  {rec.data.reason}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>Evidence: </span>
+                  {rec.data.evidence}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--status-success)',
+                    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                    padding: '4px 8px',
                     borderRadius: '4px',
+                    marginTop: '4px',
                   }}
                 >
-                  {confidence}% CONF
-                </span>
-              </div>
+                  <span style={{ fontWeight: 600 }}>Expected Benefit: </span>{' '}
+                  {rec.data.expectedBenefit}
+                </div>
 
-              <div
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.4,
-                }}
-              >
-                <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>Reasoning: </span>
-                {rec.data.reason}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.4,
-                }}
-              >
-                <span style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>Evidence: </span>
-                {rec.data.evidence}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--status-success)',
-                  backgroundColor: 'rgba(52, 199, 89, 0.1)',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  marginTop: '4px',
-                }}
-              >
-                <span style={{ fontWeight: 600 }}>Expected Benefit: </span>{' '}
-                {rec.data.expectedBenefit}
-              </div>
-
-              <div
-                style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--space-2)' }}
-              >
-                <button
+                <div
                   style={{
-                    backgroundColor: 'var(--ai-accent)',
-                    border: 'none',
-                    color: '#000',
-                    padding: '6px 12px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    marginTop: 'var(--space-2)',
                   }}
                 >
-                  Approve Re-route
-                </button>
-              </div>
-            </motion.div>
-          );
-        })}
+                  <button
+                    style={{
+                      backgroundColor: 'var(--ai-accent)',
+                      border: 'none',
+                      color: '#000',
+                      padding: '6px 12px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Approve Re-route
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })
+        ) : (
+          <div
+            style={{
+              padding: 'var(--space-4)',
+              textAlign: 'center',
+              color: 'var(--text-tertiary)',
+              fontSize: 'var(--text-sm)',
+            }}
+          >
+            No mobility directives generated yet.
+          </div>
+        )}
       </div>
     </div>
   );

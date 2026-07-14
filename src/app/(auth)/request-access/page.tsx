@@ -29,8 +29,8 @@ export default function RequestAccessPage() {
     setError(null);
 
     try {
-      // In a real hackathon environment, this might directly sign them up or hit an edge function
-      // For this demo, we simulate creating the auth account
+      // In a real enterprise environment, this would integrate with SSO.
+      // For this implementation, we provision a local Supabase auth account.
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,

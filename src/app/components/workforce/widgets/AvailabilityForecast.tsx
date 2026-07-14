@@ -3,16 +3,26 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-export function AvailabilityForecast() {
+interface AvailabilityForecastProps {
+  resources?: any[];
+}
+
+export function AvailabilityForecast({ resources = [] }: AvailabilityForecastProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Simulated forecast data (next 6 hours)
+  // Dynamic forecast based on resource deployment status
+  const deployedCount = resources.filter(
+    (r) => r.status === 'deployed' || r.status === 'incident_assigned'
+  ).length;
+  const totalCount = Math.max(resources.length, 1);
+  const currentLoad = (deployedCount / totalCount) * 100;
+
   const forecast = [
-    { hour: '+1h', load: 45, safe: true },
-    { hour: '+2h', load: 60, safe: true },
-    { hour: '+3h', load: 85, safe: false }, // Predicted bottleneck due to shift change / event
-    { hour: '+4h', load: 50, safe: true },
-    { hour: '+5h', load: 40, safe: true },
+    { hour: '+1h', load: Math.min(100, currentLoad + 5), safe: currentLoad + 5 < 75 },
+    { hour: '+2h', load: Math.min(100, currentLoad + 15), safe: currentLoad + 15 < 75 },
+    { hour: '+3h', load: Math.min(100, currentLoad + 20), safe: currentLoad + 20 < 75 },
+    { hour: '+4h', load: Math.max(0, currentLoad - 5), safe: currentLoad - 5 < 75 },
+    { hour: '+5h', load: Math.max(0, currentLoad - 20), safe: currentLoad - 20 < 75 },
   ];
 
   return (
@@ -127,31 +137,34 @@ export function AvailabilityForecast() {
         ))}
       </div>
 
-      <div
-        style={{
-          marginTop: 'auto',
-          backgroundColor: 'rgba(255, 59, 48, 0.1)',
-          padding: 'var(--space-2)',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid rgba(255, 59, 48, 0.2)',
-        }}
-      >
-        <span
+      {forecast.some((f) => !f.safe) && (
+        <div
           style={{
-            display: 'block',
-            fontSize: '10px',
-            color: 'var(--status-critical)',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            marginBottom: '2px',
+            marginTop: 'auto',
+            backgroundColor: 'rgba(255, 59, 48, 0.1)',
+            padding: 'var(--space-2)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid rgba(255, 59, 48, 0.2)',
           }}
         >
-          Alert
-        </span>
-        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          Shift exhaust predicted at +3h. AI redeployment recommended.
-        </span>
-      </div>
+          <span
+            style={{
+              display: 'block',
+              fontSize: '10px',
+              color: 'var(--status-critical)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              marginBottom: '2px',
+            }}
+          >
+            Alert
+          </span>
+          <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+            Shift exhaust predicted at {forecast.find((f) => !f.safe)?.hour}. AI redeployment
+            recommended.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,11 +2,14 @@
 
 import React from 'react';
 
+import { MobilityState } from '../MobilityCommandWorkspace';
+
 interface InteractiveMobilityMapProps {
   zones: any[];
+  mobilityState?: MobilityState;
 }
 
-export function InteractiveMobilityMap({ zones }: InteractiveMobilityMapProps) {
+export function InteractiveMobilityMap({ zones, mobilityState }: InteractiveMobilityMapProps) {
   return (
     <div
       style={{
@@ -189,21 +192,23 @@ export function InteractiveMobilityMap({ zones }: InteractiveMobilityMapProps) {
             </span>
           </div>
 
-          {/* Simulated Congestion Hotspot (North Metro) */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-30%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(255, 59, 48, 0.2)',
-              border: '2px solid rgba(255, 59, 48, 1)',
-              animation: 'pulse-map 2s infinite',
-            }}
-          />
+          {/* Dynamic Congestion Hotspot (North Metro) */}
+          {mobilityState && mobilityState.metro.capacity > 85 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '-30%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 59, 48, 0.2)',
+                border: '2px solid rgba(255, 59, 48, 1)',
+                animation: 'pulse-map 2s infinite',
+              }}
+            />
+          )}
         </div>
       </div>
 

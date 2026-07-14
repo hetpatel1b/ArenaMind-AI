@@ -1,12 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export function ContextPanel() {
   const [isOpen, setIsOpen] = useState(false);
+  const [lastIncidentEvent, setLastIncidentEvent] = useState<string | null>(null);
 
-  // In a real implementation, this state would be driven by a global store (Zustand)
-  // when a user clicks a row in a data grid. For the shell, we'll mock its structure.
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel('system_incidents')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'incidents' },
+        (payload) => {
+          setIsOpen(true);
+          setLastIncidentEvent(`New Incident: ${(payload.new as any).title}`);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (!isOpen) {
     return (
@@ -118,7 +136,15 @@ export function ContextPanel() {
             marginTop: 'var(--space-8)',
           }}
         >
-          Select an entity (e.g. Incident, Camera, Staff) in the workspace to view details here.
+          {lastIncidentEvent ? (
+            <div style={{ color: 'var(--status-critical)' }}>
+              <strong>LATEST REALTIME EVENT:</strong>
+              <br />
+              {lastIncidentEvent}
+            </div>
+          ) : (
+            'Select an entity (e.g. Incident, Camera, Staff) in the workspace to view details here. Live updates will also appear.'
+          )}
         </div>
       </div>
     </div>

@@ -21,6 +21,7 @@ export interface IntelligenceMatchPayload {
   incidents: any[];
   phaseTransitions: any[];
   aiRecommendations: any[];
+  kpiSnapshots?: any[];
 }
 
 export interface ReportingPayload {
@@ -52,21 +53,7 @@ export function IntelligenceCommandWorkspace({
 
   // Extract the highest priority recommendation specifically flagged as an intelligence insight
   const primaryRecommendation =
-    matchData.aiRecommendations.length > 0
-      ? matchData.aiRecommendations[0]
-      : {
-          id: 'mock-insight-1',
-          confidenceScore: 0.98,
-          data: {
-            suggestedAction: 'Increase egress shuttle capacity by 15% for next match.',
-            reason:
-              'Current match data indicates severe congestion at North Metro terminal during egress.',
-            evidence: 'Transport efficiency dropped to 74% during phase transition.',
-            expectedBenefit:
-              'Reduces station crush-load risk and improves overall egress time by 8 mins.',
-            humanApprovalRequired: true,
-          },
-        }; // Fallback
+    matchData.aiRecommendations.length > 0 ? matchData.aiRecommendations[0] : null;
 
   return (
     <main
@@ -125,7 +112,7 @@ export function IntelligenceCommandWorkspace({
         transition={{ duration: 0.4, delay: 0.3, ease: 'easeOut' }}
         style={{ gridColumn: 'span 4' }}
       >
-        <PerformanceAnalytics />
+        <PerformanceAnalytics kpiSnapshots={matchData.kpiSnapshots || []} />
       </motion.div>
 
       <motion.div
@@ -134,7 +121,7 @@ export function IntelligenceCommandWorkspace({
         transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
         style={{ gridColumn: 'span 4' }}
       >
-        <AiRootCauseAnalysis />
+        <AiRootCauseAnalysis matchId={matchData.id} />
       </motion.div>
 
       <motion.div
@@ -143,7 +130,10 @@ export function IntelligenceCommandWorkspace({
         transition={{ duration: 0.4, delay: 0.5, ease: 'easeOut' }}
         style={{ gridColumn: 'span 4' }}
       >
-        <FutureRecommendations recommendations={matchData.aiRecommendations} />
+        <FutureRecommendations
+          matchId={matchData.id}
+          initialRecommendations={matchData.aiRecommendations}
+        />
       </motion.div>
 
       {/* Section 7: Export Center (Span 12) */}
@@ -157,7 +147,7 @@ export function IntelligenceCommandWorkspace({
       </motion.div>
 
       {/* Section 8: Persistent Copilot */}
-      <IntelligencePersistentCopilot />
+      <IntelligencePersistentCopilot matchId={matchData.id} />
     </main>
   );
 }

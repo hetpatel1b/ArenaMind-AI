@@ -3,9 +3,40 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export function IntelligencePersistentCopilot() {
+export function IntelligencePersistentCopilot({ matchId }: { matchId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [history, setHistory] = useState<{ role: 'user' | 'model'; parts: { text: string }[] }[]>(
+    []
+  );
+  const [loading, setLoading] = useState(false);
+
+  const handleSend = async (message: string) => {
+    if (!message.trim() || !matchId) return;
+
+    const newHistory = [...history, { role: 'user' as const, parts: [{ text: message }] }];
+    setHistory(newHistory);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/v1/matches/${matchId}/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history }),
+      });
+      const json = await res.json();
+
+      setHistory([
+        ...newHistory,
+        { role: 'model' as const, parts: [{ text: json.data.response }] },
+      ]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -161,64 +192,45 @@ export function IntelligencePersistentCopilot() {
                     borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
                   }}
                 >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    I&apos;ve completed the post-match analysis. The most significant anomaly was
-                    the 14% drop in Transport Efficiency during egress.
-                  </p>
-                  <p
-                    style={{
-                      margin: '8px 0 0 0',
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    Should I draft a root cause summary to include in the Executive Report?
-                  </p>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-2)',
-                      marginTop: 'var(--space-3)',
-                    }}
-                  >
-                    <button
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Yes, draft the summary.
-                    </button>
-                    <button
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      What recommendation had the biggest impact?
-                    </button>
-                  </div>
+                  {history.length === 0 ? (
+                    <>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--text-secondary)',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        I am your AI Copilot. Ask me anything about the ongoing operations, incident
+                        timelines, or future insights.
+                      </p>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {history.map((msg, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            textAlign: msg.role === 'user' ? 'right' : 'left',
+                            color:
+                              msg.role === 'user' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            padding: '8px',
+                            backgroundColor:
+                              msg.role === 'user' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                            borderRadius: '4px',
+                          }}
+                        >
+                          {msg.parts?.[0]?.text || ''}
+                        </div>
+                      ))}
+                      {loading && (
+                        <div style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>
+                          Thinking...
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -242,6 +254,7 @@ export function IntelligencePersistentCopilot() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend(input)}
                   placeholder="Ask about post-match analytics..."
                   style={{
                     flex: 1,
@@ -254,6 +267,8 @@ export function IntelligencePersistentCopilot() {
                   }}
                 />
                 <button
+                  onClick={() => handleSend(input)}
+                  disabled={loading || !input.trim()}
                   style={{
                     backgroundColor: 'var(--ai-accent)',
                     border: 'none',
@@ -263,7 +278,8 @@ export function IntelligencePersistentCopilot() {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    cursor: 'pointer',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.5 : 1,
                   }}
                 >
                   <svg

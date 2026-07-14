@@ -75,8 +75,13 @@ export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {
           if (team.status === 'unavailable' || team.status === 'off_duty')
             statusColor = 'var(--status-critical)';
 
-          // Simulate fatigue level based on name hash or just random for mockup
-          const fatigueLevel = (team.name.length * 7) % 100;
+          // Calculate fatigue based on time since resource record created (assuming 8 hour shift max = 100%)
+          // If no created/updated time, default to 0
+          // eslint-disable-next-line react-hooks/purity
+          const shiftStart = new Date(team.createdAt || Date.now()).getTime();
+          // eslint-disable-next-line react-hooks/purity
+          const elapsedHours = (Date.now() - shiftStart) / (1000 * 60 * 60);
+          const fatigueLevel = Math.min(Math.round((elapsedHours / 8) * 100), 100);
           const isFatigued = fatigueLevel > 75;
 
           return (

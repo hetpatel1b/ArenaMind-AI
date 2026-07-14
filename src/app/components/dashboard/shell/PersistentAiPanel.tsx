@@ -67,38 +67,6 @@ export function PersistentAiPanel() {
         >
           Monitoring real-time telemetry...
         </div>
-
-        {/* Mock Recommendation Card */}
-        <div
-          className="card animate-fade-in"
-          style={{ borderColor: 'var(--ai-accent)', backgroundColor: 'var(--bg-app)' }}
-        >
-          <div
-            style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--ai-accent)',
-              fontWeight: 'var(--font-weight-bold)',
-              marginBottom: 'var(--space-1)',
-            }}
-          >
-            PREDICTIVE ALERT
-          </div>
-          <div
-            style={{
-              fontSize: 'var(--text-sm)',
-              color: 'var(--text-primary)',
-              marginBottom: 'var(--space-2)',
-            }}
-          >
-            High probability of congestion at Gate 4 in 15 minutes.
-          </div>
-          <button
-            className="btn btn-primary"
-            style={{ width: '100%', fontSize: 'var(--text-xs)', padding: 'var(--space-1)' }}
-          >
-            View Routing Options
-          </button>
-        </div>
       </div>
 
       <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--border-subtle)' }}>

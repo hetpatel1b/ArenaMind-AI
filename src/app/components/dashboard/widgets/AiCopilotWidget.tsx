@@ -10,9 +10,10 @@ interface AiCopilotWidgetProps {
     healthScore: number;
     activeIncidentCount: number;
   };
+  recommendations?: any[];
 }
 
-export function AiCopilotWidget({ scenarioContext }: AiCopilotWidgetProps) {
+export function AiCopilotWidget({ scenarioContext, recommendations = [] }: AiCopilotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
 
@@ -159,51 +160,62 @@ export function AiCopilotWidget({ scenarioContext }: AiCopilotWidgetProps) {
                 gap: 'var(--space-4)',
               }}
             >
-              {/* Fake AI Message */}
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                <div
-                  style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
-                    backgroundColor: 'var(--ai-accent)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#000"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
-                  </svg>
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.05)',
-                    padding: 'var(--space-3)',
-                    borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
-                  }}
-                >
-                  <p
+              {recommendations.length > 0 ? (
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <div
                     style={{
-                      margin: 0,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.5,
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '4px',
+                      backgroundColor: 'var(--ai-accent)',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
-                    I am actively monitoring the {scenarioContext.phase.replace('_', ' ')} phase at{' '}
-                    {scenarioContext.stadiumName}. How can I assist with your operations?
-                  </p>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#000"
+                      strokeWidth="2"
+                    >
+                      <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
+                    </svg>
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      padding: 'var(--space-3)',
+                      borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {recommendations[0].data.suggestedAction}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div
+                  style={{
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--text-secondary)',
+                    textAlign: 'center',
+                    marginTop: 'var(--space-8)',
+                  }}
+                >
+                  Monitoring real-time telemetry...
+                </div>
+              )}
             </div>
 
             <div

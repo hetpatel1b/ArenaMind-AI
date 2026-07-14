@@ -24,8 +24,7 @@ export function IncidentTimeline({ incident }: IncidentTimelineProps) {
     );
   }
 
-  // Generate a mock timeline based on the incident's known timestamps (createdAt, resolvedAt, etc)
-  // In a full implementation, this would map over an `IncidentEventLog` table
+  // Create timeline events from real data if available
   const timelineEvents = [
     { title: 'Incident Reported', time: incident.createdAt, type: 'creation' },
   ];
@@ -38,12 +37,20 @@ export function IncidentTimeline({ incident }: IncidentTimelineProps) {
     });
   }
 
-  if (incident.assignedTo) {
-    // Fake assignment time slightly after creation for demo
-    const assignTime = new Date(new Date(incident.createdAt).getTime() + 60000);
+  // Iterate over actual incident actions if fetched
+  if (incident.actions && Array.isArray(incident.actions)) {
+    incident.actions.forEach((action: any) => {
+      timelineEvents.push({
+        title: 'Action Logged',
+        time: action.createdAt,
+        type: 'resource',
+      });
+    });
+  } else if (incident.assignedTo) {
+    // Fallback if actions aren't joined but we know it's assigned
     timelineEvents.push({
       title: 'Resources Dispatched',
-      time: assignTime.toISOString(),
+      time: incident.updatedAt || incident.createdAt,
       type: 'resource',
     });
   }
@@ -54,13 +61,16 @@ export function IncidentTimeline({ incident }: IncidentTimelineProps) {
       time: incident.resolvedAt,
       type: 'resolution',
     });
-  } else {
+  } else if (incident.status !== 'closed' && incident.status !== 'resolved') {
     timelineEvents.push({
       title: 'Active Investigation',
       time: new Date().toISOString(),
       type: 'active',
     });
   }
+
+  // Sort chronologically
+  timelineEvents.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
   return (
     <div

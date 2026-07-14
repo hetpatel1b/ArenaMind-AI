@@ -44,19 +44,7 @@ export function MobilityCommandWorkspace({
 
   // Extract the highest priority recommendation
   const primaryRecommendation =
-    matchData.aiRecommendations.length > 0
-      ? matchData.aiRecommendations[0]
-      : {
-          id: 'mock-rec-1',
-          confidenceScore: 0.94,
-          data: {
-            suggestedAction: 'Increase metro cadence on Blue Line to 2 minutes.',
-            reason: 'Post-match egress surge predicted to exceed platform capacity in 15 mins.',
-            evidence: 'Historical egress models for 80,000 capacity.',
-            expectedBenefit: 'Prevents platform overcrowding and safety hazards.',
-            humanApprovalRequired: true,
-          },
-        }; // Fallback if DB doesn't have mobility_suggestions seeded
+    matchData.aiRecommendations?.length > 0 ? matchData.aiRecommendations[0] : null;
 
   return (
     <main
@@ -103,7 +91,7 @@ export function MobilityCommandWorkspace({
         transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
         style={{ gridColumn: 'span 8' }}
       >
-        <InteractiveMobilityMap zones={matchData.stadium.zones} />
+        <InteractiveMobilityMap zones={matchData.stadium.zones} mobilityState={mobilityState} />
       </motion.div>
 
       {/* Sections 4, 5, 6: Network Status (Span 6), Parking (Span 3), Forecast (Span 3) */}

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { IntelligenceMatchPayload, ReportingPayload } from '../IntelligenceCommandWorkspace';
 
@@ -13,9 +13,47 @@ interface AiExecutiveSummaryProps {
 export function AiExecutiveSummary({
   matchData,
   reportingPayload,
-  primaryRecommendation,
+  primaryRecommendation: initialRecommendation,
 }: AiExecutiveSummaryProps) {
   const shouldReduceMotion = useReducedMotion();
+  const [recommendation, setRecommendation] = useState<any>(initialRecommendation);
+  const [loading, setLoading] = useState(false);
+
+  const fetchRecommendation = async () => {
+    try {
+      const res = await fetch(
+        `/api/v1/matches/${matchData.id}/ai/recommendations?feature=executive_summary`
+      );
+      const json = await res.json();
+      if (json.data && json.data.length > 0) {
+        setRecommendation(json.data[0]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (!initialRecommendation) fetchRecommendation();
+  }, [matchData.id]);
+  /* eslint-enable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
+
+  const generateSummary = async () => {
+    setLoading(true);
+    try {
+      await fetch(`/api/v1/matches/${matchData.id}/ai/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feature: 'executive_summary' }),
+      });
+      await fetchRecommendation();
+    } catch (err) {
+      console.error('Failed to generate summary');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const isHealthy = reportingPayload.operationalHealth >= 90;
   const healthColor = isHealthy ? 'var(--status-success)' : 'var(--status-warning)';
@@ -210,7 +248,7 @@ export function AiExecutiveSummary({
         </div>
       </header>
 
-      {primaryRecommendation && (
+      {recommendation && (
         <div
           style={{
             marginTop: 'var(--space-4)',
@@ -249,9 +287,28 @@ export function AiExecutiveSummary({
                   fontSize: 'var(--text-sm)',
                   fontWeight: 600,
                   color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}
               >
                 AI Post-Match Assessment & Recommendation
+                <button
+                  onClick={generateSummary}
+                  disabled={loading}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--ai-accent)',
+                    color: 'var(--ai-accent)',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontSize: '10px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1,
+                  }}
+                >
+                  {loading ? 'Generating...' : 'Regenerate'}
+                </button>
               </span>
             </div>
 
@@ -263,7 +320,9 @@ export function AiExecutiveSummary({
                 lineHeight: 1.5,
               }}
             >
-              {primaryRecommendation.data.suggestedAction}
+              {recommendation.data?.suggestedAction ||
+                recommendation.data?.headline ||
+                'No specific action generated.'}
             </p>
             <div
               style={{
@@ -273,7 +332,7 @@ export function AiExecutiveSummary({
               }}
             >
               <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Analysis:</span>{' '}
-              {primaryRecommendation.data.reason}
+              {recommendation.data?.reason || recommendation.data?.criticalInsights?.join(' ')}
             </div>
             <div
               style={{
@@ -283,12 +342,12 @@ export function AiExecutiveSummary({
               }}
             >
               <span style={{ fontWeight: 600 }}>Projected Improvement:</span>{' '}
-              {primaryRecommendation.data.expectedBenefit} (Confidence:{' '}
-              {Math.round((primaryRecommendation.confidenceScore || 0.98) * 100)}%)
+              {recommendation.data?.expectedBenefit || recommendation.data?.recommendedAction}{' '}
+              (Confidence: {Math.round((recommendation.confidenceScore || 0.98) * 100)}%)
             </div>
           </div>
 
-          {primaryRecommendation.data.humanApprovalRequired && (
+          {(recommendation.data?.humanApprovalRequired || !recommendation.actionTaken) && (
             <div
               style={{
                 display: 'flex',
@@ -309,6 +368,19 @@ export function AiExecutiveSummary({
                 Human Approval Required
               </span>
               <button
+                onClick={async () => {
+                  try {
+                    await fetch(
+                      `/api/v1/matches/${matchData.id}/ai/recommendations/${recommendation.id}/action`,
+                      {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'accepted' }),
+                      }
+                    );
+                    setRecommendation({ ...recommendation, actionTaken: 'accepted' });
+                  } catch (e) {}
+                }}
                 style={{
                   backgroundColor: 'var(--ai-accent)',
                   color: '#000',

@@ -104,7 +104,7 @@ export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceM
         transition={{ duration: 0.4, delay: 0.5, ease: 'easeOut' }}
         style={{ gridColumn: 'span 3' }}
       >
-        <AvailabilityForecast />
+        <AvailabilityForecast resources={matchData.resources} />
       </motion.div>
 
       {/* Sections 7 & 8: Recommendations (Span 8) and Timeline (Span 4) */}

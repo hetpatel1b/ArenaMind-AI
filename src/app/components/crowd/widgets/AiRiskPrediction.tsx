@@ -6,33 +6,26 @@ import { motion, useReducedMotion } from 'framer-motion';
 interface AiRiskPredictionProps {
   currentPhase: string;
   incidents: any[];
+  recommendations?: any[];
 }
 
-export function AiRiskPrediction({ currentPhase, incidents }: AiRiskPredictionProps) {
+export function AiRiskPrediction({
+  currentPhase,
+  incidents,
+  recommendations = [],
+}: AiRiskPredictionProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Fake a risk prediction based on phase and current incidents
-  // In a real app, this would be a dedicated AI prediction model output from Prisma
-  const hasCriticalIncidents = incidents.some(
-    (i) => i.severityTier === 1 && i.status !== 'resolved'
-  );
+  // Pick a real crowd recommendation or fallback to empty state
+  const riskRec = recommendations.length > 0 ? recommendations[0] : null;
 
-  let riskLevel = 'Low';
-  let probability = 15;
-  let impact = 'Minimal disruption expected.';
-  let evidence = 'Crowd flow is nominal for this phase.';
+  const riskScore = riskRec ? Math.round((riskRec.confidenceScore || 0) * 100) : 0;
+  const isHighRisk = riskScore > 80;
 
-  if (hasCriticalIncidents || currentPhase === 'post_match_egress') {
-    riskLevel = 'Critical';
-    probability = 82;
-    impact = 'High probability of localized crushing at transport hubs.';
-    evidence = 'Current egress rate exceeds transport capacity by 40%.';
-  } else if (currentPhase === 'half_time' || incidents.length > 5) {
-    riskLevel = 'Elevated';
-    probability = 45;
-    impact = 'Potential bottleneck at concourse concessions.';
-    evidence = 'Rapid surge in concourse density detected in last 5 mins.';
-  }
+  const riskLevel = isHighRisk ? 'Critical' : 'Low';
+  const probability = riskRec ? riskScore : 15;
+  const impact = riskRec ? riskRec.data.expectedBenefit : 'Minimal disruption expected.';
+  const evidence = riskRec ? riskRec.data.reason : 'Crowd flow is nominal for this phase.';
 
   const riskColor =
     riskLevel === 'Critical'
@@ -115,7 +108,7 @@ export function AiRiskPrediction({ currentPhase, incidents }: AiRiskPredictionPr
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
             Probability
           </span>
-          <span
+          <div
             style={{
               fontSize: 'var(--text-3xl)',
               fontWeight: 'var(--font-weight-bold)',
@@ -123,7 +116,7 @@ export function AiRiskPrediction({ currentPhase, incidents }: AiRiskPredictionPr
             }}
           >
             {probability}%
-          </span>
+          </div>
         </div>
 
         <div

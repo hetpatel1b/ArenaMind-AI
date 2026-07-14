@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
   },
+  serverExternalPackages: ['@prisma/client', 'bcrypt'],
   async headers() {
     return [
       {

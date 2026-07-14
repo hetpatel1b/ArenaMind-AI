@@ -124,7 +124,11 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: CrowdMatc
         transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
         style={{ gridColumn: 'span 6' }}
       >
-        <AiRiskPrediction currentPhase={matchData.currentPhase} incidents={matchData.incidents} />
+        <AiRiskPrediction
+          currentPhase={matchData.currentPhase}
+          incidents={matchData.incidents}
+          recommendations={matchData.aiRecommendations}
+        />
       </motion.div>
 
       {/* Section 7 & 8: Recommendations & Activity Log (Span 6 each next row) */}
@@ -154,6 +158,7 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: CrowdMatc
           maxDensity: maxDensity,
           highestRiskZoneName: highestRiskZone ? highestRiskZone.name : 'None',
         }}
+        recommendations={matchData.aiRecommendations}
       />
     </main>
   );

@@ -10,24 +10,13 @@ interface ShiftTimelineProps {
 export function ShiftTimeline({ phaseTransitions }: ShiftTimelineProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Mix scenario transitions with some mock shift events for realism
-  const timelineEvents = [
-    {
-      title: 'Shift Bravo Briefing',
-      time: new Date(new Date().getTime() - 4 * 3600000).toISOString(),
-      type: 'admin',
-    },
-    {
-      title: 'Turnstiles Opened',
-      time: new Date(new Date().getTime() - 2 * 3600000).toISOString(),
-      type: 'operational',
-    },
-    ...phaseTransitions.map((pt) => ({
+  // Map scenario transitions to timeline events
+  const timelineEvents = phaseTransitions
+    .map((pt) => ({
       title: `Scenario Phase: ${pt.toPhase}`,
       time: pt.timestamp,
       type: 'critical',
-    })),
-  ]
+    }))
     .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
     .slice(0, 5); // take 5 most recent
 

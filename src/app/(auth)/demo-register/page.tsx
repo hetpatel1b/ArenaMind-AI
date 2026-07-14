@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
@@ -24,10 +24,7 @@ export default function DemoRegisterPage() {
   // Caps lock detection
   const [capsLockActive, setCapsLockActive] = useState(false);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = createClient();
 
   const checkPasswordStrength = (pass: string) => {
     let strength = 0;

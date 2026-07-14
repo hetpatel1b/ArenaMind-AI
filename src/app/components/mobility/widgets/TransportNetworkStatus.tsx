@@ -20,7 +20,7 @@ export function TransportNetworkStatus({ mobilityState }: TransportNetworkStatus
     {
       name: 'Red Line (South)',
       type: 'Metro',
-      capacity: Math.max(0, mobilityState.metro.capacity - 20), // Simulate variance
+      capacity: mobilityState.metro.capacity,
       delay: 0,
       utilization: 'Nominal',
       eta: 'On Time',

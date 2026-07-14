@@ -10,9 +10,13 @@ interface CrowdPersistentCopilotProps {
     maxDensity: number;
     highestRiskZoneName: string;
   };
+  recommendations?: any[];
 }
 
-export function CrowdPersistentCopilot({ scenarioContext }: CrowdPersistentCopilotProps) {
+export function CrowdPersistentCopilot({
+  scenarioContext,
+  recommendations = [],
+}: CrowdPersistentCopilotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
 
@@ -169,90 +173,62 @@ export function CrowdPersistentCopilot({ scenarioContext }: CrowdPersistentCopil
                 gap: 'var(--space-4)',
               }}
             >
-              {/* Fake AI Message */}
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                <div
-                  style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
-                    backgroundColor: 'var(--ai-accent)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#000"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
-                  </svg>
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.05)',
-                    padding: 'var(--space-3)',
-                    borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    I am actively monitoring crowd dynamics. The{' '}
-                    {scenarioContext.highestRiskZoneName} is currently at elevated capacity. Should
-                    I predict flow patterns for the next 15 minutes or suggest crowd diversion
-                    routes?
-                  </p>
+              {recommendations.length > 0 ? (
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                   <div
                     style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '4px',
+                      backgroundColor: 'var(--ai-accent)',
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-2)',
-                      marginTop: 'var(--space-3)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
-                    <button
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#000"
+                      strokeWidth="2"
+                    >
+                      <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
+                    </svg>
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      padding: 'var(--space-3)',
+                      borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
+                    }}
+                  >
+                    <p
                       style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        margin: 0,
+                        fontSize: 'var(--text-sm)',
                         color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
+                        lineHeight: 1.5,
                       }}
                     >
-                      Predict next 15m flow
-                    </button>
-                    <button
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Suggest diversion routes
-                    </button>
+                      {recommendations[0].data.suggestedAction}
+                    </p>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div
+                  style={{
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--text-secondary)',
+                    textAlign: 'center',
+                    marginTop: 'var(--space-8)',
+                  }}
+                >
+                  Monitoring real-time telemetry...
+                </div>
+              )}
             </div>
 
             <div

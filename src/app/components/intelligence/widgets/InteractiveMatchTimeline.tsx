@@ -35,29 +35,6 @@ export function InteractiveMatchTimeline({
     })),
   ];
 
-  // Add mock events to flesh out the timeline for reporting purposes
-  events.push({
-    id: 'mock-1',
-    time: new Date(new Date().getTime() - 3 * 3600000),
-    title: 'Transport: Metro Cadence Increased',
-    type: 'Transport',
-    color: 'var(--ai-accent)',
-  });
-  events.push({
-    id: 'mock-2',
-    time: new Date(new Date().getTime() - 2.5 * 3600000),
-    title: 'Crowd: Sector A Peak Density',
-    type: 'Crowd',
-    color: 'var(--status-warning)',
-  });
-  events.push({
-    id: 'mock-3',
-    time: new Date(new Date().getTime() - 1 * 3600000),
-    title: 'AI Directive: Reroute Medical',
-    type: 'AI',
-    color: 'var(--ai-accent)',
-  });
-
   events = events.sort((a, b) => a.time.getTime() - b.time.getTime());
 
   if (activeFilter !== 'All') {

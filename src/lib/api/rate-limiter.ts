@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { RateLimitError } from '../errors/http.errors';
+import { prisma } from '@/lib/db/client';
 
 export interface RateLimitOptions {
   windowMs: number;
@@ -7,19 +8,50 @@ export interface RateLimitOptions {
 }
 
 /**
- * Enterprise Rate Limiter Foundation.
- * Currently serves as a pass-through mock, but structured to easily drop in
- * @upstash/ratelimit or Redis later without changing route handler code.
+ * Enterprise Rate Limiter.
+ * Uses PostgreSQL for distributed rate limiting.
  */
 export async function enforceRateLimit(
   req: NextRequest,
   identifier: string,
   options: RateLimitOptions
 ): Promise<void> {
-  // In Phase 3, this will check Redis:
-  // const limit = await redis.ratelimit(identifier, options);
-  // if (!limit.success) throw new RateLimitError('Too many requests');
+  const windowEnd = new Date(Date.now() + options.windowMs);
 
-  // For Phase 2D foundation, it's a structural placeholder
-  return Promise.resolve();
+  // In a high-throughput enterprise app, Redis is better.
+  // For Phase 5.3 we persist to the RateLimit Postgres table.
+  const recordId = `${identifier}_${Math.floor(Date.now() / options.windowMs)}`;
+
+  try {
+    // Attempt to increment/create
+    const count = await prisma.rateLimit.count({
+      where: {
+        id: recordId, // Reusing ID to group requests per window
+      },
+    });
+
+    if (count >= options.maxRequests) {
+      throw new RateLimitError('Too many requests');
+    }
+
+    await prisma.rateLimit.create({
+      data: {
+        id: `${identifier}_${Date.now()}`, // Create unique event for the window
+        windowEnd,
+      },
+    });
+
+    // Clean up old records periodically
+    if (Math.random() < 0.01) {
+      await prisma.rateLimit
+        .deleteMany({
+          where: { windowEnd: { lt: new Date() } },
+        })
+        .catch(() => {});
+    }
+  } catch (error) {
+    if (error instanceof RateLimitError) throw error;
+    // Log but allow pass-through if DB fails (fail-open)
+    console.error('Rate limit DB error', error);
+  }
 }

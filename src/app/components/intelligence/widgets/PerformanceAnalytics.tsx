@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-export function PerformanceAnalytics() {
+export function PerformanceAnalytics({ kpiSnapshots = [] }: { kpiSnapshots?: any[] }) {
   const shouldReduceMotion = useReducedMotion();
   const [activeTab, setActiveTab] = useState('crowd');
 
@@ -13,18 +13,36 @@ export function PerformanceAnalytics() {
     { id: 'mobility', label: 'Mobility' },
   ];
 
-  // Mock data for the bar charts depending on the selected tab
+  // Parse real data from kpiSnapshots
   const getChartData = () => {
-    switch (activeTab) {
-      case 'crowd':
-        return [65, 80, 95, 85, 40];
-      case 'incidents':
-        return [2, 5, 8, 3, 1];
-      case 'mobility':
-        return [40, 50, 70, 98, 85];
-      default:
-        return [50, 50, 50, 50, 50];
+    // If no data, return a flat baseline
+    if (!kpiSnapshots || kpiSnapshots.length === 0) {
+      return [50, 50, 50, 50, 50];
     }
+
+    // Map snapshots to a maximum of 5 data points
+    const points = kpiSnapshots.slice(-5);
+
+    // Ensure we always have 5 points for the UI by padding with 0s if necessary
+    const paddedPoints = [...points];
+    while (paddedPoints.length < 5) {
+      paddedPoints.unshift(null); // padding with nulls to represent empty slots
+    }
+
+    return paddedPoints.map((snap) => {
+      if (!snap) return 0;
+      switch (activeTab) {
+        case 'crowd':
+          return snap.avgCrowdDensityPct || snap.healthScore || 50;
+        case 'incidents':
+          return snap.openIncidents || 0;
+        case 'mobility':
+          // Using health score as proxy if mobility specific metric isn't present
+          return snap.healthScore || 50;
+        default:
+          return 50;
+      }
+    });
   };
 
   const data = getChartData();
@@ -159,7 +177,7 @@ export function PerformanceAnalytics() {
                   color: 'var(--text-tertiary)',
                 }}
               >
-                Q{idx + 1}
+                {val === 0 ? '' : `T-${4 - idx}`}
               </span>
             </div>
           );

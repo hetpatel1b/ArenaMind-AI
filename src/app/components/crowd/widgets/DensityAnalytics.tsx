@@ -18,13 +18,21 @@ export function DensityAnalytics({ kpiSnapshots }: DensityAnalyticsProps) {
   // Current average density
   const currentDensity = Number(kpiSnapshots[0].avgCrowdDensityPct);
 
-  // Fake a forecast based on the current scenario snapshot
-  // If density is extremely high, assume AI predicts a peak or gradual decline
+  // Calculate trend based on historical snapshots
   const predictTrend = () => {
-    if (currentDensity > 85)
-      return { direction: 'Peaking', predicted: Math.min(100, currentDensity + 3) };
-    if (currentDensity > 60) return { direction: 'Rising', predicted: currentDensity + 10 };
-    return { direction: 'Stable', predicted: currentDensity };
+    if (kpiSnapshots.length < 2) {
+      return { direction: 'Stable', predicted: currentDensity };
+    }
+
+    const previousDensity = Number(kpiSnapshots[1].avgCrowdDensityPct);
+    const delta = currentDensity - previousDensity;
+
+    // Project the current delta forward 15 minutes (assuming snapshots are e.g. 5m apart, project 3x delta)
+    const predicted = Math.max(0, Math.min(100, currentDensity + delta * 3));
+
+    if (delta > 2) return { direction: 'Rising', predicted };
+    if (delta < -2) return { direction: 'Falling', predicted };
+    return { direction: 'Stable', predicted };
   };
 
   const forecast = predictTrend();

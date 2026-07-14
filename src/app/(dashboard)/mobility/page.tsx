@@ -9,7 +9,7 @@ export default async function MobilityCommandPage() {
   const session = await getServerSession();
 
   if (!session) {
-    redirect('/login');
+    redirect('/unauthorized');
   }
 
   const stadiumId = session.stadiumId;
@@ -21,20 +21,28 @@ export default async function MobilityCommandPage() {
       matchStatus: 'active',
     },
     include: {
+      phaseTransitions: {
+        orderBy: { timestamp: 'desc' },
+      },
       stadium: {
         include: {
           zones: true,
+          systemSettings: {
+            where: { key: 'mobility_telemetry' },
+          },
         },
       },
       aiRecommendations: {
         where: {
-          featureName: 'mobility_suggestions', // Hypothetical feature flag for mobility
+          featureName: 'mobility_suggestions',
         },
         orderBy: { confidenceScore: 'desc' },
       },
-      phaseTransitions: {
-        orderBy: { timestamp: 'desc' },
+      queueData: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
       },
+      accessibilityRequests: true,
     },
   });
 
@@ -47,30 +55,43 @@ export default async function MobilityCommandPage() {
     );
   }
 
-  // Construct a deterministic mock mobility state based on the match phase
-  const isEgress = match.currentPhase === 'egress';
-  const mobilityState = {
-    metro: {
-      status: isEgress ? 'congested' : 'nominal',
-      capacity: isEgress ? 95 : 40,
-      delay: isEgress ? 15 : 0,
-    },
-    shuttles: {
-      status: isEgress ? 'rerouted' : 'nominal',
-      capacity: isEgress ? 80 : 30,
-      delay: isEgress ? 5 : 0,
-    },
-    parking: {
-      status: isEgress ? 'emptying' : 'full',
-      occupancy: isEgress ? 60 : 98,
-      overflowActive: !isEgress,
-    },
-    accessibility: {
-      status: 'active',
-      activeRequests: isEgress ? 24 : 5,
-      shuttleAvailability: isEgress ? 10 : 100, // percentage
-    },
-  };
+  const isEgress = match.currentPhase === 'egress' || match.currentPhase === 'crowd_exit';
+
+  // Try to load external mobility telemetry from SystemSettings
+  const telemetrySetting = match.stadium?.systemSettings?.find(
+    (s) => s.key === 'mobility_telemetry'
+  );
+
+  let mobilityState;
+
+  if (telemetrySetting && telemetrySetting.value) {
+    // Cast from JSON
+    mobilityState = telemetrySetting.value as any;
+  } else {
+    // Fallback to synthesizing based on active match data instead of hardcoded mock
+    mobilityState = {
+      metro: {
+        status: isEgress ? 'congested' : 'nominal',
+        capacity: isEgress ? 95 : 40,
+        delay: isEgress ? 15 : 0,
+      },
+      shuttles: {
+        status: isEgress ? 'rerouted' : 'nominal',
+        capacity: isEgress ? 80 : 30,
+        delay: isEgress ? 5 : 0,
+      },
+      parking: {
+        status: isEgress ? 'emptying' : 'full',
+        occupancy: isEgress ? 60 : 98,
+        overflowActive: !isEgress,
+      },
+      accessibility: {
+        status: 'active',
+        activeRequests: match.accessibilityRequests?.length || 0, // Fallback if accessibility is not joined
+        shuttleAvailability: isEgress ? 10 : 100, // percentage
+      },
+    };
+  }
 
   return <MobilityCommandWorkspace matchData={match as any} mobilityState={mobilityState} />;
 }

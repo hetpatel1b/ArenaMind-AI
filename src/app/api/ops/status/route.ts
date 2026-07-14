@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { diagnostics } from '@/lib/infrastructure/monitoring/diagnostics';
 import { maintenanceManager } from '@/lib/infrastructure/ops/maintenance';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
   if (maintenanceManager.isActive()) {
     return NextResponse.json(

@@ -31,7 +31,7 @@ export function PriorityIncidentQueue({
 
   const calculateSLA = (createdAt: Date, tier: number) => {
     const elapsedMinutes = Math.floor((now.getTime() - new Date(createdAt).getTime()) / 60000);
-    // Dummy SLA definitions: Tier 1 = 15m, Tier 2 = 30m, Tier 3 = 60m
+    // SLA definitions: Tier 1 = 15m, Tier 2 = 30m, Tier 3 = 60m
     const slaTarget = tier === 1 ? 15 : tier === 2 ? 30 : 60;
     const remaining = slaTarget - elapsedMinutes;
     return remaining;

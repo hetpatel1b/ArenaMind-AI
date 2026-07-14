@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   const session = await getServerSession();
 
   if (!session) {
-    redirect('/login');
+    redirect('/unauthorized');
   }
 
   // Fetch all core operational data for the active match based on the user's stadium

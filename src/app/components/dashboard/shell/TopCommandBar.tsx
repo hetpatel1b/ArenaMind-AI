@@ -1,8 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/components/providers/auth-provider';
+import { createClient } from '@/lib/supabase/client';
 
 export function TopCommandBar() {
+  const { user, signOut } = useAuth();
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel('system_notifications')
+      .on('broadcast', { event: 'email_sent' }, (payload) => {
+        setUnreadCount((prev) => prev + 1);
+      })
+      .on('broadcast', { event: 'sms_sent' }, (payload) => {
+        setUnreadCount((prev) => prev + 1);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const getInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const names = user.user_metadata.full_name.split(' ');
+      return names
+        .map((n: string) => n[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase();
+    }
+    return 'OP';
+  };
+
   return (
     <header
       style={{
@@ -66,7 +101,7 @@ export function TopCommandBar() {
           padding: '0 var(--space-8)',
         }}
       >
-        {/* Global Search / Quick Command Mock */}
+        {/* Global Search / Quick Command */}
         <button
           className="input flex-between focus-ring"
           style={{
@@ -107,7 +142,8 @@ export function TopCommandBar() {
         <button
           className="btn btn-ghost"
           aria-label="Notifications"
-          style={{ padding: 'var(--space-2)' }}
+          style={{ padding: 'var(--space-2)', position: 'relative' }}
+          onClick={() => setUnreadCount(0)}
         >
           {/* Bell Icon */}
           <svg
@@ -123,11 +159,34 @@ export function TopCommandBar() {
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
+          {unreadCount > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '2px',
+                right: '2px',
+                backgroundColor: 'var(--status-critical)',
+                color: 'white',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                borderRadius: '50%',
+                width: '16px',
+                height: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </div>
+          )}
         </button>
         <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border-strong)' }} />
         <button
           className="btn btn-ghost"
           aria-label="User Menu"
+          onClick={signOut}
+          title="Sign Out"
           style={{
             padding: 'var(--space-2)',
             display: 'flex',
@@ -149,7 +208,7 @@ export function TopCommandBar() {
               fontWeight: 'bold',
             }}
           >
-            OP
+            {getInitials()}
           </div>
         </button>
       </div>
