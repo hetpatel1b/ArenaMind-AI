@@ -1,28 +1,34 @@
 import { Hero } from './components/landing/Hero';
-import { Problem } from './components/landing/Problem';
-import { Solution } from './components/landing/Solution';
-import { CommandCenterPreview } from './components/landing/CommandCenterPreview';
-import { AiWorkflow } from './components/landing/AiWorkflow';
-import { CoreCapabilities } from './components/landing/CoreCapabilities';
-import { Technology } from './components/landing/Technology';
-import { Metrics } from './components/landing/Metrics';
 import { Footer } from './components/landing/Footer';
 import { StartupProvider } from './components/startup/StartupProvider';
 import { StartupOverlay } from './components/startup/StartupOverlay';
+
+// New Story Components
+import { StoryIntroduction } from './components/landing/story/StoryIntroduction';
+import { StoryStadiumScale } from './components/landing/story/StoryStadiumScale';
+import { StoryLegacyFailure } from './components/landing/story/StoryLegacyFailure';
+import { StoryAiReasoning } from './components/landing/story/StoryAiReasoning';
+import { StoryTrustLayer } from './components/landing/story/StoryTrustLayer';
+import { StoryBentoCapabilities } from './components/landing/story/StoryBentoCapabilities';
+import { StoryArchitecture } from './components/landing/story/StoryArchitecture';
+import { StoryEnterpriseReady } from './components/landing/story/StoryEnterpriseReady';
+import { StoryFinalCta } from './components/landing/story/StoryFinalCta';
 
 export default function Home() {
   return (
     <StartupProvider>
       <StartupOverlay />
-      <main>
+      <main style={{ backgroundColor: '#050507', overflowX: 'hidden' }}>
         <Hero />
-        <Problem />
-        <Solution />
-        <CommandCenterPreview />
-        <AiWorkflow />
-        <CoreCapabilities />
-        <Technology />
-        <Metrics />
+        <StoryIntroduction />
+        <StoryStadiumScale />
+        <StoryLegacyFailure />
+        <StoryAiReasoning />
+        <StoryTrustLayer />
+        <StoryBentoCapabilities />
+        <StoryArchitecture />
+        <StoryEnterpriseReady />
+        <StoryFinalCta />
         <Footer />
       </main>
     </StartupProvider>

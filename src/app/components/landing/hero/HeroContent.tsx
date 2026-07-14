@@ -157,7 +157,7 @@ export function HeroContent() {
           style={{
             padding: '16px 32px',
             borderRadius: '12px',
-            backgroundColor: 'transparent',
+            backgroundColor: 'rgba(255,255,255,0)',
             color: '#ffffff',
             fontSize: '16px',
             fontWeight: 600,
