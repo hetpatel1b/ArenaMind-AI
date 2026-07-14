@@ -17,16 +17,17 @@ export function LandingBackground() {
   const gridY = useTransform(scrollY, [0, 3000], [0, -300]);
 
   // Phase Opacities
-  // 0.0 - 0.2: Radar (Hero)
-  // 0.2 - 0.4: Blueprint Grid
-  // 0.4 - 0.6: Neural Particles
-  // 0.6 - 0.8: Data Streams
-  // 0.8 - 1.0: Aurora
-  const radarOpacity = useTransform(scrollYProgress, [0, 0.2, 0.3], [1, 1, 0]);
-  const gridOpacity = useTransform(scrollYProgress, [0.1, 0.2, 0.4, 0.5], [0, 1, 1, 0]);
-  const neuralOpacity = useTransform(scrollYProgress, [0.3, 0.4, 0.6, 0.7], [0, 1, 1, 0]);
-  const dataOpacity = useTransform(scrollYProgress, [0.5, 0.6, 0.8, 0.9], [0, 1, 1, 0]);
-  const auroraOpacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [0, 1, 1]);
+  // 0.0 - 0.15: Radar (Hero)
+  // 0.15 - 0.35: Blueprint Grid
+  // 0.35 - 0.55: Neural Mesh
+  // 0.55 - 0.75: Data Streams
+  // 0.75 - 0.85: Mission Control (Dark Calm)
+  // 0.85 - 1.0: Aurora
+  const radarOpacity = useTransform(scrollYProgress, [0, 0.15, 0.25], [1, 1, 0]);
+  const gridOpacity = useTransform(scrollYProgress, [0.1, 0.15, 0.35, 0.45], [0, 1, 1, 0]);
+  const neuralOpacity = useTransform(scrollYProgress, [0.3, 0.35, 0.55, 0.65], [0, 1, 1, 0]);
+  const dataOpacity = useTransform(scrollYProgress, [0.5, 0.55, 0.75, 0.85], [0, 1, 1, 0]);
+  const auroraOpacity = useTransform(scrollYProgress, [0.8, 0.85, 1], [0, 1, 1]);
 
   if (!isClient)
     return <div style={{ position: 'fixed', inset: 0, backgroundColor: '#050507', zIndex: -1 }} />;

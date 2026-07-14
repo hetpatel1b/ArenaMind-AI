@@ -37,8 +37,8 @@ export function StoryIntroduction() {
             marginBottom: '32px',
           }}
         >
-          A stadium is not a building. <br />
-          <span style={{ color: 'rgba(255,255,255,0.4)' }}>It is a living organism.</span>
+          100,000 fans. 5,000 staff. <br />
+          <span style={{ color: 'rgba(255,255,255,0.4)' }}>Infinite variables.</span>
         </motion.h2>
 
         <motion.p
@@ -53,9 +53,10 @@ export function StoryIntroduction() {
             maxWidth: '600px',
           }}
         >
-          ArenaMind AI was engineered specifically for the sheer scale and complexity of the FIFA
-          World Cup 2026. It is the first dedicated intelligence layer that breathes life into venue
-          operations, continuously reasoning across thousands of distinct data streams.
+          Human operators cannot process this scale. ArenaMind AI was engineered specifically for
+          the sheer mathematical complexity of the FIFA World Cup 2026. It is the first enterprise
+          intelligence layer that continuously reasons across thousands of distinct data streams to
+          govern stadium operations.
         </motion.p>
       </div>
     </section>

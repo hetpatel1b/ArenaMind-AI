@@ -12,8 +12,8 @@ export function StoryTrustLayer() {
     <section
       aria-label="Human-in-the-Loop Trust Layer"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         flexDirection: 'column',
@@ -108,15 +108,37 @@ export function StoryTrustLayer() {
           transition={{ duration: 0.5, delay: 0.6 }}
           style={{
             padding: '24px',
-            backgroundColor: 'rgba(100, 150, 255, 0.1)',
-            border: '2px solid rgba(100, 150, 255, 0.5)',
+            backgroundColor: 'rgba(100, 150, 255, 0.05)',
+            border: '2px solid rgba(100, 150, 255, 0.3)',
             borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            boxShadow: '0 0 30px rgba(100, 150, 255, 0.2)',
+            boxShadow: '0 0 30px rgba(100, 150, 255, 0.1)',
+            position: 'relative',
           }}
         >
+          {/* Awaiting Authorization Pulse */}
+          <motion.div
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute',
+              top: '-10px',
+              backgroundColor: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid #ef4444',
+              color: '#ef4444',
+              padding: '4px 12px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Awaiting Authorization
+          </motion.div>
+
           <svg
             aria-hidden="true"
             width="24"
@@ -127,12 +149,19 @@ export function StoryTrustLayer() {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ marginBottom: '8px' }}
+            style={{ marginBottom: '8px', marginTop: '16px' }}
           >
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <span style={{ color: '#fff', fontWeight: 600 }}>Commander Approval</span>
+          <span style={{ color: '#fff', fontWeight: 600, marginBottom: '8px' }}>
+            Commander Approval
+          </span>
+          <span
+            style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', fontFamily: 'monospace' }}
+          >
+            CRYPTOGRAPHIC AUDIT LOG: PENDING
+          </span>
         </motion.div>
 
         <motion.div

@@ -134,3 +134,42 @@ export function DynamicGlassBorder({
     </div>
   );
 }
+
+// Enterprise Premium Card Wrapper
+export function PremiumCard({
+  children,
+  style,
+  glowColor = 'rgba(255,255,255,0.05)',
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+  glowColor?: string;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) {
+    return <div style={{ ...style, border: '1px solid rgba(255,255,255,0.1)' }}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      whileHover={{
+        y: -4,
+        scale: 1.01,
+        boxShadow: `0 20px 40px rgba(0,0,0,0.5), inset 0 0 30px ${glowColor}`,
+        borderColor: 'rgba(255,255,255,0.2)',
+      }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      style={{
+        ...style,
+        border: '1px solid rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.02)',
+        overflow: 'hidden',
+        position: 'relative',
+        willChange: 'transform',
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}

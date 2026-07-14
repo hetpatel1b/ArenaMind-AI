@@ -16,8 +16,8 @@ export function StoryArchitecture() {
     <section
       aria-label="System Architecture"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         flexDirection: 'column',
@@ -120,26 +120,27 @@ export function StoryArchitecture() {
             {!shouldReduceMotion && i < LAYERS.length - 1 && (
               <motion.div
                 animate={{
-                  y: [0, -100],
+                  y: [0, -120],
                   opacity: [0, 1, 0],
                   scale: [1, 0.5],
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 1.5,
                   repeat: Infinity,
+                  repeatDelay: 3 + i, // Discrete, staggered travel
                   ease: 'easeIn',
-                  delay: i * 0.5,
+                  delay: i * 1.5,
                 }}
                 style={{
                   position: 'absolute',
-                  top: '-40px', // Start above current layer
+                  top: '-20px', // Start near the surface
                   left: '50%',
-                  width: '4px',
-                  height: '20px',
-                  marginLeft: '-2px',
+                  width: '6px',
+                  height: '24px',
+                  marginLeft: '-3px',
                   background: `linear-gradient(to top, transparent, ${layer.color})`,
-                  borderRadius: '2px',
-                  boxShadow: `0 0 10px ${layer.color}`,
+                  borderRadius: '3px',
+                  boxShadow: `0 0 15px ${layer.color}`,
                   // Rotate to stand up in the 3D space
                   transformOrigin: 'bottom',
                   rotateX: -60,

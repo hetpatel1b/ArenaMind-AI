@@ -17,8 +17,8 @@ export function StoryStadiumScale() {
     <section
       aria-label="Stadium Scale Requirements"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         position: 'relative',
         display: 'flex',

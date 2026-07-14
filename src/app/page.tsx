@@ -2,6 +2,7 @@ import { Hero } from './components/landing/Hero';
 import { Footer } from './components/landing/Footer';
 import { StartupProvider } from './components/startup/StartupProvider';
 import { StartupOverlay } from './components/startup/StartupOverlay';
+import { LandingNavbar } from './components/landing/LandingNavbar';
 
 // Background & Motion
 import { LandingBackground } from './components/landing/LandingBackground';
@@ -26,6 +27,7 @@ export default function Home() {
       <StartupOverlay />
       <EnterpriseCursor />
       <LandingBackground />
+      <LandingNavbar />
       <main style={{ position: 'relative', zIndex: 1, overflowX: 'hidden' }}>
         <SignalPropagation />
         <Hero />

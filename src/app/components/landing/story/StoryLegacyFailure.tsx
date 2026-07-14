@@ -10,8 +10,8 @@ export function StoryLegacyFailure() {
     <section
       aria-label="Legacy Systems Failure"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         alignItems: 'center',
@@ -45,7 +45,7 @@ export function StoryLegacyFailure() {
               marginBottom: '24px',
             }}
           >
-            Legacy systems are disconnected silos.
+            Reactive operations fail at scale.
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -54,8 +54,9 @@ export function StoryLegacyFailure() {
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{ fontSize: '1.125rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}
           >
-            When ticketing, security, and crowd control operate independently, critical insights are
-            lost in the gaps. Operators react to emergencies instead of preventing them.
+            When ticketing, security, and crowd flow do not communicate, you react to emergencies
+            instead of preventing them. Without unified intelligence, critical warning signs are
+            buried in disconnected dashboards.
           </motion.p>
         </div>
 

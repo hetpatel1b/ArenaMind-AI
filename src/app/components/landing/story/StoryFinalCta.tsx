@@ -50,8 +50,8 @@ export function StoryFinalCta() {
     <section
       aria-label="Launch ArenaMind"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         flexDirection: 'column',
@@ -112,69 +112,135 @@ export function StoryFinalCta() {
         {!shouldReduceMotion ? (
           <div
             style={{
-              position: 'absolute',
-              inset: 0,
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '12px',
               pointerEvents: 'none',
+              marginBottom: '40px',
             }}
           >
-            <motion.p
-              variants={itemVariants}
-              style={{
-                position: 'absolute',
-                fontSize: '1.25rem',
-                color: 'var(--status-success)',
-                fontFamily: 'monospace',
-                letterSpacing: '0.1em',
+            {[
+              'ALL SYSTEMS OPERATIONAL',
+              'AI CORE READY',
+              'SECURITY VERIFIED',
+              'GLOBAL INFRASTRUCTURE CONNECTED',
+            ].map((text, i) => (
+              <motion.div
+                key={text}
+                variants={{
+                  hidden: { opacity: 0, y: 10, filter: 'blur(5px)' },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    filter: 'blur(0px)',
+                    transition: { duration: 0.8, delay: i * 0.4, ease: 'easeOut' },
+                  },
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '4px',
+                    height: '4px',
+                    backgroundColor: '#22c55e',
+                    borderRadius: '50%',
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: '0.875rem',
+                    color: 'var(--status-success)',
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.1em',
+                  }}
+                >
+                  {text}
+                </span>
+              </motion.div>
+            ))}
+
+            <motion.h2
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.8, delay: 2, ease: 'easeOut' },
+                },
               }}
-            >
-              &gt; MISSION STATUS: OPTIMAL
-            </motion.p>
-            <motion.p
-              variants={itemVariants}
               style={{
-                position: 'absolute',
-                fontSize: '1.25rem',
-                color: 'var(--status-success)',
-                fontFamily: 'monospace',
-                letterSpacing: '0.1em',
-              }}
-            >
-              &gt; SYSTEMS ONLINE
-            </motion.p>
-            <motion.p
-              variants={itemVariants}
-              style={{
-                position: 'absolute',
-                fontSize: '1.25rem',
-                color: 'var(--status-success)',
-                fontFamily: 'monospace',
-                letterSpacing: '0.1em',
-              }}
-            >
-              &gt; AI CORE READY
-            </motion.p>
-            <motion.p
-              variants={itemVariants}
-              style={{
-                position: 'absolute',
-                fontSize: '1.5rem',
+                marginTop: '16px',
+                fontSize: 'clamp(2rem, 3vw, 2.5rem)',
                 color: '#fff',
                 fontWeight: 600,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
+                letterSpacing: '-0.02em',
               }}
             >
-              COMMAND AUTHORIZATION GRANTED
-            </motion.p>
+              Launch Command Center
+            </motion.h2>
           </div>
         ) : null}
 
+        {/* Telemetry Section (Mission Ready State) */}
+        <motion.div
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { duration: 1, delay: 2.5 } },
+          }}
+          style={{
+            position: 'relative',
+            zIndex: 15,
+            display: 'flex',
+            gap: '32px',
+            justifyContent: 'center',
+            marginBottom: '40px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <motion.div
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#22c55e',
+              }}
+            />
+            <span
+              style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontFamily: 'monospace' }}
+            >
+              LATENCY: &lt;45ms
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <motion.div
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.5, delay: 0.5, repeat: Infinity }}
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: '#22c55e',
+              }}
+            />
+            <span
+              style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontFamily: 'monospace' }}
+            >
+              SECURITY AUDIT: PASSED
+            </span>
+          </div>
+        </motion.div>
+
         <motion.div
           variants={finalItemVariants}
-          style={{ position: 'relative', zIndex: 20, marginTop: shouldReduceMotion ? 0 : '100px' }}
+          style={{ position: 'relative', zIndex: 20, marginTop: shouldReduceMotion ? 0 : '40px' }}
         >
           <MagneticHover pull={0.15}>
             <motion.button
@@ -195,7 +261,7 @@ export function StoryFinalCta() {
                 outline: 'none',
               }}
             >
-              {isNavigating ? 'Authenticating...' : 'Launch ArenaMind'}
+              {isNavigating ? 'Initializing Command...' : 'Take Command'}
             </motion.button>
           </MagneticHover>
         </motion.div>

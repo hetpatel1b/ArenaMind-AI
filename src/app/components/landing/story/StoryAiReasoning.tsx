@@ -11,8 +11,8 @@ export function StoryAiReasoning() {
     <section
       aria-label="AI Reasoning Engine"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         alignItems: 'center',
@@ -60,13 +60,17 @@ export function StoryAiReasoning() {
       >
         {/* Input Data Nodes */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {['Density Sensors', 'Transport APIs', 'Historical Flow'].map((input, i) => (
+          {[
+            'South Concourse density +45%',
+            'Transport API: 2 Trains Arriving',
+            'Historical Flow: Severe Delay',
+          ].map((input, i) => (
             <motion.div
               key={input}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.5, delay: i * 0.4 }}
               style={{
                 padding: '12px 24px',
                 border: '1px solid rgba(255,255,255,0.1)',
@@ -154,12 +158,13 @@ export function StoryAiReasoning() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               whileInView={{ opacity: 1, height: 'auto' }}
-              transition={{ duration: 0.5, delay: 1.2 }}
+              transition={{ duration: 0.5, delay: 1.6 }}
             >
               <ExplainabilityCard
                 factors={[
-                  { label: 'Density Sensors', weight: 0.6 },
-                  { label: 'Historical Flow', weight: 0.4 },
+                  { label: 'Density Surge', weight: 0.5 },
+                  { label: 'Train Arrivals', weight: 0.3 },
+                  { label: 'Historical Trend', weight: 0.2 },
                 ]}
               />
             </motion.div>

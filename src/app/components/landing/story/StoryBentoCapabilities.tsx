@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { PremiumCard } from '../../motion/MicroInteractions';
 import { DensityGauge } from '../../ui/CrowdComponents';
 import { IncidentCard } from '../../ui/IncidentComponents';
 import { ResourceCard } from '../../ui/ResourceComponents';
@@ -10,7 +11,7 @@ import { TrendCard } from '../../ui/KpiComponents';
 const CAPABILITIES = [
   {
     title: 'Crowd Intelligence',
-    desc: 'Real-time density mapping and predictive bottleneck analysis.',
+    desc: 'Gate 4 density spikes. AI detects anomaly. Bottleneck predicted. Operations alerted before congestion forms.',
     span: 'col-span-1 md:col-span-2',
     color: 'rgba(100, 150, 255, 0.1)',
     border: 'rgba(100, 150, 255, 0.3)',
@@ -22,7 +23,7 @@ const CAPABILITIES = [
   },
   {
     title: 'Incident Response',
-    desc: 'Automated threat vector detection and security dispatch.',
+    desc: 'Unattended bag detected. Camera feeds correlated. Security dispatched. Area isolated in 14 seconds.',
     span: 'col-span-1 md:col-span-1',
     color: 'rgba(239, 68, 68, 0.1)',
     border: 'rgba(239, 68, 68, 0.3)',
@@ -40,7 +41,7 @@ const CAPABILITIES = [
   },
   {
     title: 'Resource Allocation',
-    desc: 'Dynamic staff routing based on live stadium demands.',
+    desc: 'Medical emergency logged. Nearest available unit identified. Optimal route mapped. Response time minimized.',
     span: 'col-span-1 md:col-span-1',
     color: 'rgba(74, 222, 128, 0.1)',
     border: 'rgba(74, 222, 128, 0.3)',
@@ -52,22 +53,37 @@ const CAPABILITIES = [
   },
   {
     title: 'Transit Sync',
-    desc: 'Ingests external transit APIs to predict fan arrival surges.',
+    desc: 'Local trains delayed. Inbound surge re-calculated. Concourse staffing adjusted. Flow remains uninterrupted.',
     span: 'col-span-1 md:col-span-2',
     color: 'rgba(168, 85, 247, 0.1)',
     border: 'rgba(168, 85, 247, 0.3)',
     renderUI: () => (
       <div style={{ pointerEvents: 'none' }}>
-        <TrendCard
-          title="Inbound Passengers (Next 15m)"
-          value="12,400"
-          trend="up"
-          trendLabel="45% increase"
-        />
+        <LiveTrendCard />
       </div>
     ),
   },
 ];
+
+function LiveTrendCard() {
+  const [value, setValue] = React.useState(12400);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setValue((prev) => prev + Math.floor(Math.random() * 3));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <TrendCard
+      title="Inbound Passengers (Next 15m)"
+      value={value.toLocaleString()}
+      trend="up"
+      trendLabel="45% increase"
+    />
+  );
+}
 
 export function StoryBentoCapabilities() {
   const shouldReduceMotion = useReducedMotion();
@@ -76,8 +92,8 @@ export function StoryBentoCapabilities() {
     <section
       aria-label="Platform Capabilities"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         flexDirection: 'column',
@@ -109,77 +125,89 @@ export function StoryBentoCapabilities() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
         {CAPABILITIES.map((cap, i) => (
-          <motion.div
+          <PremiumCard
             key={cap.title}
-            className={cap.span}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            whileHover={shouldReduceMotion ? {} : { scale: 1.02, y: -5 }}
-            whileFocus={
-              shouldReduceMotion
-                ? { boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)' }
-                : { scale: 1.02, y: -5, boxShadow: '0 0 0 3px rgba(100, 150, 255, 0.6)' }
-            }
-            tabIndex={0}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
+            glowColor={cap.border}
             style={{
               padding: '32px',
-              backgroundColor: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
-              borderRadius: '24px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              position: 'relative',
-              overflow: 'hidden',
-              cursor: 'default',
-              outline: 'none',
               gap: '24px',
+              height: '100%',
             }}
           >
             <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '150px',
-                height: '150px',
-                background: `radial-gradient(circle at top right, ${cap.color}, transparent 70%)`,
-                opacity: 0.5,
-              }}
-            />
-
-            <div
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
+              className={cap.span}
+              style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
             >
-              <div
+              {/* Live Indicator Pulse */}
+              <motion.div
+                animate={{ opacity: [0.2, 1, 0.2] }}
+                transition={{ duration: 2, delay: i * 0.5, repeat: Infinity, ease: 'easeInOut' }}
                 style={{
-                  width: '40px',
-                  height: '4px',
-                  backgroundColor: cap.border.replace('0.3', '1'),
-                  marginBottom: '24px',
-                  borderRadius: '2px',
+                  position: 'absolute',
+                  top: '24px',
+                  right: '24px',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: cap.color.replace('0.1', '0.8'),
+                  boxShadow: `0 0 10px ${cap.color.replace('0.1', '0.8')}`,
+                  zIndex: 2,
                 }}
               />
-              <h3
-                style={{ fontSize: '1.5rem', fontWeight: 600, color: '#fff', marginBottom: '12px' }}
-              >
-                {cap.title}
-              </h3>
-              <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, marginBottom: '24px' }}>
-                {cap.desc}
-              </p>
 
-              <div style={{ marginTop: 'auto' }}>{cap.renderUI()}</div>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: '150px',
+                  height: '150px',
+                  background: `radial-gradient(circle at top right, ${cap.color}, transparent 70%)`,
+                  opacity: 0.5,
+                }}
+              />
+
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 1,
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div
+                  style={{
+                    width: '40px',
+                    height: '4px',
+                    backgroundColor: cap.border.replace('0.3', '1'),
+                    marginBottom: '24px',
+                    borderRadius: '2px',
+                  }}
+                />
+                <h3
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 600,
+                    color: '#fff',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {cap.title}
+                </h3>
+                <p
+                  style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.5, marginBottom: '24px' }}
+                >
+                  {cap.desc}
+                </p>
+
+                <div style={{ marginTop: 'auto' }}>{cap.renderUI()}</div>
+              </div>
             </div>
-          </motion.div>
+          </PremiumCard>
         ))}
       </div>
     </section>

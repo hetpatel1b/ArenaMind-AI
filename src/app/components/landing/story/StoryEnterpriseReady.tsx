@@ -54,8 +54,8 @@ export function StoryEnterpriseReady() {
     <section
       aria-label="Enterprise Readiness"
       style={{
-        minHeight: '80vh',
-        padding: '100px 24px',
+        minHeight: '50vh',
+        padding: '60px 24px',
         backgroundColor: '#050507',
         display: 'flex',
         flexDirection: 'column',
@@ -212,20 +212,31 @@ export function StoryEnterpriseReady() {
             >
               arena-mind-core-v2.1
             </span>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <motion.div
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#22c55e',
+                  boxShadow: '0 0 8px #22c55e',
+                }}
+              />
+              <span style={{ color: '#22c55e', fontSize: '12px', fontFamily: 'monospace' }}>
+                LIVE TELEMETRY
+              </span>
+            </div>
           </div>
 
           {/* Real Components Grid */}
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Top Row KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <MetricCard title="Active Incidents" value={3} />
-              <TrendCard
-                title="Crowd Flow Rate"
-                value="1,205 pax/min"
-                trend="down"
-                trendLabel="12% vs avg"
-              />
-              <HealthCard label="System Health" score={98} />
+              <LiveMetricCard />
+              <LiveTrendCard />
+              <LiveHealthCard />
             </div>
 
             {/* Middle Row Details */}
@@ -240,7 +251,7 @@ export function StoryEnterpriseReady() {
                 title="Medical Emergency"
                 severity="HIGH"
                 location="Sector C"
-                time="2m ago"
+                time="Just Now"
               />
             </div>
           </div>
@@ -248,4 +259,44 @@ export function StoryEnterpriseReady() {
       </motion.div>
     </section>
   );
+}
+
+function LiveMetricCard() {
+  const [incidents, setIncidents] = useState(3);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIncidents((prev) => (Math.random() > 0.8 ? prev + 1 : prev));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+  return <MetricCard title="Active Incidents" value={incidents} />;
+}
+
+function LiveTrendCard() {
+  const [flow, setFlow] = useState(1204);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFlow((prev) => prev + (Math.random() > 0.5 ? 1 : -1));
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <TrendCard
+      title="Crowd Flow Rate"
+      value={`${flow} pax/min`}
+      trend="down"
+      trendLabel="12% vs avg"
+    />
+  );
+}
+
+function LiveHealthCard() {
+  const [health, setHealth] = useState(98);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHealth((prev) => (prev === 98 ? 99 : 98));
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+  return <HealthCard label="System Health" score={health} />;
 }
