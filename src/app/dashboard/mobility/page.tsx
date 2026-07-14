@@ -15,10 +15,25 @@ export default async function MobilityCommandPage() {
   const stadiumId = session.stadiumId;
 
   // Fetch active match with mobility-focused payload
-  const match = await prisma.match.findFirst({
+  const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT id FROM matches 
+    WHERE stadium_id = ${stadiumId}::uuid 
+    AND match_status::text = 'active'
+    LIMIT 1
+  `;
+
+  if (!activeMatchIds || activeMatchIds.length === 0 || !activeMatchIds[0]) {
+    return (
+      <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
+        <h1>No Active Match Found</h1>
+        <p>Please ensure your Demo Operator Workspace has been fully provisioned.</p>
+      </div>
+    );
+  }
+
+  const match = await prisma.match.findUnique({
     where: {
-      stadiumId,
-      matchStatus: 'active',
+      id: activeMatchIds[0]!.id,
     },
     include: {
       phaseTransitions: {
@@ -93,5 +108,10 @@ export default async function MobilityCommandPage() {
     };
   }
 
-  return <MobilityCommandWorkspace matchData={match as any} mobilityState={mobilityState} />;
+  return (
+    <MobilityCommandWorkspace
+      matchData={JSON.parse(JSON.stringify(match)) as any}
+      mobilityState={mobilityState}
+    />
+  );
 }
