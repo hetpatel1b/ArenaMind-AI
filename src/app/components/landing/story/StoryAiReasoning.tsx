@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { AiRecommendationCard, ExplainabilityCard } from '../../ui/AiComponents';
 
 export function StoryAiReasoning() {
   const shouldReduceMotion = useReducedMotion();
@@ -113,23 +114,38 @@ export function StoryAiReasoning() {
           <span style={{ color: '#fff', fontWeight: 'bold' }}>AI CORE</span>
         </motion.div>
 
-        {/* Output Action */}
+        {/* Output Action - Replaced with Real Components */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5, delay: 0.8 }}
           style={{
-            padding: '16px 24px',
-            backgroundColor: 'rgba(74, 222, 128, 0.1)',
-            border: '1px solid rgba(74, 222, 128, 0.4)',
-            borderRadius: '8px',
-            color: '#4ade80',
-            fontWeight: 600,
-            boxShadow: '0 0 20px rgba(74, 222, 128, 0.2)',
+            maxWidth: '350px',
+            pointerEvents: 'none', // Disable interaction for landing page
           }}
         >
-          Predictive Re-routing Recommended
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <AiRecommendationCard
+              title="Predictive Re-routing"
+              rationale="Projected congestion at Gate 4 within 12 minutes."
+              actionLabel="Deploy Flow Control"
+              confidence={89}
+              onAction={() => {}}
+            />
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              whileInView={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.5, delay: 1.2 }}
+            >
+              <ExplainabilityCard
+                factors={[
+                  { label: 'Density Sensors', weight: 0.6 },
+                  { label: 'Historical Flow', weight: 0.4 },
+                ]}
+              />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

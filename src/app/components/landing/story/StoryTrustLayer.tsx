@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { AiRecommendationCard } from '../../ui/AiComponents';
+import { ResourceCard } from '../../ui/ResourceComponents';
 
 export function StoryTrustLayer() {
   const shouldReduceMotion = useReducedMotion();
@@ -62,14 +64,15 @@ export function StoryTrustLayer() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5 }}
-          style={{
-            padding: '24px',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.1)',
-          }}
+          style={{ width: '300px', pointerEvents: 'none' }}
         >
-          <span style={{ color: 'rgba(255,255,255,0.8)' }}>AI Proposal</span>
+          <AiRecommendationCard
+            title="Deploy Response Team"
+            rationale="Immediate security response required at Gate 4."
+            actionLabel="Approve Deployment"
+            confidence={95}
+            onAction={() => {}}
+          />
         </motion.div>
 
         <motion.div
@@ -115,6 +118,7 @@ export function StoryTrustLayer() {
           }}
         >
           <svg
+            aria-hidden="true"
             width="24"
             height="24"
             viewBox="0 0 24 24"
@@ -161,14 +165,14 @@ export function StoryTrustLayer() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          style={{
-            padding: '24px',
-            backgroundColor: 'rgba(74, 222, 128, 0.1)',
-            borderRadius: '12px',
-            border: '1px solid rgba(74, 222, 128, 0.3)',
-          }}
+          style={{ width: '300px', pointerEvents: 'none' }}
         >
-          <span style={{ color: '#4ade80', fontWeight: 600 }}>Action Executed</span>
+          <ResourceCard
+            name="Team Alpha"
+            role="Security Response"
+            location="Gate 4"
+            status="DISPATCHED"
+          />
         </motion.div>
       </div>
     </section>

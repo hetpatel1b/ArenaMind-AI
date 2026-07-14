@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, animate, useReducedMotion } from 'framer-motion';
+import { MetricCard, TrendCard, HealthCard } from '../../ui/KpiComponents';
+import { IncidentCard } from '../../ui/IncidentComponents';
+import { CrowdZoneCard } from '../../ui/CrowdComponents';
 
 function AnimatedCounter({
   from,
@@ -132,7 +135,7 @@ export function StoryEnterpriseReady() {
               }}
             >
               &lt;
-              {isInView ? <AnimatedCounter from={200} to={50} duration={2} suffix="ms" /> : '0ms'}
+              {isInView ? <AnimatedCounter from={200} to={45} duration={2} suffix="ms" /> : '0ms'}
             </div>
             <div
               style={{
@@ -147,7 +150,7 @@ export function StoryEnterpriseReady() {
           </div>
         </div>
 
-        {/* Dashboard Preview */}
+        {/* Live Dashboard Preview replacing the Mock UI */}
         <motion.div
           initial={{ opacity: 0, y: 50, filter: 'blur(10px)' }}
           whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -155,16 +158,16 @@ export function StoryEnterpriseReady() {
           transition={{ duration: 1, ease: 'easeOut' }}
           style={{
             width: '100%',
-            height: '400px',
-            backgroundColor: '#0a0a0f',
+            backgroundColor: 'var(--bg-app, #0a0a0f)', // Matches the theme of UI components
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '16px',
             overflow: 'hidden',
             position: 'relative',
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            pointerEvents: 'none', // Not interactive on landing page
           }}
         >
-          {/* Mock UI Header */}
+          {/* Dashboard Header Window Controls */}
           <div
             style={{
               height: '48px',
@@ -199,56 +202,46 @@ export function StoryEnterpriseReady() {
                 backgroundColor: '#22c55e',
               }}
             />
+            <span
+              style={{
+                marginLeft: '16px',
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '12px',
+                fontFamily: 'monospace',
+              }}
+            >
+              arena-mind-core-v2.1
+            </span>
           </div>
-          {/* Mock UI Content */}
-          <div
-            style={{ padding: '24px', display: 'flex', gap: '24px', height: 'calc(100% - 48px)' }}
-          >
-            <div
-              style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}
-            />
-            <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <div
-                style={{
-                  flex: 2,
-                  backgroundColor: 'rgba(255,255,255,0.02)',
-                  borderRadius: '8px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Mock Chart Line */}
-                {!shouldReduceMotion && (
-                  <motion.div
-                    animate={{ x: ['-100%', '100%'] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      width: '200%',
-                      height: '2px',
-                      background:
-                        'linear-gradient(90deg, transparent, rgba(100, 150, 255, 0.5), transparent)',
-                    }}
-                  />
-                )}
-              </div>
-              <div style={{ flex: 1, display: 'flex', gap: '24px' }}>
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.02)',
-                    borderRadius: '8px',
-                  }}
-                />
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.02)',
-                    borderRadius: '8px',
-                  }}
-                />
-              </div>
+
+          {/* Real Components Grid */}
+          <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Top Row KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <MetricCard title="Active Incidents" value={3} />
+              <TrendCard
+                title="Crowd Flow Rate"
+                value="1,205 pax/min"
+                trend="down"
+                trendLabel="12% vs avg"
+              />
+              <HealthCard label="System Health" score={98} />
+            </div>
+
+            {/* Middle Row Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CrowdZoneCard
+                zoneName="North Concourse"
+                currentCapacity={8500}
+                maxCapacity={10000}
+              />
+              <IncidentCard
+                id="INC-502"
+                title="Medical Emergency"
+                severity="HIGH"
+                location="Sector C"
+                time="2m ago"
+              />
             </div>
           </div>
         </motion.div>
