@@ -1,0 +1,4 @@
+*       @ArenaMind/engineering
+/src/   @ArenaMind/frontend-architects
+/docs/  @ArenaMind/technical-writers
+/.github/ @ArenaMind/platform-engineering

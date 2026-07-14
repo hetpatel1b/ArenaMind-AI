@@ -2,6 +2,10 @@
   "name": "arenamind-ai",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,7 +23,8 @@
     "db:types": "supabase gen types typescript --project-id $PROJECT_ID > src/types/database.ts",
     "db:migrate": "supabase db push",
     "db:reset": "supabase db reset",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
@@ -58,7 +63,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.8",
     "prettier": "^3.9.5",
     "prisma": "^7.8.0",
     "typescript": "^5",
