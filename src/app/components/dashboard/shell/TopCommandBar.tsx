@@ -1,13 +1,26 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useAuth } from '@/components/providers/auth-provider';
 import { createClient } from '@/lib/supabase/client';
+import { useStatusPulse, useTelemetry } from '@/lib/hooks/useLiveTelemetry';
+import { useOperator, OperatorRole } from '@/lib/contexts/OperatorContext';
+import { useCommandCenter } from '@/lib/contexts/CommandCenterContext';
+import { NotificationCenter } from './NotificationCenter';
 
 export function TopCommandBar() {
   const { user, signOut } = useAuth();
+  const shouldReduceMotion = useReducedMotion();
+  const pulseProps = useStatusPulse();
+  const { state: opState, setRole } = useOperator();
+  const { focusMode, dispatch } = useCommandCenter();
 
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(3); // Start with 3 mock notifications unread
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+
+  const dbLatency = useTelemetry(['12', '13', '14', '12', '15'], 8000);
+  const syncPct = useTelemetry(['99.98', '99.99', '99.97', '99.98'], 12000);
 
   useEffect(() => {
     const supabase = createClient();
@@ -65,7 +78,9 @@ export function TopCommandBar() {
         </div>
 
         {/* Tournament Phase Indicator */}
-        <div
+        <motion.div
+          animate={!shouldReduceMotion ? pulseProps.animate : {}}
+          transition={!shouldReduceMotion ? pulseProps.transition : {}}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -85,30 +100,85 @@ export function TopCommandBar() {
               borderRadius: '50%',
               backgroundColor: 'var(--status-info)',
             }}
-            className="animate-pulse"
           />
           MATCH DAY: ACTIVE
-        </div>
+        </motion.div>
+
+        <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border-strong)' }} />
+
+        <select
+          value={opState.role}
+          onChange={(e) => setRole(e.target.value as OperatorRole)}
+          style={{
+            backgroundColor: 'transparent',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            fontSize: 'var(--text-sm)',
+            fontWeight: 600,
+            outline: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="EXECUTIVE">Executive</option>
+          <option value="SECURITY">Security</option>
+          <option value="MEDICAL">Medical</option>
+          <option value="TRANSPORT">Transport</option>
+          <option value="INFRASTRUCTURE">Infrastructure</option>
+          <option value="VOLUNTEER">Volunteer</option>
+        </select>
       </div>
 
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: 'var(--space-4)',
           flex: 1,
-          maxWidth: '500px',
-          padding: '0 var(--space-8)',
         }}
       >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+            fontSize: '9px',
+            color: 'var(--text-tertiary)',
+            fontFamily: 'monospace',
+            textAlign: 'right',
+            opacity: 0.35,
+          }}
+        >
+          <span>DB_LATENCY: {dbLatency}ms</span>
+          <span>EDGE_NODES: OK</span>
+        </div>
+
         {/* Global Search / Quick Command */}
         <button
           className="input flex-between focus-ring"
+          onClick={() => {
+            // Simulate enterprise global search triggering a context switch
+            window.dispatchEvent(
+              new CustomEvent('arenamind_search', { detail: { target: 'CAM-110' } })
+            );
+          }}
           style={{
             cursor: 'text',
             color: 'var(--text-tertiary)',
             backgroundColor: 'var(--bg-app)',
             border: '1px solid var(--border-strong)',
+            width: '400px',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+            e.currentTarget.style.boxShadow = '0 0 15px rgba(255,255,255,0.05)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--bg-app)';
+            e.currentTarget.style.borderColor = 'var(--border-strong)';
+            e.currentTarget.style.boxShadow = 'none';
           }}
           aria-label="Search or type a command"
         >
@@ -136,14 +206,63 @@ export function TopCommandBar() {
             </kbd>
           </div>
         </button>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+            fontSize: '9px',
+            color: 'var(--text-tertiary)',
+            fontFamily: 'monospace',
+            opacity: 0.35,
+          }}
+        >
+          <span style={{ color: 'var(--ai-accent)' }}>AI_ENGINE: ONLINE</span>
+          <span>SYNC_RATE: {syncPct}%</span>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          position: 'relative',
+        }}
+      >
+        <button
+          className="btn btn-ghost"
+          onClick={() => dispatch({ type: 'TOGGLE_FOCUS_MODE' })}
+          style={{
+            padding: 'var(--space-2)',
+            color: focusMode ? 'var(--ai-accent)' : 'var(--text-secondary)',
+          }}
+          title="Toggle Focus Mode (Cmd+K)"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M3 3h7v7H3z"></path>
+            <path d="M14 3h7v7h-7z"></path>
+            <path d="M14 14h7v7h-7z"></path>
+            <path d="M3 14h7v7H3z"></path>
+          </svg>
+        </button>
+
         <button
           className="btn btn-ghost"
           aria-label="Notifications"
           style={{ padding: 'var(--space-2)', position: 'relative' }}
-          onClick={() => setUnreadCount(0)}
+          onClick={() => {
+            setUnreadCount(0);
+            setIsNotifOpen(!isNotifOpen);
+          }}
         >
           {/* Bell Icon */}
           <svg
@@ -211,6 +330,7 @@ export function TopCommandBar() {
             {getInitials()}
           </div>
         </button>
+        <NotificationCenter isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
       </div>
     </header>
   );

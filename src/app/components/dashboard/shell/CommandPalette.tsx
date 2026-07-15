@@ -1,89 +1,246 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCommandCenter } from '@/lib/contexts/CommandCenterContext';
+import { useOperator } from '@/lib/contexts/OperatorContext';
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { dispatch, activeMissions } = useCommandCenter();
+  const { state: opState, addRecentSearch } = useOperator();
+
+  useKeyboardShortcuts(() => setIsOpen((p) => !p));
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setIsOpen((open) => !open);
-      }
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      setTimeout(() => setQuery(''), 0);
+    }
+  }, [isOpen]);
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const searchResults = [
+    ...activeMissions.map((m) => ({
+      id: m.id,
+      type: 'Mission',
+      label: `Jump to Mission: ${m.name}`,
+      action: () => {
+        dispatch({ type: 'MISSION_FOCUSED', payload: { missionId: m.id } });
+        setIsOpen(false);
+      },
+    })),
+    {
+      id: 'c1',
+      type: 'Workspace',
+      label: 'Open Analytics Workspace',
+      action: () => {
+        dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'ANALYTICS' } });
+        setIsOpen(false);
+      },
+    },
+    {
+      id: 'c2',
+      type: 'Workspace',
+      label: 'Toggle Focus Mode',
+      action: () => {
+        dispatch({ type: 'TOGGLE_FOCUS_MODE' });
+        setIsOpen(false);
+      },
+    },
+    {
+      id: 'c3',
+      type: 'Workspace',
+      label: 'Open Mission Inspector',
+      action: () => {
+        dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'INSPECTOR' } });
+        setIsOpen(false);
+      },
+    },
+    {
+      id: 'c4',
+      type: 'Report',
+      label: 'Generate Executive Brief',
+      action: () => {
+        dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'ANALYTICS' } });
+        setIsOpen(false);
+      },
+    },
+  ].filter((r) => query === '' || r.label.toLowerCase().includes(query.toLowerCase()));
+
+  const handleExecute = (action: () => void, label: string) => {
+    if (query.trim()) addRecentSearch(query);
+    action();
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="animate-fade-in"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 'var(--z-modal)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: '15vh',
-      }}
-      onClick={() => setIsOpen(false)}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Command Palette"
-    >
+    <AnimatePresence>
       <div
-        className="card animate-slide-up"
         style={{
-          width: '100%',
-          maxWidth: '600px',
-          padding: 0,
-          overflow: 'hidden',
-          backgroundColor: 'var(--bg-surface)',
-          boxShadow: 'var(--shadow-lg)',
-          border: '1px solid var(--border-strong)',
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          paddingTop: '15vh',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ padding: 'var(--space-3)', borderBottom: '1px solid var(--border-subtle)' }}>
-          <input
-            type="text"
-            className="input focus-ring"
-            placeholder="Type a command or search..."
-            style={{ border: 'none', backgroundColor: 'transparent', fontSize: 'var(--text-lg)' }}
-            autoFocus
-          />
-        </div>
-        <div style={{ padding: 'var(--space-2)' }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(4px)',
+          }}
+          onClick={() => setIsOpen(false)}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: -20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -20 }}
+          transition={{ duration: 0.2 }}
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '600px',
+            backgroundColor: '#0a0a0a',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+          }}
+        >
           <div
             style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--text-tertiary)',
-              padding: 'var(--space-2)',
+              display: 'flex',
+              alignItems: 'center',
+              padding: '16px',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
             }}
           >
-            SUGGESTED
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ color: 'var(--text-tertiary)', marginRight: '12px' }}
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search missions, gates, actions..."
+              style={{
+                flex: 1,
+                background: 'none',
+                border: 'none',
+                color: '#fff',
+                fontSize: '16px',
+                outline: 'none',
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setIsOpen(false);
+                if (e.key === 'Enter' && searchResults.length > 0) {
+                  const first = searchResults[0];
+                  if (first) {
+                    handleExecute(first.action, first.label);
+                  }
+                }
+              }}
+            />
+            <div
+              style={{
+                fontSize: '10px',
+                color: 'var(--text-tertiary)',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                padding: '2px 6px',
+                borderRadius: '4px',
+              }}
+            >
+              ESC
+            </div>
           </div>
-          <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>
-            Go to Active Incidents
-          </button>
-          <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>
-            Generate Evacuation Report
-          </button>
-          <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>
-            Toggle Maintenance Mode
-          </button>
-        </div>
+
+          <div style={{ maxHeight: '300px', overflowY: 'auto', padding: '8px' }}>
+            {query === '' && opState.recentSearches.length > 0 && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '10px',
+                  color: 'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                }}
+              >
+                Recent Searches
+              </div>
+            )}
+
+            {searchResults.length === 0 ? (
+              <div
+                style={{
+                  padding: '24px',
+                  textAlign: 'center',
+                  color: 'var(--text-tertiary)',
+                  fontSize: '12px',
+                }}
+              >
+                No results found for &quot;{query}&quot;
+              </div>
+            ) : (
+              searchResults.map((result, idx) => (
+                <div
+                  key={result.id}
+                  onClick={() => handleExecute(result.action, result.label)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    backgroundColor: idx === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      idx === 0 ? 'rgba(255,255,255,0.05)' : 'transparent')
+                  }
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '13px', color: '#fff' }}>{result.label}</span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      color: 'var(--text-tertiary)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {result.type}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

@@ -1,82 +1,71 @@
 'use client';
 
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCopilotState } from '@/lib/hooks/useCopilotState';
+import { CopilotHeader } from './copilot/CopilotHeader';
+import { CopilotPipeline } from './copilot/CopilotPipeline';
+import { ToolExecutionCard } from './copilot/ToolExecutionCard';
+import { ReasoningCard } from './copilot/ReasoningCard';
+import { ExplainabilityCard } from './copilot/ExplainabilityCard';
+import { PredictionCard } from './copilot/PredictionCard';
+import { ApprovalCard } from './copilot/ApprovalCard';
+import { DecisionHistory } from './copilot/DecisionHistory';
+import { AiHealthFooter } from './copilot/AiHealthFooter';
 
 export function PersistentAiPanel() {
+  const { phase, contextName, approveRecommendation, rejectRecommendation } = useCopilotState();
+
   return (
     <aside
       className="glass-panel"
       style={{
         width: '320px',
-        borderLeft: '1px solid var(--border-subtle)',
-        borderTop: 'none',
-        borderRight: 'none',
-        borderBottom: 'none',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        backgroundColor: 'rgba(5, 5, 5, 0.5)',
+        boxShadow: '-20px 0 60px rgba(0,0,0,0.3)',
       }}
-      aria-label="AI Copilot Panel"
+      aria-label="Enterprise Operations Copilot"
     >
-      <div
-        style={{
-          padding: 'var(--space-4)',
-          borderBottom: '1px solid var(--border-subtle)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-2)',
-        }}
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--ai-accent)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
-        </svg>
-        <span style={{ fontWeight: 'var(--font-weight-semibold)', color: 'var(--text-primary)' }}>
-          Copilot
-        </span>
-      </div>
+      <CopilotHeader priority={phase === 'AWAITING_APPROVAL' ? 'HIGH' : 'LOW'} />
 
       <div
         style={{
           flex: 1,
-          padding: 'var(--space-4)',
+          padding: 'var(--space-6) var(--space-4)',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-4)',
+          overflowX: 'hidden',
         }}
       >
-        {/* Placeholder Conversation / Recommendations */}
-        <div
-          style={{
-            fontSize: 'var(--text-sm)',
-            color: 'var(--text-secondary)',
-            textAlign: 'center',
-            marginTop: 'var(--space-8)',
-          }}
-        >
-          Monitoring real-time telemetry...
-        </div>
+        <CopilotPipeline phase={phase} contextName={contextName} />
+
+        <AnimatePresence mode="popLayout">
+          {phase === 'ANALYZING' && <ToolExecutionCard key="tools" phase={phase} />}
+          {(phase === 'REASONING' || phase === 'AWAITING_APPROVAL') && (
+            <ReasoningCard key="reasoning" phase={phase} />
+          )}
+          {(phase === 'REASONING' || phase === 'AWAITING_APPROVAL') && (
+            <ExplainabilityCard key="explainability" phase={phase} />
+          )}
+          <ApprovalCard
+            key="approval"
+            phase={phase}
+            onApprove={approveRecommendation}
+            onReject={rejectRecommendation}
+          />
+        </AnimatePresence>
+
+        <PredictionCard />
+
+        <DecisionHistory />
       </div>
 
-      <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--border-subtle)' }}>
-        <input
-          type="text"
-          className="input focus-ring"
-          placeholder="Ask Copilot..."
-          aria-label="Message AI Copilot"
-        />
-      </div>
+      <AiHealthFooter />
     </aside>
   );
 }

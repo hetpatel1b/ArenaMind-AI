@@ -13,11 +13,14 @@ export function StatusBar() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 var(--space-4)',
-        fontSize: '11px',
-        color: 'var(--text-tertiary)',
+        fontSize: '10px',
+        color: 'rgba(255, 255, 255, 0.3)',
         fontFamily: 'monospace',
         zIndex: 'var(--z-sticky)',
+        transition: 'color 0.2s',
       }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)')}
+      onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.3)')}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>

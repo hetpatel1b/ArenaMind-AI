@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useLiveMetric, useStatusPulse } from '@/lib/hooks/useLiveTelemetry';
 
 interface AiOperationalBriefingProps {
   stadiumName: string;
@@ -21,6 +22,19 @@ export function AiOperationalBriefing({
   primaryRecommendation,
 }: AiOperationalBriefingProps) {
   const shouldReduceMotion = useReducedMotion();
+  const pulseProps = useStatusPulse();
+
+  const liveConfidence = useLiveMetric(
+    primaryRecommendation?.confidenceScore ? primaryRecommendation.confidenceScore * 100 : 99,
+    95,
+    100,
+    14000,
+    1
+  );
+
+  const liveHealthScore = Math.round(
+    useLiveMetric(healthScore, healthScore - 2, healthScore + 2, 10000, 1)
+  );
 
   // Determine health color
   const getHealthColor = (score: number) => {
@@ -139,7 +153,7 @@ export function AiOperationalBriefing({
               lineHeight: 1,
             }}
           >
-            {healthScore}
+            {liveHealthScore}
           </div>
         </div>
       </header>
@@ -179,7 +193,9 @@ export function AiOperationalBriefing({
               Priority AI Directive
             </span>
             {primaryRecommendation.data.humanApprovalRequired && (
-              <span
+              <motion.span
+                animate={!shouldReduceMotion ? pulseProps.animate : {}}
+                transition={!shouldReduceMotion ? pulseProps.transition : {}}
                 style={{
                   fontSize: '10px',
                   backgroundColor: 'var(--status-warning-bg)',
@@ -192,7 +208,7 @@ export function AiOperationalBriefing({
                 }}
               >
                 Human Approval Required
-              </span>
+              </motion.span>
             )}
           </div>
 
@@ -211,10 +227,28 @@ export function AiOperationalBriefing({
               marginTop: 'var(--space-2)',
               fontSize: 'var(--text-xs)',
               color: 'var(--text-tertiary)',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'inline-block', // to fit the text size
+              padding: '2px 0',
             }}
           >
+            {!shouldReduceMotion && (
+              <motion.div
+                animate={{ left: ['-10%', '110%'] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  width: '30px',
+                  background:
+                    'linear-gradient(90deg, transparent, rgba(10, 132, 255, 0.15), transparent)',
+                }}
+              />
+            )}
             <span style={{ fontWeight: 600 }}>Reasoning:</span> {primaryRecommendation.data.reason}{' '}
-            (Confidence: {Math.round(primaryRecommendation.confidenceScore * 100)}%)
+            (Confidence: {Math.round(liveConfidence)}%)
           </div>
         </div>
       )}

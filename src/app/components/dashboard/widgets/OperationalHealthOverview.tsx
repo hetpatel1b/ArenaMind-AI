@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useLiveMetric, useStatusPulse } from '@/lib/hooks/useLiveTelemetry';
 
 interface OperationalHealthOverviewProps {
   healthScore: number;
@@ -22,8 +23,12 @@ function SnapshotCard({
   subtext?: string;
   colorClass?: string;
 }) {
+  const pulseProps = useStatusPulse();
   return (
-    <div
+    <motion.div
+      initial={pulseProps.initial}
+      animate={pulseProps.animate}
+      transition={pulseProps.transition}
       style={{
         padding: 'var(--space-4)',
         backgroundColor: 'rgba(255, 255, 255, 0.02)',
@@ -32,6 +37,7 @@ function SnapshotCard({
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--space-1)',
+        boxShadow: colorClass ? `0 0 10px var(--${colorClass})` : 'none',
       }}
     >
       <span
@@ -44,7 +50,7 @@ function SnapshotCard({
         {label}
       </span>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
-        <span
+        <motion.span
           style={{
             fontSize: 'var(--text-2xl)',
             fontWeight: 'var(--font-weight-bold)',
@@ -52,14 +58,14 @@ function SnapshotCard({
           }}
         >
           {value}
-        </span>
+        </motion.span>
         {subtext && (
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
             {subtext}
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -79,6 +85,29 @@ export function OperationalHealthOverview({
     ? Number(kpiSnapshot.avgCrowdDensityPct)
     : 0;
   const resourcesDeployed = kpiSnapshot?.resourcesDeployed || 0;
+
+  const liveHealthScore = Math.round(
+    useLiveMetric(healthScore, healthScore - 2, healthScore + 2, 10000, 1)
+  );
+  const liveDensity = useLiveMetric(
+    avgCrowdDensity,
+    Math.max(0, avgCrowdDensity - 2),
+    avgCrowdDensity + 2,
+    12000,
+    0.5
+  );
+  const liveIncidents = Math.round(
+    useLiveMetric(openIncidents, Math.max(0, openIncidents - 1), openIncidents + 1, 20000, 1)
+  );
+  const liveResources = Math.round(
+    useLiveMetric(
+      resourcesDeployed,
+      Math.max(0, resourcesDeployed - 1),
+      resourcesDeployed + 2,
+      15000,
+      1
+    )
+  );
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'status-success';
@@ -102,30 +131,30 @@ export function OperationalHealthOverview({
     >
       <SnapshotCard
         label="Overall Health"
-        value={`${healthScore}/100`}
-        colorClass={getScoreColor(healthScore)}
+        value={`${liveHealthScore}/100`}
+        colorClass={getScoreColor(liveHealthScore)}
       />
 
       <SnapshotCard
         label="Avg Crowd Density"
-        value={`${avgCrowdDensity.toFixed(1)}%`}
-        colorClass={getDensityColor(avgCrowdDensity)}
+        value={`${liveDensity.toFixed(1)}%`}
+        colorClass={getDensityColor(liveDensity)}
       />
 
       <SnapshotCard
         label="Active Incidents"
-        value={openIncidents}
+        value={liveIncidents}
         subtext={tier1Incidents > 0 ? `${tier1Incidents} Tier 1` : 'All Systems Nominal'}
         colorClass={
           tier1Incidents > 0
             ? 'status-critical'
-            : openIncidents > 0
+            : liveIncidents > 0
               ? 'status-warning'
               : 'status-success'
         }
       />
 
-      <SnapshotCard label="Resources Deployed" value={resourcesDeployed} colorClass="ai-accent" />
+      <SnapshotCard label="Resources Deployed" value={liveResources} colorClass="ai-accent" />
     </div>
   );
 }

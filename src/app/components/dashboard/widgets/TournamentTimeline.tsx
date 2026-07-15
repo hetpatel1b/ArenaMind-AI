@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useStatusPulse } from '@/lib/hooks/useLiveTelemetry';
 
 interface TournamentTimelineProps {
   currentPhase: string;
@@ -22,6 +23,7 @@ const PHASES = [
 
 export function TournamentTimeline({ currentPhase }: TournamentTimelineProps) {
   const shouldReduceMotion = useReducedMotion();
+  const pulseProps = useStatusPulse();
   const currentIndex = PHASES.findIndex((p) => p.id === currentPhase) || 0;
 
   // Calculate progress percentage
@@ -75,8 +77,25 @@ export function TournamentTimeline({ currentPhase }: TournamentTimelineProps) {
             backgroundColor: 'rgba(255,255,255,0.1)',
             transform: 'translateY(-50%)',
             zIndex: 0,
+            overflow: 'hidden', // constrain the pulse
           }}
-        />
+        >
+          {/* Signal Pulse */}
+          {!shouldReduceMotion && (
+            <motion.div
+              animate={{ left: ['-20%', '120%'] }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+              style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                width: '60px',
+                background:
+                  'linear-gradient(90deg, transparent, rgba(10, 132, 255, 0.8), transparent)',
+              }}
+            />
+          )}
+        </div>
 
         {/* Active Progress Track */}
         <motion.div
@@ -121,7 +140,9 @@ export function TournamentTimeline({ currentPhase }: TournamentTimelineProps) {
                   width: '24px',
                 }}
               >
-                <div
+                <motion.div
+                  animate={isActive && !shouldReduceMotion ? pulseProps.animate : {}}
+                  transition={isActive && !shouldReduceMotion ? pulseProps.transition : {}}
                   style={{
                     width: isActive ? '12px' : '8px',
                     height: isActive ? '12px' : '8px',
@@ -134,6 +155,7 @@ export function TournamentTimeline({ currentPhase }: TournamentTimelineProps) {
                     border: `2px solid ${isCompleted ? 'var(--ai-accent)' : 'rgba(255,255,255,0.2)'}`,
                     boxShadow: isActive ? '0 0 10px var(--ai-accent)' : 'none',
                     transition: 'all 0.3s ease',
+                    opacity: !isCompleted && !isActive ? 0.3 : 1,
                   }}
                 />
 

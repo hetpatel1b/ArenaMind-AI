@@ -1,14 +1,17 @@
 'use client';
 
-import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { AiOperationalBriefing } from './widgets/AiOperationalBriefing';
-import { TournamentTimeline } from './widgets/TournamentTimeline';
-import { OperationalHealthOverview } from './widgets/OperationalHealthOverview';
-import { InteractiveStadiumMap } from './widgets/InteractiveStadiumMap';
-import { TopAiRecommendations } from './widgets/TopAiRecommendations';
-import { OperationalActivityFeed } from './widgets/OperationalActivityFeed';
-import { AiCopilotWidget } from './widgets/AiCopilotWidget';
+import React, { useEffect, useState } from 'react';
+import { motion, useReducedMotion, useMotionValue } from 'framer-motion';
+import { DigitalTwinMap } from './widgets/digital-twin/DigitalTwinMap';
+import { Mission, useCommandCenter } from '@/lib/contexts/CommandCenterContext';
+import { GlobalStatusBar } from './widgets/command-center/GlobalStatusBar';
+import { CommandQueue } from './widgets/command-center/CommandQueue';
+import { UnifiedWorkspace } from './widgets/command-center/UnifiedWorkspace';
+import { MissionTimeline } from './widgets/command-center/MissionTimeline';
+import { CommandPalette } from './shell/CommandPalette';
+import { QuickActionBar } from './widgets/command-center/QuickActionBar';
+import { PinnedItemsStrip } from './shell/PinnedItemsStrip';
+import { SmartOnboarding } from './shell/SmartOnboarding';
 
 // Defining a rough shape of the heavy payload to ensure strong typing down the tree
 export interface DashboardMatchPayload {
@@ -28,124 +31,287 @@ export interface DashboardMatchPayload {
 
 export function CommandCenterDashboard({ matchData }: { matchData: DashboardMatchPayload }) {
   const shouldReduceMotion = useReducedMotion();
-
-  // Extract the highest priority recommendation
-  const primaryRecommendation =
-    matchData.aiRecommendations.length > 0 ? matchData.aiRecommendations[0] : null;
-
-  const currentHealth =
-    matchData.healthScores.length > 0
-      ? matchData.healthScores[0]
-      : { score: 100, crowdScore: 100, incidentScore: 100, resourceScore: 100 };
-
-  const currentKpi = matchData.kpiSnapshots.length > 0 ? matchData.kpiSnapshots[0] : null;
-
-  // Fallback to stadium zones if top level matchData.zones is empty (based on our prisma query structure)
   const zonesToUse = matchData.zones?.length ? matchData.zones : matchData.stadium.zones || [];
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      <GlobalStatusBar />
+      <PinnedItemsStrip />
+      <InnerDashboardGrid
+        matchData={matchData}
+        zonesToUse={zonesToUse}
+        shouldReduceMotion={shouldReduceMotion || false}
+      />
+      <CommandPalette />
+      <QuickActionBar />
+      <SmartOnboarding />
+    </div>
+  );
+}
+
+function InnerDashboardGrid({
+  matchData,
+  zonesToUse,
+  shouldReduceMotion,
+}: {
+  matchData: any;
+  zonesToUse: any;
+  shouldReduceMotion: boolean;
+}) {
+  const { globalMetrics, dispatch, isQueueCollapsed, isWorkspaceCollapsed, focusMode } =
+    useCommandCenter();
+
+  useEffect(() => {
+    const handleSearch = (e: any) => {
+      // Upon global search, switch context to inspector
+      dispatch({ type: 'MISSION_FOCUSED', payload: { missionId: null } });
+      dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'INSPECTOR' } });
+    };
+    window.addEventListener('arenamind_search', handleSearch);
+    return () => window.removeEventListener('arenamind_search', handleSearch);
+  }, [dispatch]);
+
+  const leftWidth = useMotionValue(280);
+  const rightWidth = useMotionValue(320);
+
+  // Dynamic ambient lighting based on emergency level
+  const ambientColor = focusMode
+    ? 'rgba(0,0,0,0.8)'
+    : globalMetrics.emergencyLevel === 'CRITICAL'
+      ? 'rgba(255, 69, 58, 0.05)'
+      : globalMetrics.emergencyLevel === 'WARNING'
+        ? 'rgba(255, 159, 10, 0.04)'
+        : 'rgba(10,132,255,0.03)';
 
   return (
     <main
       className="dashboard-grid"
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(12, 1fr)',
-        gridAutoRows: 'minmax(100px, auto)',
-        gap: 'var(--space-4)',
-        padding: 'var(--space-6)',
+        display: 'flex',
+        gap: 'var(--space-2)',
+        padding: focusMode ? 'var(--space-2)' : 'var(--space-6)',
+        flex: 1,
+        minHeight: 0,
         width: '100%',
-        maxWidth: '1800px',
+        maxWidth: focusMode ? '100%' : '2200px',
         margin: '0 auto',
+        backgroundImage: `radial-gradient(circle at 50% 50%, ${ambientColor} 0%, transparent 70%)`,
+        transition: 'all 1s ease',
       }}
     >
-      {/* Section 1: AI Operational Briefing (Hero) spans top 12 cols */}
+      {/* Left Col: Command Queue */}
       <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        style={{ gridColumn: 'span 12' }}
-      >
-        <AiOperationalBriefing
-          stadiumName={matchData.stadium.name}
-          matchTitle={`${matchData.homeTeam} vs ${matchData.awayTeam}`}
-          tournamentPhase={`Match ${matchData.matchNumber}`}
-          currentPhase={matchData.currentPhase}
-          healthScore={currentHealth.score}
-          primaryRecommendation={primaryRecommendation}
-        />
-      </motion.div>
-
-      {/* Section 2: Timeline (span 12) */}
-      <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
-        style={{ gridColumn: 'span 12' }}
-      >
-        <TournamentTimeline currentPhase={matchData.currentPhase} />
-      </motion.div>
-
-      {/* Section 3 & 5: Operational Health Snapshot Cards (span 12) */}
-      <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
-        style={{ gridColumn: 'span 12' }}
-      >
-        <OperationalHealthOverview
-          healthScore={currentHealth.score}
-          incidentScore={currentHealth.incidentScore}
-          crowdScore={currentHealth.crowdScore}
-          resourceScore={currentHealth.resourceScore}
-          kpiSnapshot={currentKpi}
-        />
-      </motion.div>
-
-      {/* Section 4: Interactive Stadium Map (span 8) */}
-      <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3, ease: 'easeOut' }}
-        style={{ gridColumn: 'span 8' }}
-      >
-        <InteractiveStadiumMap
-          zones={zonesToUse}
-          incidents={matchData.incidents}
-          resources={matchData.resources}
-        />
-      </motion.div>
-
-      {/* Section 6 & 7: Recommendations and Activity (span 4 right col) */}
-      <motion.div
-        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
+        layout
+        initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0, width: isQueueCollapsed ? 48 : undefined }}
+        transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 }, duration: 0.25 }}
         style={{
-          gridColumn: 'span 4',
+          width: isQueueCollapsed ? 48 : leftWidth,
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--space-4)',
+          overflow: 'hidden',
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          borderRadius: 'var(--radius-xl)',
         }}
       >
-        <div style={{ flex: 1 }}>
-          <TopAiRecommendations recommendations={matchData.aiRecommendations} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <OperationalActivityFeed incidents={matchData.incidents} />
-        </div>
+        {isQueueCollapsed ? (
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(5,5,5,0.5)',
+              borderRadius: 'var(--radius-xl)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              paddingTop: '16px',
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
+            <button
+              onClick={() => dispatch({ type: 'TOGGLE_QUEUE_COLLAPSE' })}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+              }}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="13 17 18 12 13 7"></polyline>
+                <polyline points="6 17 11 12 6 7"></polyline>
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <CommandQueue />
+        )}
       </motion.div>
 
-      {/* Section 8: Persistent AI Copilot Context Integration */}
-      <AiCopilotWidget
-        scenarioContext={{
-          stadiumName: matchData.stadium.name,
-          phase: matchData.currentPhase,
-          healthScore: currentHealth.score,
-          activeIncidentCount: matchData.incidents.filter(
-            (i) => i.status !== 'resolved' && i.status !== 'closed'
-          ).length,
+      {/* Drag Handle 1 */}
+      {!isQueueCollapsed && !focusMode && (
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0}
+          dragMomentum={false}
+          onDrag={(e, info) => {
+            leftWidth.set(Math.max(240, Math.min(450, leftWidth.get() + info.delta.x)));
+          }}
+          style={{ width: 8, cursor: 'col-resize', backgroundColor: 'transparent', zIndex: 10 }}
+        />
+      )}
+
+      {/* Center: Digital Twin & Timeline */}
+      <motion.div
+        layout
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-6)',
+          minWidth: 400,
         }}
-        recommendations={matchData.aiRecommendations}
-      />
+      >
+        <motion.div
+          layout
+          initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            layout: { type: 'spring', stiffness: 300, damping: 30 },
+            duration: 0.25,
+            delay: 0.1,
+          }}
+          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          <DigitalTwinMap
+            zones={zonesToUse}
+            incidents={matchData.incidents || []}
+            resources={matchData.resources || []}
+          />
+        </motion.div>
+
+        {/* Bottom Center: Mission Timeline (hidden in focus mode) */}
+        {!focusMode && (
+          <motion.div
+            layout
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{
+              layout: { type: 'spring', stiffness: 300, damping: 30 },
+              duration: 0.25,
+              delay: 0.1,
+            }}
+            style={{
+              height: 220,
+              minHeight: 220,
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              borderRadius: 'var(--radius-xl)',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: 'transparent',
+                padding: '0 var(--space-4)',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <MissionTimeline />
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Drag Handle 2 */}
+      {!isWorkspaceCollapsed && !focusMode && (
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0}
+          dragMomentum={false}
+          onDrag={(e, info) => {
+            rightWidth.set(Math.max(300, Math.min(600, rightWidth.get() - info.delta.x)));
+          }}
+          style={{ width: 8, cursor: 'col-resize', backgroundColor: 'transparent', zIndex: 10 }}
+        />
+      )}
+
+      {/* Right Col: Unified Workspace */}
+      {!focusMode && (
+        <motion.div
+          layout
+          initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0, width: isWorkspaceCollapsed ? 48 : undefined }}
+          transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 }, duration: 0.25 }}
+          style={{
+            width: isWorkspaceCollapsed ? 48 : rightWidth,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            borderRadius: 'var(--radius-xl)',
+          }}
+        >
+          {isWorkspaceCollapsed ? (
+            <div
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(5,5,5,0.5)',
+                borderRadius: 'var(--radius-xl)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                paddingTop: '16px',
+                border: '1px solid rgba(255,255,255,0.05)',
+              }}
+            >
+              <button
+                onClick={() => dispatch({ type: 'TOGGLE_WORKSPACE_COLLAPSE' })}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                }}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="11 17 6 12 11 7"></polyline>
+                  <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <UnifiedWorkspace />
+          )}
+        </motion.div>
+      )}
     </main>
   );
 }

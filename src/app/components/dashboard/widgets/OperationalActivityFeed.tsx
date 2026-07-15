@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { useActivityFeed } from '@/lib/hooks/useLiveTelemetry';
 
 interface OperationalActivityFeedProps {
   incidents: any[];
@@ -10,10 +11,30 @@ interface OperationalActivityFeedProps {
 export function OperationalActivityFeed({ incidents }: OperationalActivityFeedProps) {
   const shouldReduceMotion = useReducedMotion();
 
+  const generateMockEvent = () => {
+    const mockTitles = [
+      'South Gate congestion normalized.',
+      'Medical Team Bravo arrived.',
+      'Camera 214 recalibrated.',
+      'Drone 3 battery replaced.',
+      'Gate 6 reopened.',
+      'AI confidence increased.',
+      'Resource Unit 4 redeployed.',
+    ];
+    return {
+      id: Math.random().toString(36).substring(7),
+      title: mockTitles[Math.floor(Math.random() * mockTitles.length)],
+      description: 'System updated status automatically based on live telemetry.',
+      createdAt: new Date().toISOString(),
+      severityTier: 3, // Info
+      aiType: null,
+    };
+  };
+
+  const liveIncidents = useActivityFeed(incidents || [], generateMockEvent, 16000);
+
   // Combine and sort incidents by created date (newest first)
-  // In a real app we would combine multiple event types (phase changes, incidents, resource deployments)
-  // For the dashboard, incidents are the most relevant chronological feed
-  const sortedEvents = [...(incidents || [])].sort((a, b) => {
+  const sortedEvents = [...liveIncidents].sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -88,10 +109,11 @@ export function OperationalActivityFeed({ incidents }: OperationalActivityFeedPr
 
             return (
               <motion.div
+                layout={!shouldReduceMotion}
                 key={event.id}
-                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
+                initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                transition={{ duration: 0.4 }}
                 style={{
                   display: 'flex',
                   gap: 'var(--space-3)',
