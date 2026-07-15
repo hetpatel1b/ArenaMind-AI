@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useMap } from '../context/MapContext';
-import { useIncidentEngine, AIRecommendation } from '../hooks/useIncidentEngine';
+import { useIncidentEngine, AIRecommendation, globalIncidents } from '../hooks/useIncidentEngine';
 import { dispatchResource } from '../hooks/useResourceEngine';
 
 export function IncidentDetailsPanel() {

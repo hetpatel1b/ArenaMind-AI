@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useIncidentEngine } from '../hooks/useIncidentEngine';
+import { useIncidentEngine, globalIncidents } from '../hooks/useIncidentEngine';
 import { useMap } from '../context/MapContext';
 
 export function PredictionLayer() {

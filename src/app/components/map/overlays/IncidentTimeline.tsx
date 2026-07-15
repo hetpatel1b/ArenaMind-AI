@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useMap } from '../context/MapContext';
-import { useIncidentEngine } from '../hooks/useIncidentEngine';
+import { useIncidentEngine, globalIncidents } from '../hooks/useIncidentEngine';
 
 export function IncidentTimeline() {
   const { state } = useMap();
