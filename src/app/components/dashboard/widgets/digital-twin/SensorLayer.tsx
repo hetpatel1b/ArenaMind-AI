@@ -13,7 +13,7 @@ export function SensorLayer({ layout }: SensorLayerProps) {
   const [sensors, setSensors] = React.useState<any[]>([]);
 
   useEffect(() => {
-    const items = [];
+    const items: any[] = [];
     for (let i = 0; i < 500; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = 250 + Math.random() * 200; // Between pitch and exterior
