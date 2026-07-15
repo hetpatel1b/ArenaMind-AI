@@ -40,6 +40,28 @@
   --status-warning-bg: rgba(245, 158, 11, 0.1);
   --status-critical-bg: rgba(239, 68, 68, 0.1);
 
+  /* Ambient Environment Lighting */
+  --ambient-normal: radial-gradient(
+    circle at center,
+    rgba(14, 165, 233, 0.05) 0%,
+    rgba(5, 5, 5, 0) 70%
+  );
+  --ambient-warning: radial-gradient(
+    circle at center,
+    rgba(245, 158, 11, 0.08) 0%,
+    rgba(5, 5, 5, 0) 70%
+  );
+  --ambient-critical: radial-gradient(
+    circle at center,
+    rgba(239, 68, 68, 0.08) 0%,
+    rgba(5, 5, 5, 0) 70%
+  );
+  --ambient-recovery: radial-gradient(
+    circle at center,
+    rgba(16, 185, 129, 0.06) 0%,
+    rgba(5, 5, 5, 0) 70%
+  );
+
   /* ==========================================================================
      TYPOGRAPHY SCALE (Base 16px)
      ========================================================================== */

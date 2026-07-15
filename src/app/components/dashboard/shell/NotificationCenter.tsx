@@ -65,7 +65,27 @@ export function NotificationCenter({ isOpen, onClose }: { isOpen: boolean; onClo
         n.title.toLowerCase().includes(query.toLowerCase()) ||
         n.description.toLowerCase().includes(query.toLowerCase())
     )
-    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    .sort((a, b) => {
+      const pMap = { Critical: 3, High: 2, Normal: 1 };
+      const pDiff = pMap[b.priority] - pMap[a.priority];
+      if (pDiff !== 0) return pDiff;
+      return b.timestamp.getTime() - a.timestamp.getTime();
+    });
+
+  // Merge identical notifications
+  const merged = filtered.reduce(
+    (acc, curr) => {
+      const existing = acc.find((n) => n.title === curr.title && n.priority === curr.priority);
+      if (existing) {
+        existing.count = (existing.count || 1) + 1;
+        if (curr.timestamp > existing.timestamp) existing.timestamp = curr.timestamp;
+      } else {
+        acc.push({ ...curr, count: 1 });
+      }
+      return acc;
+    },
+    [] as (Notification & { count?: number })[]
+  );
 
   if (!isOpen) return null;
 
@@ -138,7 +158,7 @@ export function NotificationCenter({ isOpen, onClose }: { isOpen: boolean; onClo
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
-              {filtered.length === 0 ? (
+              {merged.length === 0 ? (
                 <div
                   style={{
                     padding: '24px',
@@ -150,8 +170,12 @@ export function NotificationCenter({ isOpen, onClose }: { isOpen: boolean; onClo
                   No notifications found.
                 </div>
               ) : (
-                filtered.map((notif) => (
-                  <div
+                merged.map((notif, index) => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
                     key={notif.id}
                     style={{
                       padding: '12px',
@@ -184,7 +208,12 @@ export function NotificationCenter({ isOpen, onClose }: { isOpen: boolean; onClo
                           color: notif.read ? 'var(--text-secondary)' : '#fff',
                         }}
                       >
-                        {notif.title}
+                        {notif.title}{' '}
+                        {notif.count && notif.count > 1 && (
+                          <span style={{ color: 'var(--ai-accent)', marginLeft: 4 }}>
+                            ({notif.count})
+                          </span>
+                        )}
                       </div>
                       <div
                         style={{
@@ -207,7 +236,7 @@ export function NotificationCenter({ isOpen, onClose }: { isOpen: boolean; onClo
                         {notif.group} • {Math.round((now - notif.timestamp.getTime()) / 60000)}m ago
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               )}
             </div>

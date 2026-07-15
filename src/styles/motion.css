@@ -1,15 +1,19 @@
 :root {
   /* ==========================================================================
-     MOTION SCALE
+     MOTION SCALE (Sprint 8 Gold Master)
      ========================================================================== */
-  --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-slow: 350ms;
+  --duration-hover: 150ms;
+  --duration-selection: 180ms;
+  --duration-notification: 200ms;
+  --duration-sidebar: 220ms;
+  --duration-workspace: 250ms;
+  --duration-layer-fade: 300ms;
 
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-spring-gentle: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Reduced Motion Override globally */
@@ -74,11 +78,11 @@
 
 /* Utility Animation Classes */
 .animate-fade-in {
-  animation: fade-in var(--duration-normal) var(--ease-out) forwards;
+  animation: fade-in var(--duration-workspace) var(--ease-out) forwards;
 }
 
 .animate-slide-up {
-  animation: slide-up var(--duration-normal) var(--ease-spring) forwards;
+  animation: slide-up var(--duration-workspace) var(--ease-spring) forwards;
 }
 
 .animate-spin {
