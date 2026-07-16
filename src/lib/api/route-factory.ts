@@ -35,8 +35,12 @@ export function createRouteHandler(
   handler: RouteHandler,
   config: RouteConfig = { requireAuth: true }
 ) {
-  return async (req: NextRequest, context?: { params?: any }): Promise<NextResponse> => {
-    const params = context?.params;
+  return async (
+    req: NextRequest,
+    context?: { params?: any | Promise<any> }
+  ): Promise<NextResponse> => {
+    const params =
+      context?.params instanceof Promise ? await context.params : await context?.params;
     const correlationId = req.headers.get('x-correlation-id') || crypto.randomUUID();
 
     try {

@@ -1,7 +1,7 @@
 import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/db/client';
 import { redirect } from 'next/navigation';
-import { IntelligenceCommandWorkspace } from '@/app/components/intelligence/IntelligenceCommandWorkspace';
+import { IntelligenceWorkspace } from '@/app/components/intelligence/foundation/IntelligenceWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,10 +105,5 @@ export default async function IntelligenceCommandPage() {
     },
   };
 
-  return (
-    <IntelligenceCommandWorkspace
-      matchData={JSON.parse(JSON.stringify(match)) as any}
-      reportingPayload={JSON.parse(JSON.stringify(reportingPayload))}
-    />
-  );
+  return <IntelligenceWorkspace />;
 }

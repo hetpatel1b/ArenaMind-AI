@@ -22,14 +22,14 @@ export function InteractiveMatchTimeline({
     ...phaseTransitions.map((pt) => ({
       id: pt.id,
       time: new Date(pt.timestamp),
-      title: `Phase Transition: ${pt.toPhase.replace('_', ' ')}`,
+      title: `Phase Transition: ${pt.toPhase ? pt.toPhase.replace('_', ' ') : 'Unknown'}`,
       type: 'Phase',
       color: 'var(--status-info)',
     })),
     ...incidents.map((inc) => ({
       id: inc.id,
       time: new Date(inc.createdAt),
-      title: `Incident: ${inc.type.replace('_', ' ')}`,
+      title: `Incident: ${inc.type ? inc.type.replace('_', ' ') : 'Unknown'}`,
       type: 'Incidents',
       color: inc.priority === 'critical' ? 'var(--status-critical)' : 'var(--status-warning)',
     })),
