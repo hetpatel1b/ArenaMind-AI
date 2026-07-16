@@ -1,7 +1,7 @@
 import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/db/client';
 import { redirect } from 'next/navigation';
-import { MobilityCommandWorkspace } from '@/app/components/mobility/MobilityCommandWorkspace';
+import { MobilityWorkspace } from '@/app/components/mobility/foundation';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,10 +108,5 @@ export default async function MobilityCommandPage() {
     };
   }
 
-  return (
-    <MobilityCommandWorkspace
-      matchData={JSON.parse(JSON.stringify(match)) as any}
-      mobilityState={mobilityState}
-    />
-  );
+  return <MobilityWorkspace />;
 }
