@@ -66,11 +66,17 @@ export function OperatorProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  return (
-    <OperatorContext.Provider value={{ state, setRole, togglePin, addRecentSearch }}>
-      {children}
-    </OperatorContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      state,
+      setRole,
+      togglePin,
+      addRecentSearch,
+    }),
+    [state]
   );
+
+  return <OperatorContext.Provider value={value}>{children}</OperatorContext.Provider>;
 }
 
 export const useOperator = () => {

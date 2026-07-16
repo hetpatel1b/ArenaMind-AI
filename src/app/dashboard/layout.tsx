@@ -1,7 +1,10 @@
 import React from 'react';
 import { TopCommandBar } from '@/app/components/dashboard/shell/TopCommandBar';
-import { LeftNavigation } from '@/app/components/dashboard/shell/LeftNavigation';
+import { EnterpriseSidebar } from '@/app/components/layout/sidebar/EnterpriseSidebar';
+import { DynamicBreadcrumb } from '@/app/components/layout/breadcrumb/DynamicBreadcrumb';
+import { RouteTransition } from '@/app/components/layout/loading/RouteTransition';
 import { DashboardProviders } from '@/app/components/dashboard/DashboardProviders';
+import { WorkspaceProvider } from '@/app/components/layout/workspace/WorkspaceProvider';
 import { StatusBar } from '@/app/components/dashboard/shell/StatusBar';
 import {
   DashboardBootstrapper,
@@ -20,41 +23,57 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         backgroundColor: 'var(--bg-app)',
       }}
     >
-      <DashboardProviders>
-        <DashboardBootstrapper>
-          <ShellComponentReveal>
-            <TopCommandBar />
-          </ShellComponentReveal>
-
-          <div
-            style={{
-              display: 'flex',
-              flex: 1,
-              overflow: 'hidden',
-            }}
-          >
-            <ShellComponentReveal style={{ display: 'flex' }}>
-              <LeftNavigation />
+      <WorkspaceProvider>
+        <DashboardProviders>
+          <DashboardBootstrapper>
+            <ShellComponentReveal>
+              <TopCommandBar />
             </ShellComponentReveal>
 
-            <ShellComponentReveal
+            <div
               style={{
+                display: 'flex',
                 flex: 1,
-                position: 'relative',
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                backgroundColor: 'var(--bg-surface)',
+                overflow: 'hidden',
               }}
             >
-              {children}
-            </ShellComponentReveal>
-          </div>
+              <ShellComponentReveal
+                style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+              >
+                <EnterpriseSidebar />
+              </ShellComponentReveal>
 
-          <ShellComponentReveal>
-            <StatusBar />
-          </ShellComponentReveal>
-        </DashboardBootstrapper>
-      </DashboardProviders>
+              <ShellComponentReveal
+                style={{
+                  flex: 1,
+                  position: 'relative',
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  backgroundColor: 'var(--bg-surface)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    width: '100%',
+                  }}
+                >
+                  <DynamicBreadcrumb />
+                  <RouteTransition>{children}</RouteTransition>
+                </div>
+              </ShellComponentReveal>
+            </div>
+
+            <ShellComponentReveal>
+              <StatusBar />
+            </ShellComponentReveal>
+          </DashboardBootstrapper>
+        </DashboardProviders>
+      </WorkspaceProvider>
     </div>
   );
 }

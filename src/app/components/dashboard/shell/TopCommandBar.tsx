@@ -2,25 +2,24 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useAuth } from '@/components/providers/auth-provider';
 import { createClient } from '@/lib/supabase/client';
-import { useStatusPulse, useTelemetry } from '@/lib/hooks/useLiveTelemetry';
+import { useStatusPulse } from '@/lib/hooks/useLiveTelemetry';
 import { useOperator, OperatorRole } from '@/lib/contexts/OperatorContext';
 import { useCommandCenter } from '@/lib/contexts/CommandCenterContext';
-import { NotificationCenter } from './NotificationCenter';
+import { EnterpriseNotificationCenter } from '@/app/components/layout/notifications/EnterpriseNotificationCenter';
+import { AccountCenter } from '@/app/components/layout/profile/AccountCenter';
+import { HeaderTelemetry } from '@/app/components/layout/header/HeaderTelemetry';
+import { HeaderActions } from '@/app/components/layout/header/HeaderActions';
+import { CommandPalette } from '@/app/components/layout/command-palette/CommandPalette';
 
 export function TopCommandBar() {
-  const { user, signOut } = useAuth();
   const shouldReduceMotion = useReducedMotion();
   const pulseProps = useStatusPulse();
   const { state: opState, setRole } = useOperator();
   const { focusMode, dispatch } = useCommandCenter();
 
-  const [unreadCount, setUnreadCount] = useState(3); // Start with 3 mock notifications unread
+  const [unreadCount, setUnreadCount] = useState(3);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-
-  const dbLatency = useTelemetry(['12', '13', '14', '12', '15'], 8000);
-  const syncPct = useTelemetry(['99.98', '99.99', '99.97', '99.98'], 12000);
 
   useEffect(() => {
     const supabase = createClient();
@@ -39,18 +38,6 @@ export function TopCommandBar() {
     };
   }, []);
 
-  const getInitials = () => {
-    if (user?.user_metadata?.full_name) {
-      const names = user.user_metadata.full_name.split(' ');
-      return names
-        .map((n: string) => n[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase();
-    }
-    return 'OP';
-  };
-
   return (
     <header
       style={{
@@ -66,6 +53,7 @@ export function TopCommandBar() {
         zIndex: 'var(--z-sticky)',
       }}
     >
+      {/* LEFT SECTION: BRAND & STATUS */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
         <div
           style={{
@@ -128,6 +116,7 @@ export function TopCommandBar() {
         </select>
       </div>
 
+      {/* CENTER SECTION: SEARCH & TELEMETRY */}
       <div
         style={{
           display: 'flex',
@@ -137,92 +126,10 @@ export function TopCommandBar() {
           flex: 1,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '2px',
-            fontSize: '9px',
-            color: 'var(--text-tertiary)',
-            fontFamily: 'monospace',
-            textAlign: 'right',
-            opacity: 0.35,
-          }}
-        >
-          <span>DB_LATENCY: {dbLatency}ms</span>
-          <span>EDGE_NODES: OK</span>
-        </div>
-
-        {/* Global Search / Quick Command */}
-        <button
-          className="input flex-between focus-ring"
-          onClick={() => {
-            // Simulate enterprise global search triggering a context switch
-            window.dispatchEvent(
-              new CustomEvent('arenamind_search', { detail: { target: 'CAM-110' } })
-            );
-          }}
-          style={{
-            cursor: 'text',
-            color: 'var(--text-tertiary)',
-            backgroundColor: 'var(--bg-app)',
-            border: '1px solid var(--border-strong)',
-            width: '400px',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
-            e.currentTarget.style.boxShadow = '0 0 15px rgba(255,255,255,0.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--bg-app)';
-            e.currentTarget.style.borderColor = 'var(--border-strong)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-          aria-label="Search or type a command"
-        >
-          <span>Search resources, incidents...</span>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <kbd
-              style={{
-                padding: '2px 4px',
-                background: 'var(--bg-surface)',
-                borderRadius: '4px',
-                fontSize: '10px',
-              }}
-            >
-              Ctrl
-            </kbd>
-            <kbd
-              style={{
-                padding: '2px 4px',
-                background: 'var(--bg-surface)',
-                borderRadius: '4px',
-                fontSize: '10px',
-              }}
-            >
-              K
-            </kbd>
-          </div>
-        </button>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '2px',
-            fontSize: '9px',
-            color: 'var(--text-tertiary)',
-            fontFamily: 'monospace',
-            opacity: 0.35,
-          }}
-        >
-          <span style={{ color: 'var(--ai-accent)' }}>AI_ENGINE: ONLINE</span>
-          <span>SYNC_RATE: {syncPct}%</span>
-        </div>
+        <HeaderTelemetry />
       </div>
 
+      {/* RIGHT SECTION: ACTIONS & PROFILE */}
       <div
         style={{
           display: 'flex',
@@ -254,6 +161,10 @@ export function TopCommandBar() {
             <path d="M3 14h7v7H3z"></path>
           </svg>
         </button>
+
+        <HeaderActions />
+
+        <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border-strong)' }} />
 
         <button
           className="btn btn-ghost"
@@ -300,37 +211,10 @@ export function TopCommandBar() {
             </div>
           )}
         </button>
-        <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border-strong)' }} />
-        <button
-          className="btn btn-ghost"
-          aria-label="User Menu"
-          onClick={signOut}
-          title="Sign Out"
-          style={{
-            padding: 'var(--space-2)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-          }}
-        >
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--brand-primary)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 'bold',
-            }}
-          >
-            {getInitials()}
-          </div>
-        </button>
-        <NotificationCenter isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+
+        <EnterpriseNotificationCenter isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+        <AccountCenter />
+        <CommandPalette />
       </div>
     </header>
   );
