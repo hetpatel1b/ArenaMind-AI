@@ -1,7 +1,7 @@
 import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/db/client';
 import { redirect } from 'next/navigation';
-import { GovernanceCommandWorkspace } from '@/app/components/governance/GovernanceCommandWorkspace';
+import GovernanceWorkspace from '@/app/components/governance/foundation/GovernanceWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,12 +81,5 @@ export default async function GovernanceCommandPage() {
     },
   };
 
-  return (
-    <GovernanceCommandWorkspace
-      matchData={JSON.parse(JSON.stringify(match)) as any}
-      stadiumData={JSON.parse(JSON.stringify(stadium)) as any}
-      users={JSON.parse(JSON.stringify(users)) as any}
-      governancePayload={JSON.parse(JSON.stringify(governancePayload))}
-    />
-  );
+  return <GovernanceWorkspace />;
 }
