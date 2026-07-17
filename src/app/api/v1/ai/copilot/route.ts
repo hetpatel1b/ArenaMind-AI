@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
           );
 
           // Send final response
-          console.log('[Copilot API] Sending complete event with result:', result);
           sendEvent('complete', { result });
           controller.close();
         } catch (error: any) {
