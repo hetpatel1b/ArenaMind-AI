@@ -78,5 +78,14 @@
     "prisma": "^7.8.0",
     "typescript": "^5",
     "vitest": "^4.1.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "bcrypt",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
