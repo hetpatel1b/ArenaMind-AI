@@ -6,6 +6,9 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   GEMINI_API_KEY: z.string().min(1).optional(),
+  GEMINI_MODEL: z.string().min(1).optional(),
+  GROK_API_KEY: z.string().min(1).optional(),
+  GROK_MODEL: z.string().min(1).optional(),
 });
 
 // Validates environment variables safely for both client and server contexts
@@ -15,4 +18,7 @@ export const env = envSchema.parse({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  GEMINI_MODEL: process.env.GEMINI_MODEL,
+  GROK_API_KEY: process.env.GROK_API_KEY,
+  GROK_MODEL: process.env.GROK_MODEL,
 });

@@ -2,10 +2,18 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 export function MobilityPersistentCopilot() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
+  const [isOpen, setIsOpen] = useState(true);
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'MOBILITY',
+  });
 
   return (
     <>
@@ -55,7 +63,7 @@ export function MobilityPersistentCopilot() {
               top: 0,
               right: 0,
               bottom: 0,
-              width: '400px',
+              width: '350px',
               backgroundColor: 'rgba(0, 0, 0, 0.95)',
               backdropFilter: 'blur(30px)',
               borderLeft: '1px solid rgba(10, 132, 255, 0.2)',
@@ -132,146 +140,193 @@ export function MobilityPersistentCopilot() {
                 gap: 'var(--space-4)',
               }}
             >
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                <div
-                  style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '4px',
-                    backgroundColor: 'var(--ai-accent)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#000"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
-                  </svg>
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.05)',
-                    padding: 'var(--space-3)',
-                    borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    I&apos;m monitoring transit network latency. With egress expected shortly, I
-                    suggest proactively rerouting the Downtown Shuttle Loop to avoid the North Metro
-                    corridor bottleneck.
-                  </p>
+              {messages.length === 0 && (
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                   <div
                     style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '4px',
+                      backgroundColor: 'var(--ai-accent)',
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-2)',
-                      marginTop: 'var(--space-3)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
-                    <button
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#000"
+                      strokeWidth="2"
+                    >
+                      <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
+                    </svg>
+                  </div>
+                  <div
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(255,255,255,0.05)',
+                      padding: 'var(--space-3)',
+                      borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
+                    }}
+                  >
+                    <p
                       style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        margin: 0,
+                        fontSize: 'var(--text-sm)',
                         color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
+                        lineHeight: 1.5,
                       }}
                     >
-                      Calculate alternate route ETA
-                    </button>
-                    <button
+                      I&apos;m monitoring transit network latency. With egress expected shortly, I
+                      suggest proactively rerouting the Downtown Shuttle Loop to avoid the North
+                      Metro corridor bottleneck.
+                    </p>
+                    <div
                       style={{
-                        backgroundColor: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'var(--text-secondary)',
-                        padding: '6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 'var(--space-2)',
+                        marginTop: 'var(--space-3)',
                       }}
                     >
-                      Draft reroute directive
-                    </button>
+                      <button
+                        onClick={() => sendMessage('Calculate alternate route ETA')}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: 'var(--text-secondary)',
+                          padding: '6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Calculate alternate route ETA
+                      </button>
+                      <button
+                        onClick={() => sendMessage('Draft reroute directive')}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: 'var(--text-secondary)',
+                          padding: '6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Draft reroute directive
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {messages.map((msg) => (
+                <div key={msg.id}>
+                  {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+                  {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                    <CopilotProgressIndicator progress={msg.progress} />
+                  )}
+                  {msg.role === 'assistant' && msg.error && (
+                    <div
+                      style={{
+                        color: '#ff3b30',
+                        fontSize: '13px',
+                        padding: '12px',
+                        background: 'rgba(255,59,48,0.1)',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      {msg.error}
+                    </div>
+                  )}
+                  {msg.role === 'assistant' && msg.response && (
+                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                      <div
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '4px',
+                          backgroundColor: 'var(--ai-accent)',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#000"
+                          strokeWidth="2"
+                        >
+                          <path d="M12 2a2 2 0 0 1 2 2c0 7.497 2 9 6 9v2h-4v7l-4 3-4-3v-7H4v-2c4 0 6-1.503 6-9a2 2 0 0 1 2-2z" />
+                        </svg>
+                      </div>
+                      <div
+                        style={{
+                          flex: 1,
+                          backgroundColor: 'rgba(255,255,255,0.05)',
+                          padding: 'var(--space-3)',
+                          borderRadius: '0 var(--radius-md) var(--radius-md) var(--radius-md)',
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: 'var(--text-sm)',
+                            color: 'var(--text-secondary)',
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {msg.response.observation}
+                        </p>
+                        {msg.response.recommendation && (
+                          <div
+                            style={{
+                              marginTop: '8px',
+                              padding: '8px',
+                              background: 'rgba(10,132,255,0.1)',
+                              color: 'var(--ai-accent)',
+                              fontSize: '13px',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {msg.response.recommendation}
+                          </div>
+                        )}
+                        {msg.response.reasoning && (
+                          <p
+                            style={{
+                              margin: '8px 0 0 0',
+                              fontSize: '12px',
+                              color: 'var(--text-tertiary)',
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {msg.response.reasoning}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            <div
-              style={{
-                padding: 'var(--space-4)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  backgroundColor: 'rgba(255,255,255,0.05)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '4px',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                }}
-              >
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about routing and transit..."
-                  style={{
-                    flex: 1,
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-primary)',
-                    padding: 'var(--space-2)',
-                    fontSize: 'var(--text-sm)',
-                    outline: 'none',
-                  }}
-                />
-                <button
-                  style={{
-                    backgroundColor: 'var(--ai-accent)',
-                    border: 'none',
-                    borderRadius: 'var(--radius-sm)',
-                    width: '32px',
-                    height: '32px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#000"
-                    strokeWidth="2"
-                  >
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                </button>
-              </div>
+            <div style={{ padding: '0 var(--space-4) var(--space-4) var(--space-4)' }}>
+              <CopilotChatInput
+                onSend={sendMessage}
+                onStop={stopGeneration}
+                isLoading={isLoading}
+              />
             </div>
           </motion.div>
         )}

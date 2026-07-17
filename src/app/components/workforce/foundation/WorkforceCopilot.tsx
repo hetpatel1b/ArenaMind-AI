@@ -3,6 +3,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkforceWorkspace } from './useWorkforceWorkspace';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 export function WorkforceCopilot() {
   const { state, dispatch } = useWorkforceWorkspace();
@@ -10,12 +16,17 @@ export function WorkforceCopilot() {
   const [activeTab, setActiveTab] = useState('Reasoning');
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'WORKFORCE',
+    contextData: { selectedDepartment: state.selectedDepartment },
+  });
+
   // Auto scroll reasoning
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [reasoningStream]);
+  }, [reasoningStream, messages]);
 
   return (
     <AnimatePresence>
@@ -119,46 +130,104 @@ export function WorkforceCopilot() {
             {activeTab === 'Reasoning' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <AnimatePresence initial={false}>
-                  {reasoningStream?.map((step) => (
-                    <motion.div
-                      key={step.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      style={{
-                        padding: '12px',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        borderRadius: '8px',
-                      }}
-                    >
-                      <div
+                  {messages.length === 0 &&
+                    reasoningStream?.map((step) => (
+                      <motion.div
+                        key={step.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          marginBottom: '8px',
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.05)',
+                          borderRadius: '8px',
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            fontSize: '10px',
-                            color: '#38BDF8',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px',
                           }}
                         >
-                          {step.phase}
-                        </span>
-                        <span style={{ fontSize: '10px', color: '#10B981' }}>
-                          {step.confidence}% conf
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.5 }}>
-                        {step.content}
-                      </div>
-                    </motion.div>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              color: '#38BDF8',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                            }}
+                          >
+                            {step.phase}
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#10B981' }}>
+                            {step.confidence}% conf
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.5 }}>
+                          {step.content}
+                        </div>
+                      </motion.div>
+                    ))}
+
+                  {messages.map((msg) => (
+                    <div key={msg.id} style={{ marginBottom: '16px' }}>
+                      {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+                      {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                        <CopilotProgressIndicator progress={msg.progress} />
+                      )}
+                      {msg.role === 'assistant' && msg.error && (
+                        <div
+                          style={{
+                            color: '#ff3b30',
+                            fontSize: '13px',
+                            padding: '12px',
+                            background: 'rgba(255,59,48,0.1)',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          {msg.error}
+                        </div>
+                      )}
+                      {msg.role === 'assistant' && msg.response && (
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          style={{
+                            padding: '12px',
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <div style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.5 }}>
+                            {msg.response.observation}
+                          </div>
+                          {msg.response.recommendation && (
+                            <div
+                              style={{
+                                marginTop: '8px',
+                                padding: '8px',
+                                background: 'rgba(56,189,248,0.1)',
+                                color: '#38BDF8',
+                                fontSize: '12px',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              {msg.response.recommendation}
+                            </div>
+                          )}
+                          {msg.response.reasoning && (
+                            <div style={{ marginTop: '8px', fontSize: '11px', color: '#94A3B8' }}>
+                              {msg.response.reasoning}
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
                   ))}
                 </AnimatePresence>
-                {(!reasoningStream || reasoningStream.length === 0) && (
+                {(!reasoningStream || reasoningStream.length === 0) && messages.length === 0 && (
                   <div
                     style={{
                       fontSize: '12px',
@@ -182,6 +251,7 @@ export function WorkforceCopilot() {
                   {['Remove 2 Medical Teams', 'VIP Route Change', 'Security Breach'].map((sc) => (
                     <button
                       key={sc}
+                      onClick={() => sendMessage(`Simulate: ${sc}`)}
                       style={{
                         background: 'rgba(255,255,255,0.05)',
                         border: '1px solid rgba(255,255,255,0.1)',
@@ -301,79 +371,11 @@ export function WorkforceCopilot() {
             )}
           </div>
 
-          {/* Input placeholder */}
-          <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <input
-              type="text"
-              placeholder="Ask Copilot about workforce state..."
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'rgba(0,0,0,0.2)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '6px',
-                color: '#F8FAFC',
-                fontSize: '13px',
-                outline: 'none',
-              }}
-            />
+          <div style={{ padding: '0 16px 16px 16px' }}>
+            <CopilotChatInput onSend={sendMessage} onStop={stopGeneration} isLoading={isLoading} />
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function RecommendationCard({
-  title,
-  desc,
-  type,
-}: {
-  title: string;
-  desc: string;
-  type: 'info' | 'warning';
-}) {
-  const color = type === 'warning' ? '#F59E0B' : '#38BDF8';
-  return (
-    <div
-      style={{
-        padding: '12px',
-        borderRadius: '6px',
-        border: `1px solid ${color}33`,
-        background: `${color}11`,
-      }}
-    >
-      <div style={{ fontSize: '13px', fontWeight: 600, color, marginBottom: '4px' }}>{title}</div>
-      <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.4 }}>{desc}</div>
-      <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-        <button
-          style={{
-            background: color,
-            border: 'none',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            color: '#000',
-            fontSize: '11px',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          Approve
-        </button>
-        <button
-          style={{
-            background: 'transparent',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            color: '#CBD5E1',
-            fontSize: '11px',
-            cursor: 'pointer',
-          }}
-        >
-          Dismiss
-        </button>
-      </div>
-    </div>
   );
 }

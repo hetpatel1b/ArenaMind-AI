@@ -9,6 +9,7 @@ import { MobilityTimeline } from './MobilityTimeline';
 import { MobilityContentWorkspace } from './MobilityContentWorkspace';
 import { TransportHealth } from './MobilitySidebar';
 import { MobilityNotificationCenter } from './MobilityNotificationCenter';
+import { MobilityPersistentCopilot } from '../widgets/MobilityPersistentCopilot';
 
 import { useMobilityEngine } from './useMobilityEngine';
 
@@ -80,6 +81,8 @@ function WorkspaceLayout() {
 
       {/* Bottom Timeline Drawer */}
       <MobilityTimeline isExpanded={state.timelineExpanded} onToggle={actions.toggleTimeline} />
+
+      <MobilityPersistentCopilot />
     </main>
   );
 }

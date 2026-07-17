@@ -1,5 +1,3 @@
-import { getSession } from 'next-auth/react';
-
 export class ApiError extends Error {
   status: number;
   data: any;
@@ -15,7 +13,10 @@ export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
-export const apiClient = async <T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
+export const apiClient = async <T = any>(
+  endpoint: string,
+  options: RequestOptions = {}
+): Promise<T> => {
   const { params, headers, ...customOptions } = options;
 
   let url = endpoint.startsWith('http') ? endpoint : `/api/v1${endpoint}`;
@@ -30,16 +31,9 @@ export const apiClient = async <T = any>(endpoint: string, options: RequestOptio
     url = urlObj.toString();
   }
 
-  const session = await getSession();
-
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-
-  if (session?.user?.id) {
-    // Note: Next-Auth handles cookies automatically for local routes, but we can explicitly inject headers if needed
-    defaultHeaders['x-user-id'] = session.user.id;
-  }
 
   // Generate a Request ID
   defaultHeaders['x-request-id'] = crypto.randomUUID();
@@ -62,7 +56,11 @@ export const apiClient = async <T = any>(endpoint: string, options: RequestOptio
     } catch {
       errorData = { message: response.statusText };
     }
-    throw new ApiError(response.status, errorData?.error?.message || 'API request failed', errorData);
+    throw new ApiError(
+      response.status,
+      errorData?.error?.message || 'API request failed',
+      errorData
+    );
   }
 
   // Handle 204 No Content
@@ -71,28 +69,28 @@ export const apiClient = async <T = any>(endpoint: string, options: RequestOptio
   }
 
   const data = await response.json();
-  
+
   // Unwrap standard response wrapper if present
   if (data && 'success' in data && 'data' in data) {
     return data.data as T;
   }
-  
+
   return data as T;
 };
 
 export const api = {
-  get: <T>(url: string, params?: RequestOptions['params'], options?: RequestOptions) => 
+  get: <T>(url: string, params?: RequestOptions['params'], options?: RequestOptions) =>
     apiClient<T>(url, { method: 'GET', params, ...options }),
-    
-  post: <T>(url: string, data?: any, options?: RequestOptions) => 
+
+  post: <T>(url: string, data?: any, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'POST', body: JSON.stringify(data), ...options }),
-    
-  put: <T>(url: string, data?: any, options?: RequestOptions) => 
+
+  put: <T>(url: string, data?: any, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'PUT', body: JSON.stringify(data), ...options }),
-    
-  patch: <T>(url: string, data?: any, options?: RequestOptions) => 
+
+  patch: <T>(url: string, data?: any, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'PATCH', body: JSON.stringify(data), ...options }),
-    
-  delete: <T>(url: string, options?: RequestOptions) => 
+
+  delete: <T>(url: string, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'DELETE', ...options }),
 };

@@ -97,6 +97,10 @@ model Organization {
   policies          Policy[]
   certificates      Certificate[]
   storageBuckets    StorageBucket[]
+  aiProviderConfigs AiProviderConfig[]
+  aiPrompts         AiPrompt[]
+  aiConversations   AiConversation[]
+  aiGatewayLogs     AiGatewayLog[]
 
   @@index([deletedAt])
   @@map("organizations")
@@ -146,6 +150,8 @@ model User {
   phaseTransitions       PhaseTransition[]
   reports                Report[]
   devices                Device[]
+  aiConversations        AiConversation[]
+  aiGatewayLogs          AiGatewayLog[]
 
   @@index([organizationId])
   @@index([organizationId, role])
@@ -263,6 +269,8 @@ model Match {
   mobilitySnapshots     MobilitySnapshot[]
   cameraEvents          CameraEvent[]
   deployments           Deployment[]
+  aiConversations       AiConversation[]
+  aiGatewayLogs         AiGatewayLog[]
 
   @@index([organizationId])
   @@index([organizationId, deletedAt])
@@ -1130,4 +1138,137 @@ enum JobStatus {
   cancelled
 
   @@map("job_status")
+}
+
+// ==========================================
+// Phase 18 Sprint 1: Enterprise AI Platform
+// ==========================================
+
+model AiProviderConfig {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  provider       String // "gemini", "openai", "claude", "vertex", "azure", "ollama"
+  apiKeyHash     String?   @map("api_key_hash")
+  endpointUrl    String?   @map("endpoint_url")
+  isActive       Boolean   @default(true) @map("is_active")
+  isDefault      Boolean   @default(false) @map("is_default")
+  metadata       Json      @default("{}")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("ai_provider_configs")
+}
+
+model AiPrompt {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String?   @map("organization_id") @db.Uuid // null = global system prompt
+  name           String    @unique
+  description    String?
+  type           String // "system", "module", "template"
+  featureName    String?   @map("feature_name") // maps to AIFeature enum values as string or enum
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  organization Organization?     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  versions     AiPromptVersion[]
+
+  @@index([organizationId])
+  @@index([name])
+  @@map("ai_prompts")
+}
+
+model AiPromptVersion {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  promptId  String    @map("prompt_id") @db.Uuid
+  version   String // "v1.0.0"
+  content   String    @db.Text
+  variables String[]  @default([])
+  schemaDef Json?     @map("schema_def")
+  isActive  Boolean   @default(false) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  prompt AiPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, version])
+  @@index([promptId, isActive])
+  @@map("ai_prompt_versions")
+}
+
+model AiConversation {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  matchId        String?   @map("match_id") @db.Uuid
+  userId         String?   @map("user_id") @db.Uuid
+  title          String?
+  summary        String?   @db.Text
+  contextData    Json      @default("{}") @map("context_data")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  match        Match?       @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     AiMessage[]
+
+  @@index([organizationId])
+  @@index([matchId])
+  @@index([userId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  role           String // "user", "assistant", "system"
+  content        String   @db.Text
+  tokenCount     Int?     @map("token_count")
+  metadata       Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+model AiGatewayLog {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  correlationId  String?  @map("correlation_id") @db.Uuid
+  organizationId String?  @map("organization_id") @db.Uuid
+  matchId        String?  @map("match_id") @db.Uuid
+  userId         String?  @map("user_id") @db.Uuid
+  provider       String
+  modelName      String   @map("model_name")
+  promptVersion  String?  @map("prompt_version")
+  featureName    String?  @map("feature_name")
+  latencyMs      Int      @map("latency_ms")
+  inputTokens    Int      @default(0) @map("input_tokens")
+  outputTokens   Int      @default(0) @map("output_tokens")
+  estimatedCost  Decimal? @map("estimated_cost") @db.Decimal(10, 6)
+  status         String // "success", "error", "timeout", "blocked"
+  errorMessage   String?  @map("error_message") @db.Text
+  retries               Int      @default(0)
+  fallbackUsed          Boolean  @default(false) @map("fallback_used")
+  cacheHit              Boolean  @default(false) @map("cache_hit")
+  agentCount            Int?     @map("agent_count")
+  consensusScore        Int?     @map("consensus_score")
+  hallucinationDetected Boolean  @default(false) @map("hallucination_detected")
+  confidenceAdjustment  Int?     @map("confidence_adjustment")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  match        Match?        @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([matchId, featureName])
+  @@index([status])
+  @@map("ai_gateway_logs")
 }

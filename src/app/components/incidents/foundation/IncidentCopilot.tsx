@@ -5,12 +5,23 @@ import { Incident } from './IncidentTypes';
 import { CopilotWhatIfEngine } from './CopilotWhatIfEngine';
 import { CopilotOperationalMemory } from './CopilotOperationalMemory';
 import { CopilotDispatchSequence } from './CopilotDispatchSequence';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
   const { state, actions } = useIncidentContext();
   const activeIncident = incidents.find((i) => i.id === state.selectedIncident);
 
   const isExpanded = state.workspaceMode !== 'NONE';
+
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'INCIDENT',
+    contextData: { activeIncidentId: activeIncident?.id },
+  });
 
   return (
     <motion.div
@@ -92,96 +103,53 @@ export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
           </button>
         </div>
 
-        <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={state.workspaceMode}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-            >
-              {state.workspaceMode === 'COPILOT' && activeIncident && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div
-                    style={{
-                      fontSize: '12px',
-                      color: '#bf5af2',
-                      textTransform: 'uppercase',
-                      fontWeight: 600,
-                    }}
-                  >
-                    AI Reasoning Engine
-                  </div>
+        <div
+          style={{
+            flex: 1,
+            padding: '24px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+          }}
+        >
+          {/* Initial State / Default Incident Copilot View */}
+          <IncidentAIResponseBlock
+            workspaceMode={state.workspaceMode}
+            activeIncident={activeIncident}
+            isLatest={messages.length === 0}
+          />
 
-                  <AnimatePresence initial={false}>
-                    {activeIncident.reasoningLog.map((log) => (
-                      <motion.div
-                        key={log.id}
-                        initial={{ opacity: 0, height: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                        exit={{ opacity: 0, height: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3 }}
-                        style={{
-                          padding: '12px',
-                          background: 'rgba(255,255,255,0.02)',
-                          borderRadius: '6px',
-                          border: '1px solid rgba(255,255,255,0.02)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            background: '#bf5af2',
-                            flexShrink: 0,
-                          }}
-                        />
-                        <div style={{ flex: 1, fontSize: '13px', color: '#fff' }}>
-                          {log.message}
-                        </div>
-                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                          {new Date(log.timestamp).toLocaleTimeString()}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+          {/* Chat History */}
+          {messages.map((msg) => (
+            <div key={msg.id}>
+              {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+              {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                <CopilotProgressIndicator progress={msg.progress} />
               )}
-              {state.workspaceMode === 'MISSION' && (
+              {msg.role === 'assistant' && msg.error && (
                 <div
                   style={{
-                    padding: '16px',
-                    background: 'rgba(62,130,247,0.1)',
+                    color: '#ff3b30',
+                    fontSize: '13px',
+                    padding: '12px',
+                    background: 'rgba(255,59,48,0.1)',
                     borderRadius: '8px',
-                    border: '1px solid rgba(62,130,247,0.3)',
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: '12px',
-                      color: '#3e82f7',
-                      textTransform: 'uppercase',
-                      fontWeight: 600,
-                      marginBottom: '8px',
-                    }}
-                  >
-                    Mission Configurator
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.5 }}>
-                    Configure dispatch routes and resource allocation parameters.
-                  </div>
+                  {msg.error}
                 </div>
               )}
-              {state.workspaceMode === 'WHAT_IF' && <CopilotWhatIfEngine />}
-              {state.workspaceMode === 'MEMORY' && <CopilotOperationalMemory />}
-              {state.workspaceMode === 'DISPATCH' && <CopilotDispatchSequence />}
-            </motion.div>
-          </AnimatePresence>
+              {msg.role === 'assistant' && msg.response && (
+                <IncidentAIResponseBlock
+                  workspaceMode={state.workspaceMode}
+                  activeIncident={activeIncident}
+                  isLatest={msg === messages[messages.length - 1]}
+                  aiResponse={msg.response}
+                />
+              )}
+            </div>
+          ))}
         </div>
 
         {activeIncident && state.workspaceMode !== 'DISPATCH' && (
@@ -215,7 +183,133 @@ export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
             ))}
           </div>
         )}
+
+        {/* Chat Input */}
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <CopilotChatInput onSend={sendMessage} onStop={stopGeneration} isLoading={isLoading} />
+        </div>
       </div>
     </motion.div>
+  );
+}
+
+function IncidentAIResponseBlock({ workspaceMode, activeIncident, isLatest, aiResponse }: any) {
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={workspaceMode}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+      >
+        {workspaceMode === 'COPILOT' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#bf5af2',
+                textTransform: 'uppercase',
+                fontWeight: 600,
+              }}
+            >
+              AI Reasoning Engine
+            </div>
+
+            {aiResponse ? (
+              <div
+                style={{
+                  padding: '12px',
+                  background: 'rgba(255,255,255,0.02)',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.02)',
+                }}
+              >
+                <div style={{ fontSize: '13px', color: '#fff' }}>{aiResponse.observation}</div>
+                {aiResponse.recommendation && (
+                  <div
+                    style={{
+                      marginTop: '8px',
+                      padding: '8px',
+                      background: 'rgba(191,90,242,0.1)',
+                      color: '#bf5af2',
+                      fontSize: '13px',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    {aiResponse.recommendation}
+                  </div>
+                )}
+              </div>
+            ) : (
+              activeIncident && (
+                <AnimatePresence initial={false}>
+                  {activeIncident.reasoningLog.map((log: any) => (
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, height: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                      exit={{ opacity: 0, height: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        padding: '12px',
+                        background: 'rgba(255,255,255,0.02)',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(255,255,255,0.02)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background: '#bf5af2',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div style={{ flex: 1, fontSize: '13px', color: '#fff' }}>{log.message}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                        {new Date(log.timestamp).toLocaleTimeString()}
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              )
+            )}
+          </div>
+        )}
+        {workspaceMode === 'MISSION' && isLatest && (
+          <div
+            style={{
+              padding: '16px',
+              background: 'rgba(62,130,247,0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(62,130,247,0.3)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#3e82f7',
+                textTransform: 'uppercase',
+                fontWeight: 600,
+                marginBottom: '8px',
+              }}
+            >
+              Mission Configurator
+            </div>
+            <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.5 }}>
+              Configure dispatch routes and resource allocation parameters.
+            </div>
+          </div>
+        )}
+        {workspaceMode === 'WHAT_IF' && isLatest && <CopilotWhatIfEngine />}
+        {workspaceMode === 'MEMORY' && isLatest && <CopilotOperationalMemory />}
+        {workspaceMode === 'DISPATCH' && isLatest && <CopilotDispatchSequence />}
+      </motion.div>
+    </AnimatePresence>
   );
 }

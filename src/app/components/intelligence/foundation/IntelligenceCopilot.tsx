@@ -3,12 +3,23 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIntelligenceWorkspace } from './IntelligenceWorkspaceContext';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 const tabs = ['Overview', 'Reasoning', 'Scenarios', 'Mission', 'Memory'];
 
 export const IntelligenceCopilot = React.memo(function IntelligenceCopilot() {
   const { state, dispatch } = useIntelligenceWorkspace();
   const [activeTab, setActiveTab] = useState('Overview');
+
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'INTELLIGENCE',
+    contextData: { activeTab },
+  });
 
   // Render Root Cause Node recursively
   const renderRootCause = (node: any, depth = 0) => {
@@ -511,38 +522,101 @@ export const IntelligenceCopilot = React.memo(function IntelligenceCopilot() {
                   exit={{ opacity: 0 }}
                   style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
                 >
-                  <div
-                    style={{
-                      padding: '12px',
-                      background: 'rgba(56, 189, 248, 0.1)',
-                      border: '1px solid rgba(56, 189, 248, 0.2)',
-                      borderRadius: '6px',
-                    }}
-                  >
-                    <h4
+                  {messages.length === 0 && (
+                    <div
                       style={{
-                        margin: '0 0 8px 0',
-                        fontSize: '12px',
-                        color: '#38BDF8',
-                        textTransform: 'uppercase',
+                        padding: '12px',
+                        background: 'rgba(56, 189, 248, 0.1)',
+                        border: '1px solid rgba(56, 189, 248, 0.2)',
+                        borderRadius: '6px',
                       }}
                     >
-                      Executive Summary
-                    </h4>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: '13px',
-                        color: 'var(--text-primary, #FFFFFF)',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      The Executive Decision Brain is evaluating real-time subsystem data.{' '}
-                      {state.rootCauseTree
-                        ? 'Root cause identified. Scenarios generated.'
-                        : 'Awaiting major correlations.'}
-                    </p>
-                  </div>
+                      <h4
+                        style={{
+                          margin: '0 0 8px 0',
+                          fontSize: '12px',
+                          color: '#38BDF8',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Executive Summary
+                      </h4>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: '13px',
+                          color: 'var(--text-primary, #FFFFFF)',
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        The Executive Decision Brain is evaluating real-time subsystem data.{' '}
+                        {state.rootCauseTree
+                          ? 'Root cause identified. Scenarios generated.'
+                          : 'Awaiting major correlations.'}
+                      </p>
+                    </div>
+                  )}
+
+                  {messages.map((msg) => (
+                    <div key={msg.id} style={{ marginBottom: '16px' }}>
+                      {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+                      {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                        <CopilotProgressIndicator progress={msg.progress} />
+                      )}
+                      {msg.role === 'assistant' && msg.error && (
+                        <div
+                          style={{
+                            color: '#ff3b30',
+                            fontSize: '13px',
+                            padding: '12px',
+                            background: 'rgba(255,59,48,0.1)',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          {msg.error}
+                        </div>
+                      )}
+                      {msg.role === 'assistant' && msg.response && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                          style={{
+                            padding: '12px',
+                            background: 'rgba(255,255,255,0.03)',
+                            borderLeft: '2px solid #38BDF8',
+                            borderRadius: '4px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                          }}
+                        >
+                          <span style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.5 }}>
+                            {msg.response.observation}
+                          </span>
+                          {msg.response.recommendation && (
+                            <div
+                              style={{
+                                marginTop: '8px',
+                                padding: '8px',
+                                background: 'rgba(56,189,248,0.1)',
+                                color: '#38BDF8',
+                                fontSize: '13px',
+                                borderRadius: '4px',
+                              }}
+                            >
+                              {msg.response.recommendation}
+                            </div>
+                          )}
+                          {msg.response.reasoning && (
+                            <span style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
+                              {msg.response.reasoning}
+                            </span>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -550,43 +624,7 @@ export const IntelligenceCopilot = React.memo(function IntelligenceCopilot() {
 
           {/* Input Area */}
           <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                display: 'flex',
-                gap: '8px',
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Ask Intelligence Copilot..."
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-primary, #FFFFFF)',
-                  fontSize: '12px',
-                  outline: 'none',
-                }}
-              />
-              <button
-                style={{
-                  background: '#38BDF8',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: '4px',
-                  padding: '4px 12px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Send
-              </button>
-            </div>
+            <CopilotChatInput onSend={sendMessage} onStop={stopGeneration} isLoading={isLoading} />
           </div>
         </motion.div>
       )}

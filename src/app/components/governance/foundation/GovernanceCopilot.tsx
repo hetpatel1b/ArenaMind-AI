@@ -3,6 +3,12 @@
 import React from 'react';
 import { useGovernanceWorkspace } from './useGovernanceWorkspace';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 const COPILOT_TABS = [
   'Overview',
@@ -17,6 +23,11 @@ const COPILOT_TABS = [
 export default function GovernanceCopilot() {
   const { state, dispatch } = useGovernanceWorkspace();
   const { copilotExpanded, activeCopilotTab, metrics } = state;
+
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'GOVERNANCE',
+    contextData: { activeCopilotTab, metrics },
+  });
 
   if (!copilotExpanded) {
     return (
@@ -127,23 +138,6 @@ export default function GovernanceCopilot() {
                 });
               }}
             />
-            <CopilotInsight
-              type="warning"
-              message="Enable auto-scaling for GPU node group C."
-              actionLabel="Enable Auto-scaling"
-              action={() => {
-                dispatch({
-                  type: 'ADD_NOTIFICATION',
-                  payload: {
-                    id: Date.now().toString(),
-                    title: 'Auto-scaling Enabled',
-                    message: 'GPU node group C auto-scaling activated.',
-                    type: 'info',
-                    timestamp: new Date().toISOString(),
-                  },
-                });
-              }}
-            />
           </div>
         );
       case 'Memory':
@@ -189,9 +183,7 @@ export default function GovernanceCopilot() {
     >
       <style
         dangerouslySetInnerHTML={{
-          __html: `
-        .gov-copilot-scroll::-webkit-scrollbar { display: none; }
-      `,
+          __html: `.gov-copilot-scroll::-webkit-scrollbar { display: none; }`,
         }}
       />
       <div
@@ -327,7 +319,55 @@ export default function GovernanceCopilot() {
             transition={{ duration: 0.2 }}
             style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
           >
-            <div style={{ flex: 1 }}>{renderContent()}</div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Default Overview Metrics (Initial AI Data) */}
+              {messages.length === 0 && renderContent()}
+
+              {/* Chat Messages */}
+              {messages.map((msg) => (
+                <div key={msg.id}>
+                  {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+                  {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                    <CopilotProgressIndicator progress={msg.progress} />
+                  )}
+                  {msg.role === 'assistant' && msg.error && (
+                    <div
+                      style={{
+                        color: '#ff3b30',
+                        fontSize: '13px',
+                        padding: '12px',
+                        background: 'rgba(255,59,48,0.1)',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      {msg.error}
+                    </div>
+                  )}
+                  {msg.role === 'assistant' && msg.response && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <CopilotInsight type="info" message={msg.response.observation} />
+                      {msg.response.recommendation && (
+                        <CopilotInsight type="success" message={msg.response.recommendation} />
+                      )}
+                      {msg.response.reasoning && (
+                        <div
+                          style={{
+                            padding: '0.75rem',
+                            fontSize: '0.75rem',
+                            color: '#94A3B8',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '0.5rem',
+                            background: 'rgba(255,255,255,0.02)',
+                          }}
+                        >
+                          {msg.response.reasoning}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
             <div
               style={{
@@ -337,23 +377,11 @@ export default function GovernanceCopilot() {
                 flexShrink: 0,
               }}
             >
-              <div
-                style={{
-                  height: '2.5rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '0.5rem',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 0.75rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  cursor: 'text',
-                }}
-              >
-                <span style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '0.75rem' }}>
-                  Ask Governance Copilot...
-                </span>
-              </div>
+              <CopilotChatInput
+                onSend={sendMessage}
+                onStop={stopGeneration}
+                isLoading={isLoading}
+              />
             </div>
           </motion.div>
         </AnimatePresence>

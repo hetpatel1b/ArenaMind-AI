@@ -9,7 +9,7 @@ import {
 
 const initialState: WorkspaceState = {
   selectedIncident: null,
-  workspaceMode: 'NONE',
+  workspaceMode: 'COPILOT',
   queueFilter: 'ALL',
   sortMode: 'PRIORITY',
   selectedEvidence: null,

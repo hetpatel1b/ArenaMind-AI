@@ -3,10 +3,21 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCameraWorkspace } from './useCameraWorkspace';
+import { useCopilotChat } from '@/app/hooks/useCopilotChat';
+import { CopilotChatInput } from '@/app/components/shared/copilot/CopilotChatInput';
+import {
+  CopilotUserMessage,
+  CopilotProgressIndicator,
+} from '@/app/components/shared/copilot/CopilotMessageComponents';
 
 export function CameraCopilot() {
   const { state, dispatch } = useCameraWorkspace();
   const [activeTab, setActiveTab] = useState('reasoning');
+
+  const { messages, sendMessage, stopGeneration, isLoading } = useCopilotChat({
+    moduleFeature: 'CAMERA',
+    contextData: { searchQuery: state.searchQuery, activeAIModels: state.metrics.activeAIModels },
+  });
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -127,54 +138,118 @@ export function CameraCopilot() {
           >
             {activeTab === 'reasoning' && (
               <AnimatePresence>
-                {state.reasoningStream.length > 0 ? (
-                  state.reasoningStream.map((step) => (
-                    <motion.div
-                      key={step.id}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      style={{
-                        padding: '12px',
-                        background: 'rgba(255,255,255,0.03)',
-                        borderLeft: '2px solid #38BDF8',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '4px',
-                      }}
-                    >
-                      <div
+                {/* Initial Default Content */}
+                {messages.length === 0 &&
+                  (state.reasoningStream.length > 0 ? (
+                    state.reasoningStream.map((step) => (
+                      <motion.div
+                        key={step.id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         style={{
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          borderLeft: '2px solid #38BDF8',
+                          borderRadius: '4px',
                           display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
+                          flexDirection: 'column',
+                          gap: '4px',
                         }}
                       >
-                        <span
+                        <div
                           style={{
-                            fontSize: '11px',
-                            color: '#38BDF8',
-                            fontWeight: 600,
-                            textTransform: 'uppercase',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
                           }}
                         >
-                          {step.phase}
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              color: '#38BDF8',
+                              fontWeight: 600,
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {step.phase}
+                          </span>
+                          <span style={{ fontSize: '10px', color: '#A78BFA' }}>
+                            {step.confidence.toFixed(1)}% CONF
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.5 }}>
+                          {step.content}
                         </span>
-                        <span style={{ fontSize: '10px', color: '#A78BFA' }}>
-                          {step.confidence.toFixed(1)}% CONF
-                        </span>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div style={{ fontSize: '12px', color: '#64748B' }}>
+                      Awaiting sensory input...
+                    </div>
+                  ))}
+
+                {/* Chat History */}
+                {messages.map((msg) => (
+                  <div key={msg.id} style={{ marginBottom: '16px' }}>
+                    {msg.role === 'user' && <CopilotUserMessage content={msg.content} />}
+                    {msg.role === 'assistant' && msg.isLoading && msg.progress && (
+                      <CopilotProgressIndicator progress={msg.progress} />
+                    )}
+                    {msg.role === 'assistant' && msg.error && (
+                      <div
+                        style={{
+                          color: '#ff3b30',
+                          fontSize: '13px',
+                          padding: '12px',
+                          background: 'rgba(255,59,48,0.1)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        {msg.error}
                       </div>
-                      <span style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.5 }}>
-                        {step.content}
-                      </span>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div style={{ fontSize: '12px', color: '#64748B' }}>
-                    Awaiting sensory input...
+                    )}
+                    {msg.role === 'assistant' && msg.response && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        style={{
+                          padding: '12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          borderLeft: '2px solid #38BDF8',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px',
+                        }}
+                      >
+                        <span style={{ fontSize: '13px', color: '#E2E8F0', lineHeight: 1.5 }}>
+                          {msg.response.observation}
+                        </span>
+                        {msg.response.recommendation && (
+                          <div
+                            style={{
+                              marginTop: '8px',
+                              padding: '8px',
+                              background: 'rgba(56,189,248,0.1)',
+                              color: '#38BDF8',
+                              fontSize: '13px',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            {msg.response.recommendation}
+                          </div>
+                        )}
+                        {msg.response.reasoning && (
+                          <span style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>
+                            {msg.response.reasoning}
+                          </span>
+                        )}
+                      </motion.div>
+                    )}
                   </div>
-                )}
+                ))}
               </AnimatePresence>
             )}
 
@@ -235,6 +310,10 @@ export function CameraCopilot() {
                 No active dispatch operations currently assigned to selected camera.
               </p>
             )}
+          </div>
+
+          <div style={{ padding: '0 20px 20px 20px' }}>
+            <CopilotChatInput onSend={sendMessage} onStop={stopGeneration} isLoading={isLoading} />
           </div>
         </motion.div>
       )}
