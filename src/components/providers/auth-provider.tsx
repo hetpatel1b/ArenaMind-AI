@@ -54,6 +54,7 @@ export function AuthProvider({
 
   useEffect(() => {
     if (status === 'loading') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(true);
       return;
     }
@@ -71,7 +72,7 @@ export function AuthProvider({
       setSession(null);
       setUser(null);
     }
-    
+
     setIsLoading(false);
   }, [nextAuthSession, status]);
 
