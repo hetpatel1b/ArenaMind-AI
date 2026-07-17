@@ -15,8 +15,8 @@ export interface IDomainEvent {
   /** The aggregate or entity ID this event relates to */
   readonly aggregateId: string;
 
-  /** The ID of the stadium this event belongs to (for multi-tenant isolation) */
-  readonly stadiumId: string;
+  /** The ID of the venue this event belongs to (for multi-tenant isolation) */
+  readonly venueId: string;
 }
 
 /**
@@ -29,7 +29,7 @@ export abstract class BaseDomainEvent implements IDomainEvent {
   constructor(
     public readonly eventName: string,
     public readonly aggregateId: string,
-    public readonly stadiumId: string
+    public readonly venueId: string
   ) {
     this.id = crypto.randomUUID();
     this.occurredAt = new Date();

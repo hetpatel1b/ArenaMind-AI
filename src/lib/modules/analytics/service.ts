@@ -18,7 +18,7 @@ export class AnalyticsService extends BaseService {
   ): Promise<PaginatedResult<KpiSnapshotDto>> {
     return this.execute('listMatchAnalytics', ctx, async () => {
       const filter =
-        ctx.stadiumId !== 'GLOBAL' ? { matchId, stadiumId: ctx.stadiumId } : { matchId };
+        ctx.venueId !== 'GLOBAL' ? { matchId, venueId: ctx.venueId } : { matchId };
 
       const { data, meta } = await kpiSnapshotRepository.findAll({
         filter,

@@ -17,7 +17,7 @@ export interface IntelligenceMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  stadium: { name: string; capacity: number };
+  venue: { name: string; capacity: number };
   incidents: any[];
   phaseTransitions: any[];
   aiRecommendations: any[];

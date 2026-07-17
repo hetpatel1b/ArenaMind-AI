@@ -8,8 +8,8 @@ export const exitFlowSurge: ScenarioTemplate = {
       'Post-match egress phase with a massive surge of fans trying to leave simultaneously.',
     healthScore: 71,
   },
-  stadium: {
-    name: 'Lusail Stadium',
+  venue: {
+    name: 'Lusail Venue',
     shortName: 'LUS',
     city: 'Lusail',
     country: 'Qatar',

@@ -58,7 +58,7 @@ export function useRegionalEngine() {
       {
         id: 'METRO-1',
         type: 'METRO_STATION',
-        label: 'Stadium North',
+        label: 'Venue North',
         x: 600,
         y: 250,
         status: 'CRITICAL',
@@ -67,7 +67,7 @@ export function useRegionalEngine() {
       {
         id: 'METRO-2',
         type: 'METRO_STATION',
-        label: 'Stadium South',
+        label: 'Venue South',
         x: 600,
         y: 550,
         status: 'BUSY',

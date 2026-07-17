@@ -12,12 +12,12 @@ export default async function GovernanceCommandPage() {
     redirect('/unauthorized');
   }
 
-  const stadiumId = session.stadiumId;
+  const organizationId = session.organizationId;
 
   // Bypass Enum bug for match
   const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM matches 
-    WHERE stadium_id = ${stadiumId}::uuid 
+    WHERE organization_id = ${organizationId}::uuid 
     AND match_status::text = 'active'
     LIMIT 1
   `;
@@ -32,7 +32,7 @@ export default async function GovernanceCommandPage() {
   }
 
   // Fetch critical platform configuration and active state
-  const [match, stadium, users] = await Promise.all([
+  const [match, venue, users] = await Promise.all([
     prisma.match.findUnique({
       where: { id: activeMatchIds[0]!.id },
       include: {
@@ -42,17 +42,25 @@ export default async function GovernanceCommandPage() {
         },
       },
     }),
-    prisma.stadium.findUnique({
-      where: { id: stadiumId },
+    prisma.venue.findFirst({
+      where: { organizationId: session.organizationId as string },
       include: { zones: true },
     }),
     prisma.user.findMany({
-      where: { stadiumId: session.stadiumId },
-      select: { id: true, fullName: true, role: true, isActive: true, lastSeenAt: true },
+      where: {
+        organizationId: session.organizationId,
+      },
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        isActive: true,
+        lastLoginAt: true,
+      },
     }),
   ]);
 
-  if (!match || !stadium) {
+  if (!match || !venue) {
     return (
       <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
         <h1>System Uninitialized</h1>
@@ -65,7 +73,7 @@ export default async function GovernanceCommandPage() {
   const governancePayload = {
     environment: 'Production (FIFA World Cup)',
     organization: 'FIFA Operations Group',
-    stadium: stadium.name,
+    venue: venue.name,
     aiProvider: 'Google Gemini Pro 1.5',
     aiVersion: 'v4.2.1-enterprise',
     securityStatus: 'Secure (SOC2 Compliant)',

@@ -13,8 +13,8 @@ export function ZoneIntelligencePanel({ zones }: ZoneIntelligencePanelProps) {
   // Filter to show only stands and concourse, not pitch or exterior usually,
   // but let's just show top 4 most crowded zones
   const topZones = [...zones]
-    .filter((z) => z.crowdData && z.crowdData.length > 0)
-    .sort((a, b) => Number(b.crowdData[0].densityPct) - Number(a.crowdData[0].densityPct))
+    .filter((z) => z.crowdSnapshots && z.crowdSnapshots.length > 0)
+    .sort((a, b) => Number(b.crowdSnapshots[0].densityPct) - Number(a.crowdSnapshots[0].densityPct))
     .slice(0, 5);
 
   return (
@@ -58,10 +58,10 @@ export function ZoneIntelligencePanel({ zones }: ZoneIntelligencePanelProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
         {topZones.map((zone, index) => {
-          const crowdData = zone.crowdData[0];
-          const density = Number(crowdData.densityPct);
-          const ingress = crowdData.ingressRate || 0;
-          const egress = crowdData.egressRate || 0;
+          const crowdSnapshots = zone.crowdSnapshots[0];
+          const density = Number(crowdSnapshots.densityPct);
+          const ingress = crowdSnapshots.ingressRate || 0;
+          const egress = crowdSnapshots.egressRate || 0;
 
           let statusColor = 'var(--status-success)';
           if (density >= 90) statusColor = 'var(--status-critical)';
@@ -96,7 +96,7 @@ export function ZoneIntelligencePanel({ zones }: ZoneIntelligencePanelProps) {
                   {zone.name}
                 </span>
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                  Pop: {crowdData.fanCount.toLocaleString()} / {zone.capacity.toLocaleString()}
+                  Pop: {crowdSnapshots.fanCount.toLocaleString()} / {zone.capacity.toLocaleString()}
                 </span>
                 <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
                   Rate: {ingress} in / {egress} out

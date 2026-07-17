@@ -56,7 +56,7 @@ export function StoryIntroduction() {
           Human operators cannot process this scale. ArenaMind AI was engineered specifically for
           the sheer mathematical complexity of the FIFA World Cup 2026. It is the first enterprise
           intelligence layer that continuously reasons across thousands of distinct data streams to
-          govern stadium operations.
+          govern venue operations.
         </motion.p>
       </div>
     </section>

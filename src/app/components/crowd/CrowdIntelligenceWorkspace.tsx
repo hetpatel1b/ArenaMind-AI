@@ -26,7 +26,7 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('NONE');
 
   // The new connected state engine
-  const state = useCrowdBehaviorEngine(2000); // 2 second ticks for demo speed
+  const { state } = useCrowdBehaviorEngine(matchData?.id || '123e4567-e89b-12d3-a456-426614174000');
 
   // Re-derive behavior metrics to feed legacy signature of BehaviorIntelligence
   // (In a real app, BehaviorIntelligence would accept the new state directly, but for now we map it)

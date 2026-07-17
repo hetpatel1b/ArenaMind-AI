@@ -56,7 +56,7 @@ export function MiniMap() {
       const scaleX = 180 / 1200;
       const scaleY = 120 / 800;
 
-      // Draw Stadium outline
+      // Draw Venue outline
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
       ctx.strokeRect(400 * scaleX, 200 * scaleY, 400 * scaleX, 400 * scaleY);
 
@@ -104,7 +104,7 @@ export function MiniMap() {
         pointerEvents: 'auto',
       }}
     >
-      {/* Mini Stadium Representation */}
+      {/* Mini Venue Representation */}
       <svg
         width="100%"
         height="100%"

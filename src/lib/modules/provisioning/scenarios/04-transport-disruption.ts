@@ -7,8 +7,8 @@ export const transportDisruption: ScenarioTemplate = {
     description: 'Halftime scenario with a major metro line failure affecting expected egress.',
     healthScore: 79,
   },
-  stadium: {
-    name: 'AT&T Stadium',
+  venue: {
+    name: 'AT&T Venue',
     shortName: 'ATT',
     city: 'Dallas',
     country: 'USA',
@@ -90,7 +90,7 @@ export const transportDisruption: ScenarioTemplate = {
       data: {
         reason: 'Without the Blue Line, post-match egress will exceed plaza capacity by 150%.',
         suggestedAction:
-          'Activate emergency shuttle protocol and delay stadium exit gating by 20 minutes post-match.',
+          'Activate emergency shuttle protocol and delay venue exit gating by 20 minutes post-match.',
         priority: 'High',
         evidence: 'Transport API Webhook',
         humanApprovalRequired: true,

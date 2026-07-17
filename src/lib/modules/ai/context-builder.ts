@@ -1,6 +1,6 @@
 import { incidentRepository } from '@/lib/modules/incidents/repository';
 import { matchRepository } from '@/lib/modules/matches/repository';
-import { crowdDataRepository } from '@/lib/modules/crowd/repository';
+import { crowdSnapshotRepository } from '@/lib/modules/crowd/repository';
 import { resourceRepository } from '@/lib/modules/resources/repository';
 import { BusinessContext } from '@/lib/services/business.context';
 
@@ -10,7 +10,7 @@ export class AiContextBuilder {
    * Strips out unnecessary PII or massive fields to optimize token usage.
    */
   async buildMatchContext(ctx: BusinessContext, matchId: string) {
-    const filter = { matchId, stadiumId: ctx.stadiumId };
+    const filter = { matchId, venueId: ctx.venueId };
 
     // Fetch match details
     const { data: matches } = await matchRepository.findAll({ filter });
@@ -27,7 +27,7 @@ export class AiContextBuilder {
     });
 
     // Fetch recent crowd density (latest snapshot per zone)
-    const { data: crowdData } = await crowdDataRepository.findAll({
+    const { data: crowdSnapshots } = await crowdSnapshotRepository.findAll({
       filter,
       sort: [{ field: 'recordedAt', order: 'desc' }],
       pagination: { page: 1, limit: 20 },
@@ -51,7 +51,7 @@ export class AiContextBuilder {
         status: i.status,
         createdAt: i.createdAt,
       })),
-      crowdDensity: crowdData.map((c: any) => ({
+      crowdDensity: crowdSnapshots.map((c: any) => ({
         zoneId: c.zoneId,
         densityPct: c.densityPct,
         fanCount: c.fanCount,

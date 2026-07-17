@@ -1,10 +1,10 @@
 import { PrismaRepository } from '@/lib/repositories/prisma.repository';
-import { Stadium } from '@prisma/client';
+import { Venue } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class StadiumRepository extends PrismaRepository<Stadium, any, any> {
+export class StadiumRepository extends PrismaRepository<Venue, any, any> {
   constructor() {
-    super(prisma.stadium as any);
+    super(prisma.venue as any);
   }
 }
 

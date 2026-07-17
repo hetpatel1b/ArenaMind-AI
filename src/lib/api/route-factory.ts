@@ -13,7 +13,7 @@ export interface RouteConfig {
   requireAuth?: boolean;
   allowedRoles?: Role[];
   requiredPermissions?: Permission[];
-  /** If true, bypasses the strict stadium isolation check (Admin only) */
+  /** If true, bypasses the strict venue isolation check (Admin only) */
   globalAccess?: boolean;
   rateLimit?: RateLimitOptions;
 }
@@ -70,7 +70,7 @@ export function createRouteHandler(
           correlationId,
           userId: session.userId,
           role: session.role,
-          stadiumId: session.stadiumId,
+          venueId: session.organizationId as string,
         };
       } else {
         // Public endpoint, use system context tied to a default tenant
@@ -87,7 +87,11 @@ export function createRouteHandler(
       }
 
       const startTime = performance.now();
-      logger.info(`Incoming API Request: ${req.method} ${req.nextUrl.pathname}`, { correlationId });
+      logger.info(`Incoming API Request: ${req.method} ${req.nextUrl.pathname}`, { 
+        correlationId,
+        userId: bizContext.userId,
+        organizationId: bizContext.venueId
+      });
 
       // Execute the actual business logic
       const response = await handler(req, { params, bizContext });
@@ -109,6 +113,8 @@ export function createRouteHandler(
       const durationMs = Math.round(performance.now() - startTime);
       logger.info(`Outgoing API Response: ${req.method} ${req.nextUrl.pathname}`, {
         correlationId,
+        userId: bizContext.userId,
+        organizationId: bizContext.venueId,
         durationMs,
         status: response.status,
       });

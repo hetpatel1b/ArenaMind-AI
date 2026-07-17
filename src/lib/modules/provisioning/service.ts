@@ -54,28 +54,37 @@ export class ProvisioningService {
           .findMany()
           .then((types) => new Map(types.map((t) => [t.name, t.id])));
 
-        // 2. Generate Stadium
-        const stadium = await tx.stadium.create({
+        // 2. Generate Organization & Venue
+        const organization = await tx.organization.create({
           data: {
-            name: `${template.stadium.name} (Demo ${Math.floor(Math.random() * 10000)})`,
-            shortName: template.stadium.shortName,
-            city: template.stadium.city,
-            country: template.stadium.country,
-            capacity: template.stadium.capacity,
-            latitude: template.stadium.latitude,
-            longitude: template.stadium.longitude,
-            timezone: template.stadium.timezone,
+            name: `${template.venue.name} Org (Demo ${Math.floor(Math.random() * 10000)})`,
+            country: template.venue.country,
+            createdById: userId,
+          }
+        });
+
+        const venue = await tx.venue.create({
+          data: {
+            organizationId: organization.id,
+            name: `${template.venue.name} (Demo ${Math.floor(Math.random() * 10000)})`,
+            shortName: template.venue.shortName,
+            city: template.venue.city,
+            country: template.venue.country,
+            capacity: template.venue.capacity,
+            latitude: template.venue.latitude,
+            longitude: template.venue.longitude,
+            timezone: template.venue.timezone,
             zoneCount: template.zones.length,
             metadata: { scenarioId: template.meta.id, healthScore: template.meta.healthScore },
           },
         });
 
-        // 3. Generate User and link to Stadium
+        // 3. Generate User and link to Organization
         const user = await tx.user.create({
           data: {
             id: userId,
-            stadiumId: stadium.id,
-            fullName: name,
+            organizationId: organization.id,
+            name: name,
             role: 'operations_manager',
             preferences: { theme: 'dark', layout: 'default' },
           },
@@ -86,7 +95,7 @@ export class ProvisioningService {
         for (const zone of template.zones) {
           const createdZone = await tx.zone.create({
             data: {
-              stadiumId: stadium.id,
+              venueId: venue.id,
               name: zone.name,
               shortCode: zone.shortCode,
               capacity: zone.capacity,
@@ -100,7 +109,8 @@ export class ProvisioningService {
         // 5. Generate Match
         const match = await tx.match.create({
           data: {
-            stadiumId: stadium.id,
+            organizationId: organization.id,
+            venueId: venue.id,
             matchNumber: template.match.matchNumber,
             homeTeam: template.match.homeTeam,
             awayTeam: template.match.awayTeam,
@@ -119,7 +129,7 @@ export class ProvisioningService {
           const dbZoneId = zoneIdMap.get(zone.id)!;
           return {
             matchId: match.id,
-            stadiumId: stadium.id,
+            venueId: venue.id,
             zoneId: dbZoneId,
             fanCount: zone.crowd.fanCount,
             safeCapacity: zone.safeCapacity,
@@ -128,7 +138,7 @@ export class ProvisioningService {
             egressRate: zone.crowd.egressRate,
           };
         });
-        await tx.crowdData.createMany({ data: crowdDataPayloads });
+        await tx.crowdSnapshot.createMany({ data: crowdDataPayloads });
 
         // 7. Generate Incidents and Map IDs
         const incidentIdMap = new Map<string, string>(); // logicalId -> dbId
@@ -139,7 +149,7 @@ export class ProvisioningService {
           const createdIncident = await tx.incident.create({
             data: {
               matchId: match.id,
-              stadiumId: stadium.id,
+              venueId: venue.id,
               zoneId: dbZoneId,
               incidentTypeId: typeId,
               reportedBy: user.id,
@@ -161,7 +171,7 @@ export class ProvisioningService {
           const dbZoneId = zoneIdMap.get(res.zoneRef);
           const typeId = resourceTypeMap.get(res.typeRef)!;
           return {
-            stadiumId: stadium.id,
+            venueId: venue.id,
             matchId: match.id,
             zoneId: dbZoneId,
             resourceTypeId: typeId,
@@ -177,7 +187,7 @@ export class ProvisioningService {
         const aiRecPayloads = template.aiRecommendations.map((rec) => {
           const dbIncidentId = rec.incidentRef ? incidentIdMap.get(rec.incidentRef) : undefined;
           return {
-            stadiumId: stadium.id,
+            venueId: venue.id,
             matchId: match.id,
             incidentId: dbIncidentId,
             featureName: rec.featureName,
@@ -195,7 +205,7 @@ export class ProvisioningService {
         // 10. Generate KPIs
         await tx.kpiSnapshot.create({
           data: {
-            stadiumId: stadium.id,
+            venueId: venue.id,
             matchId: match.id,
             phase: template.match.currentPhase,
             openIncidents: template.incidents.length,
@@ -214,7 +224,7 @@ export class ProvisioningService {
         // 11. Generate Health Score
         await tx.healthScore.create({
           data: {
-            stadiumId: stadium.id,
+            venueId: venue.id,
             matchId: match.id,
             score: template.meta.healthScore,
             incidentScore: template.meta.healthScore - 5,
@@ -236,7 +246,7 @@ export class ProvisioningService {
         }
 
         return {
-          stadiumId: stadium.id,
+          venueId: venue.id,
           matchId: match.id,
           userId: user.id,
           scenarioId: template.meta.id,

@@ -32,9 +32,6 @@ export class UserService extends BaseService {
           data: {
             ...payload,
           },
-          include: {
-            stadium: true,
-          },
         });
 
         await tx.auditLog.create({

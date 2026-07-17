@@ -27,7 +27,7 @@ export class IncidentService extends BaseService {
         throw new NotFoundError(`Incident with ID ${incidentId} not found`);
       }
 
-      this.enforceTenantIsolation(ctx, incident.stadiumId);
+      this.enforceTenantIsolation(ctx, incident.venueId as string);
 
       return toIncidentDto(incident);
     });
@@ -54,7 +54,7 @@ export class IncidentService extends BaseService {
 
       const filter = {
         matchId,
-        ...(ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {}),
+        ...(ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {}),
         ...userFilters,
       };
 
@@ -81,11 +81,11 @@ export class IncidentService extends BaseService {
 
       const match = await this.matchRepository.findById(matchId);
       if (!match) throw new NotFoundError('Match not found');
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId as string);
 
       const incident = await this.incidentRepository.createIncidentWithAction(
         matchId,
-        match.stadiumId,
+        match.venueId,
         ctx.userId,
         payload
       );
@@ -107,7 +107,7 @@ export class IncidentService extends BaseService {
       if (!existing || existing.matchId !== matchId) {
         throw new NotFoundError('Incident not found');
       }
-      this.enforceTenantIsolation(ctx, existing.stadiumId);
+      this.enforceTenantIsolation(ctx, existing.venueId as string);
 
       if (['resolved', 'closed'].includes(existing.status) && !payload.status) {
         throw new ValidationError('Cannot modify a resolved incident without reopening it.');

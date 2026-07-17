@@ -93,7 +93,7 @@ export function InteractiveWorkforceMap({ zones, resources }: InteractiveWorkfor
         </div>
       </div>
 
-      {/* Abstract Stadium Representation */}
+      {/* Abstract Venue Representation */}
       <div
         style={{
           flex: 1,
@@ -131,7 +131,7 @@ export function InteractiveWorkforceMap({ zones, resources }: InteractiveWorkfor
           {resources.slice(0, 30).map((resource, idx) => {
             const color = getResourceColor(resource.name);
 
-            // Scatter resources around the stadium
+            // Scatter resources around the venue
             const angle = idx * 137.5 * (Math.PI / 180);
             const radius = 30 + (idx % 25); // % from center
             const top = `${50 + radius * Math.sin(angle)}%`;

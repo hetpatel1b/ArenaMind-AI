@@ -5,7 +5,7 @@ export function toIncidentDto(incident: Incident): IncidentDto {
   return {
     id: incident.id,
     matchId: incident.matchId,
-    stadiumId: incident.stadiumId,
+    venueId: incident.venueId as string,
     zoneId: incident.zoneId,
     incidentTypeId: incident.incidentTypeId,
     title: incident.title,

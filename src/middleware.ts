@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/server/auth/auth.config';
+
+const { auth } = NextAuth(authConfig);
 
 // Define explicit route groups
 const PROTECTED_ROUTES = [
@@ -11,17 +14,24 @@ const PROTECTED_ROUTES = [
   '/reports',
   '/settings',
   '/profile',
+  '/api/v1',
   '/api/private',
 ];
 
-export async function middleware(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request);
+export default auth(async (request) => {
+  const session = request.auth;
   const { pathname } = request.nextUrl;
 
+  // NextAuth automatically handles session parsing, we just need to verify existence.
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
+  // Bypass nextauth API endpoints
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
   // Rule 1: Unauthenticated user opening protected routes -> Redirect to /login
-  if (!user && isProtectedRoute) {
+  if (!session && isProtectedRoute) {
     if (pathname.startsWith('/api')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -31,17 +41,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
-  if (user && pathname === '/login') {
+  if (session && pathname === '/login') {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = '/dashboard';
     return NextResponse.redirect(dashboardUrl);
   }
 
-  // Note: We intentionally DO NOT redirect from '/' if the user is authenticated,
-  // as the landing page is always the default homepage.
-
-  return supabaseResponse;
-}
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],

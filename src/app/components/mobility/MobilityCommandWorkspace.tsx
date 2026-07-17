@@ -19,7 +19,7 @@ export interface MobilityMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  stadium: { name: string; capacity: number; zones: any[] };
+  venue: { name: string; capacity: number; zones: any[] };
   aiRecommendations: any[];
   phaseTransitions: any[];
 }
@@ -68,7 +68,7 @@ export function MobilityCommandWorkspace({
         style={{ gridColumn: 'span 12' }}
       >
         <AiMobilityBriefing
-          stadiumName={matchData.stadium.name}
+          stadiumName={matchData.venue.name}
           currentPhase={matchData.currentPhase}
           mobilityState={mobilityState}
           primaryRecommendation={primaryRecommendation}
@@ -91,7 +91,7 @@ export function MobilityCommandWorkspace({
         transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
         style={{ gridColumn: 'span 8' }}
       >
-        <InteractiveMobilityMap zones={matchData.stadium.zones} mobilityState={mobilityState} />
+        <InteractiveMobilityMap zones={matchData.venue.zones} mobilityState={mobilityState} />
       </motion.div>
 
       {/* Sections 4, 5, 6: Network Status (Span 6), Parking (Span 3), Forecast (Span 3) */}

@@ -6,7 +6,7 @@ export const KpiSnapshotDtoSchema = registerSchema(
   z.object({
     id: z.string().uuid(),
     matchId: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     phase: z.string(),
     openIncidents: z.number(),
     tier1Incidents: z.number(),

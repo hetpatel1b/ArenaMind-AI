@@ -13,7 +13,7 @@ export class IncidentRepository
 
   async createIncidentWithAction(
     matchId: string,
-    stadiumId: string,
+    venueId: string,
     userId: string,
     payload: any
   ): Promise<Incident> {
@@ -21,7 +21,7 @@ export class IncidentRepository
       const newIncident = await tx.incident.create({
         data: {
           matchId,
-          stadiumId,
+          venueId,
           reportedBy: userId,
           title: payload.title,
           description: payload.description,

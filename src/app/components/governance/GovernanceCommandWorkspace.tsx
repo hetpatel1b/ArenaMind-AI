@@ -15,7 +15,7 @@ import { GovernancePersistentCopilot } from './widgets/GovernancePersistentCopil
 export interface GovernancePayload {
   environment: string;
   organization: string;
-  stadium: string;
+  venue: string;
   aiProvider: string;
   aiVersion: string;
   securityStatus: string;

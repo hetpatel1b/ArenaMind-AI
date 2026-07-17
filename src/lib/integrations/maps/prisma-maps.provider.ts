@@ -25,8 +25,8 @@ export class PrismaMapsProvider implements IMapsProvider {
   }
 
   async geocode(address: string): Promise<GeoLocation> {
-    // Attempt to locate a stadium that matches the address/name
-    const stadium = await prisma.stadium.findFirst({
+    // Attempt to locate a venue that matches the address/name
+    const venue = await prisma.venue.findFirst({
       where: {
         OR: [
           { name: { contains: address, mode: 'insensitive' } },
@@ -35,10 +35,10 @@ export class PrismaMapsProvider implements IMapsProvider {
       },
     });
 
-    if (stadium && stadium.latitude && stadium.longitude) {
+    if (venue && venue.latitude && venue.longitude) {
       return {
-        latitude: Number(stadium.latitude),
-        longitude: Number(stadium.longitude),
+        latitude: Number(venue.latitude),
+        longitude: Number(venue.longitude),
       };
     }
 

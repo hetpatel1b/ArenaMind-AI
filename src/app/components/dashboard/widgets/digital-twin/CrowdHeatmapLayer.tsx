@@ -31,8 +31,8 @@ export function CrowdHeatmapLayer({ layout, zones }: CrowdHeatmapLayerProps) {
         const zoneLayout = layout[zone.shortCode];
         if (!zoneLayout) return null;
 
-        const crowdData = zone.crowdData?.[0];
-        const density = crowdData ? Number(crowdData.densityPct) : 0;
+        const crowdSnapshots = zone.crowdSnapshots?.[0];
+        const density = crowdSnapshots ? Number(crowdSnapshots.densityPct) : 0;
 
         let style: any = {};
         if (zoneLayout.rx) {

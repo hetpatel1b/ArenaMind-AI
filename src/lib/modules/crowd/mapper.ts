@@ -1,11 +1,11 @@
-import { CrowdData } from '@prisma/client';
+import { CrowdSnapshot } from '@prisma/client';
 import { CrowdDataDto } from './dto';
 
-export function toCrowdDataDto(data: CrowdData): CrowdDataDto {
+export function toCrowdDataDto(data: CrowdSnapshot): CrowdDataDto {
   return {
     id: data.id,
     matchId: data.matchId,
-    stadiumId: data.stadiumId,
+    venueId: data.venueId as string,
     zoneId: data.zoneId,
     fanCount: data.fanCount,
     safeCapacity: data.safeCapacity,

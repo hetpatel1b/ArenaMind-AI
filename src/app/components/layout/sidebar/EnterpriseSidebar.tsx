@@ -175,8 +175,6 @@ export function EnterpriseSidebar() {
           display: 'flex',
           flexDirection: 'column',
           gap: 'var(--space-2)',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
         }}
       >
         <div style={{ marginBottom: 'var(--space-4)' }}>

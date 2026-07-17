@@ -12,12 +12,12 @@ export default async function IncidentCommandPage() {
     redirect('/unauthorized');
   }
 
-  const stadiumId = session.stadiumId;
+  const organizationId = session.organizationId;
 
   // Fetch the active match with deep relations for incidents and resources
   const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM matches 
-    WHERE stadium_id = ${stadiumId}::uuid 
+    WHERE organization_id = ${organizationId}::uuid 
     AND match_status::text = 'active'
     LIMIT 1
   `;
@@ -36,7 +36,7 @@ export default async function IncidentCommandPage() {
       id: activeMatchIds[0]!.id,
     },
     include: {
-      stadium: {
+      venue: {
         include: {
           zones: true,
         },

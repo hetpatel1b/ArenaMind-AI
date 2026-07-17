@@ -1,11 +1,11 @@
 import { PrismaRepository } from '@/lib/repositories/prisma.repository';
-import { CrowdData } from '@prisma/client';
+import { CrowdSnapshot } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class CrowdDataRepository extends PrismaRepository<CrowdData, any, any> {
+export class CrowdSnapshotRepository extends PrismaRepository<CrowdSnapshot, any, any> {
   constructor() {
-    super(prisma.crowdData as any);
+    super(prisma.crowdSnapshot as any);
   }
 }
 
-export const crowdDataRepository = new CrowdDataRepository();
+export const crowdSnapshotRepository = new CrowdSnapshotRepository();

@@ -1,45 +1,27 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/db/client';
+import { auth } from '@/server/auth/auth';
 
 export type UserSessionContext = {
   authId: string;
   userId: string;
   email: string;
   role: string;
-  stadiumId: string;
+  organizationId: string | null;
 };
 
 export async function getServerSession(): Promise<UserSessionContext | null> {
-  const supabase = await createServerSupabaseClient();
+  const session = await auth();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
+  if (!session || !session.user) {
     return null;
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      id: true,
-      role: true,
-      stadiumId: true,
-      isActive: true,
-    },
-  });
-
-  if (!dbUser || !dbUser.isActive) {
-    return null;
-  }
+  const user = session.user as any;
 
   return {
     authId: user.id,
-    userId: dbUser.id,
+    userId: user.id,
     email: user.email || '',
-    role: dbUser.role,
-    stadiumId: dbUser.stadiumId,
+    role: user.role || 'user',
+    organizationId: user.organizationId || null,
   };
 }

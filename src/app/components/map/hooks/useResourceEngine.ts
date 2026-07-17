@@ -45,7 +45,7 @@ const generateResources = (count: number): OperationalResource[] => {
   for (let i = 0; i < count; i++) {
     const type = types[Math.floor(Math.random() * types.length)]!;
 
-    // Distribute randomly across the stadium bounds (roughly 1200x800)
+    // Distribute randomly across the venue bounds (roughly 1200x800)
     // Focus around inner ring (rx=150) and outer ring (rx=200)
     const isInner = Math.random() > 0.4;
     const angle = Math.random() * Math.PI * 2;

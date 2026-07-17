@@ -41,6 +41,7 @@ export abstract class PrismaRepository<
     const result = await this.getDelegate(tx).findUnique({
       where: { id },
     });
+    // For soft delete models, we should theoretically filter by deletedAt here or in the caller
     return (result as TEntity) || null;
   }
 
@@ -48,12 +49,18 @@ export abstract class PrismaRepository<
     filter?: Record<string, unknown>;
     pagination?: PaginationOptions;
     sort?: SortOptions[];
+    includeDeleted?: boolean;
   }): Promise<PaginatedResult<TEntity>> {
-    const { filter, pagination, sort } = options || {};
+    const { filter, pagination, sort, includeDeleted } = options || {};
 
-    const queryArgs: Record<string, unknown> = {
-      where: filter || {},
-    };
+    const where: Record<string, unknown> = { ...(filter || {}) };
+    
+    // Default to excluding soft-deleted records unless explicitly requested
+    if (!includeDeleted && where.deletedAt === undefined) {
+      where.deletedAt = null;
+    }
+
+    const queryArgs: Record<string, unknown> = { where };
 
     if (sort && sort.length > 0) {
       queryArgs.orderBy = sort.map((s) => ({ [String(s.field)]: s.order }));
@@ -96,7 +103,7 @@ export abstract class PrismaRepository<
   public async softDelete(id: string, tx?: ITransaction): Promise<boolean> {
     await this.getDelegate(tx).update({
       where: { id },
-      data: { isDeleted: true, deletedAt: new Date() },
+      data: { deletedAt: new Date() },
     });
     return true;
   }
@@ -108,9 +115,15 @@ export abstract class PrismaRepository<
     return true;
   }
 
-  public async count(filter?: Record<string, unknown>): Promise<number> {
+  public async count(filter?: Record<string, unknown>, includeDeleted = false): Promise<number> {
+    const where: Record<string, unknown> = { ...(filter || {}) };
+    
+    if (!includeDeleted && where.deletedAt === undefined) {
+      where.deletedAt = null;
+    }
+
     return this.delegate.count({
-      where: filter || {},
+      where,
     });
   }
 }

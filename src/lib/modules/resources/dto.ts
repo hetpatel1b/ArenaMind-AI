@@ -5,7 +5,7 @@ export const ResourceDtoSchema = registerSchema(
   'Resource',
   z.object({
     id: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     matchId: z.string().uuid().nullable(),
     zoneId: z.string().uuid().nullable(),
     resourceTypeId: z.string().uuid(),

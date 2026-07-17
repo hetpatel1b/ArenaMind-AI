@@ -15,12 +15,12 @@ export class TransportService extends BaseService {
       // transport telemetry structurally stored within the Match metadata JSON.
       const match = await prisma.match.findUnique({
         where: { id: matchId },
-        select: { id: true, stadiumId: true, metadata: true },
+        select: { id: true, venueId: true, metadata: true },
       });
 
       if (!match) throw new NotFoundError('Match not found');
 
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       const metadata = (match.metadata as any) || {};
       const transportData = metadata.transportation || [];
@@ -29,7 +29,7 @@ export class TransportService extends BaseService {
       return transportData.map((t: any, index: number) => ({
         id: `transport-${match.id}-${index}`,
         matchId: match.id,
-        stadiumId: match.stadiumId,
+        venueId: match.venueId,
         type: t.type || 'shuttle',
         name: t.name || 'General Transport',
         capacity: t.capacity || 0,
@@ -49,7 +49,7 @@ export class TransportService extends BaseService {
     return this.execute('updateTransport', ctx, async () => {
       const match = await prisma.match.findUnique({ where: { id: matchId } });
       if (!match) throw new NotFoundError('Match not found');
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       await prisma.$transaction(async (tx) => {
         const m = await tx.match.findUnique({ where: { id: matchId } });

@@ -1,6 +1,6 @@
 import { BaseService } from '@/lib/services/base.service';
 import { BusinessContext } from '@/lib/services/business.context';
-import { crowdDataRepository } from './repository';
+import { crowdSnapshotRepository } from './repository';
 import { toCrowdDataDto } from './mapper';
 import { CrowdDataDto } from './dto';
 import { NotFoundError } from '@/lib/errors/http.errors';
@@ -22,11 +22,11 @@ export class CrowdService extends BaseService {
 
       const filter = {
         matchId,
-        ...(ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {}),
+        ...(ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {}),
         ...userFilters,
       };
 
-      const { data, meta } = await crowdDataRepository.findAll({
+      const { data, meta } = await crowdSnapshotRepository.findAll({
         filter,
         pagination: query.pagination,
         sort: query.sort || [{ field: 'recordedAt', order: 'desc' }], // default latest first

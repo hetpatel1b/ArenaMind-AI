@@ -90,7 +90,7 @@ export function HeroContent() {
           textShadow: '0 0 40px rgba(255, 255, 255, 0.1)',
         }}
       >
-        Intelligent Stadium <br />
+        Intelligent Venue <br />
         <span
           style={{
             background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.4) 100%)',

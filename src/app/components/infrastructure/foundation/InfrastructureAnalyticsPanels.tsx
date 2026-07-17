@@ -114,7 +114,7 @@ const InfrastructureAnalyticsPanels: React.FC = React.memo(() => {
 
   // Mock historical data derived from current value for visual effect
   const genData = (base: number, variance: number) =>
-    Array.from({ length: 10 }, (_, i) => base + Math.sin(i + Date.now() / 1000) * variance);
+    Array.from({ length: 10 }, (_, i) => base + Math.sin(i * 1.5) * variance);
 
   return (
     <div

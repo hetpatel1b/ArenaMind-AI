@@ -1,6 +1,6 @@
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { parseQueryParams } from '@/lib/api/dto';
-import { stadiumService } from '@/lib/modules/stadiums/service';
+import { stadiumService } from '@/lib/modules/venues/service';
 import { paginatedResponse } from '@/lib/api/response';
 
 export const GET = createRouteHandler(

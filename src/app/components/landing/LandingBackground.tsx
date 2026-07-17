@@ -65,7 +65,7 @@ export function LandingBackground() {
         </motion.div>
       )}
 
-      {/* 2. Stadium Blueprint Grid */}
+      {/* 2. Venue Blueprint Grid */}
       <motion.div
         style={{
           opacity: gridOpacity,

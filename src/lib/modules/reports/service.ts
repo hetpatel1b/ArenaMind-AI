@@ -23,7 +23,7 @@ export class ReportService extends BaseService {
 
       const filter = {
         matchId,
-        ...(ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {}),
+        ...(ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {}),
         ...userFilters,
       };
 
@@ -51,13 +51,13 @@ export class ReportService extends BaseService {
       const match = await prisma.match.findUnique({ where: { id: matchId } });
       if (!match) throw new NotFoundError('Match not found');
 
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       const createdReport = await prisma.$transaction(async (tx) => {
         // Create the report record representing the generation event
         const report = await tx.report.create({
           data: {
-            stadiumId: match.stadiumId,
+            venueId: match.venueId,
             matchId: match.id,
             userId: ctx.userId!,
             type: payload.type,

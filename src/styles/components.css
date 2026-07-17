@@ -214,3 +214,8 @@
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
+.sidebar-item:hover .item-actions {
+  opacity: 1 !important;
+}
+

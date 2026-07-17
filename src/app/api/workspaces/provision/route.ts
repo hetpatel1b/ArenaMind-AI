@@ -26,7 +26,7 @@ export const POST = createRouteHandler(
     if (existingUser) {
       return NextResponse.json({
         message: 'Workspace already provisioned',
-        stadiumId: existingUser.stadiumId,
+        organizationId: existingUser.organizationId,
       });
     }
 

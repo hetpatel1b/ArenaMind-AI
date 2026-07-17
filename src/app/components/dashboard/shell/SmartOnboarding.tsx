@@ -54,7 +54,7 @@ const ONBOARDING_MESSAGES: Record<OperatorRole, { title: string; text: string }[
   VOLUNTEER: [
     {
       title: 'Volunteer Coordination',
-      text: 'Welcome. Manage volunteer deployments across the stadium zones.',
+      text: 'Welcome. Manage volunteer deployments across the venue zones.',
     },
   ],
 };

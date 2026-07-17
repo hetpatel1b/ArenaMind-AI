@@ -5,7 +5,7 @@ export const MatchDtoSchema = registerSchema(
   'Match',
   z.object({
     id: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     matchNumber: z.number(),
     homeTeam: z.string(),
     awayTeam: z.string(),

@@ -207,7 +207,7 @@ export function ExplainabilityCard({ phase }: { phase: CopilotPhase }) {
               Historical Evidence
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              Training data includes 142 similar stadium congestion patterns from previous FIFA
+              Training data includes 142 similar venue congestion patterns from previous FIFA
               events. Prediction accuracy for this vector is 96.2%.
             </div>
           </motion.div>

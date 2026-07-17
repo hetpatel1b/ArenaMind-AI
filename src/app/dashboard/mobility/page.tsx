@@ -12,12 +12,12 @@ export default async function MobilityCommandPage() {
     redirect('/unauthorized');
   }
 
-  const stadiumId = session.stadiumId;
+  const organizationId = session.organizationId;
 
   // Fetch active match with mobility-focused payload
   const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM matches 
-    WHERE stadium_id = ${stadiumId}::uuid 
+    WHERE organization_id = ${organizationId}::uuid 
     AND match_status::text = 'active'
     LIMIT 1
   `;
@@ -39,7 +39,7 @@ export default async function MobilityCommandPage() {
       phaseTransitions: {
         orderBy: { timestamp: 'desc' },
       },
-      stadium: {
+      venue: {
         include: {
           zones: true,
           systemSettings: {
@@ -73,7 +73,7 @@ export default async function MobilityCommandPage() {
   const isEgress = match.currentPhase === 'crowd_exit';
 
   // Try to load external mobility telemetry from SystemSettings
-  const telemetrySetting = match.stadium?.systemSettings?.find(
+  const telemetrySetting = match.venue?.systemSettings?.find(
     (s) => s.key === 'mobility_telemetry'
   );
 

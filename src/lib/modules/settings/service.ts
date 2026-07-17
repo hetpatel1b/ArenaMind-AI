@@ -12,10 +12,10 @@ export class SettingService extends BaseService {
 
   async getStadiumSettings(ctx: BusinessContext): Promise<SettingDto[]> {
     return this.execute('getStadiumSettings', ctx, async () => {
-      // Allow global settings (stadiumId = null) and specific stadium settings
+      // Allow global settings (venueId = null) and specific venue settings
       const { data } = await settingRepository.findAll({
         filter: {
-          OR: [{ stadiumId: ctx.stadiumId }, { stadiumId: null }],
+          OR: [{ venueId: ctx.venueId }, { venueId: null }],
         },
       });
 
@@ -27,7 +27,7 @@ export class SettingService extends BaseService {
     return this.execute('updateSetting', ctx, async () => {
       const updatedSetting = await prisma.$transaction(async (tx) => {
         let setting = await tx.systemSetting.findFirst({
-          where: { key: payload.key, stadiumId: ctx.stadiumId },
+          where: { key: payload.key, venueId: ctx.venueId },
         });
 
         if (setting) {
@@ -38,7 +38,7 @@ export class SettingService extends BaseService {
         } else {
           setting = await tx.systemSetting.create({
             data: {
-              stadiumId: ctx.stadiumId,
+              venueId: ctx.venueId,
               key: payload.key,
               value: payload.value,
             },

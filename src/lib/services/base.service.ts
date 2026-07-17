@@ -72,14 +72,32 @@ export abstract class BaseService {
   }
 
   /**
-   * Enforces that the current context operates within the authorized stadium.
+   * Enforces that the current context operates within the authorized venue.
    * Prevents cross-tenant logic leaks at the service layer.
    */
-  protected enforceTenantIsolation(context: BusinessContext, targetStadiumId: string): void {
+  protected enforceTenantIsolation(context: BusinessContext, targetVenueId: string): void {
     if (context.role === 'system_admin') return;
 
-    if (context.stadiumId !== targetStadiumId) {
+    if (context.venueId !== targetVenueId) {
       throw new AuthorizationError('Cross-tenant data violation attempted at Service Layer');
+    }
+  }
+
+  /**
+   * Enforces that the current context is a super admin (or system admin).
+   */
+  protected enforceSuperAdmin(context: BusinessContext): void {
+    if (context.role !== 'system_admin' && context.role !== 'super_admin') {
+      throw new AuthorizationError('Super admin privileges required for this action');
+    }
+  }
+
+  /**
+   * Enforces that the current context is a system admin.
+   */
+  protected enforceSystemAdmin(context: BusinessContext): void {
+    if (context.role !== 'system_admin') {
+      throw new AuthorizationError('System admin privileges required for this action');
     }
   }
 }

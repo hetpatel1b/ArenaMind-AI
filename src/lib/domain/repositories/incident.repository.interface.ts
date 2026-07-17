@@ -7,7 +7,7 @@ export interface IIncidentRepository extends IBaseRepository<Incident, any, any>
   // Add incident-specific repository methods here
   createIncidentWithAction(
     matchId: string,
-    stadiumId: string,
+    venueId: string,
     userId: string,
     payload: any
   ): Promise<Incident>;

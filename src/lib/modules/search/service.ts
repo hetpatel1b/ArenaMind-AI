@@ -13,7 +13,7 @@ export class SearchService extends BaseService {
       if (!query || query.length < 2) return [];
 
       const results: SearchResultDto[] = [];
-      const tenantFilter = ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {};
+      const tenantFilter = ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {};
 
       // 1. Search Incidents
       const incidents = await prisma.incident.findMany({

@@ -18,7 +18,7 @@ export interface WorkforceMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  stadium: { name: string; capacity: number; zones: any[] };
+  venue: { name: string; capacity: number; zones: any[] };
   resources: any[];
   aiRecommendations: any[]; // specifically filtered for resource_suggestions
   phaseTransitions: any[];
@@ -53,7 +53,7 @@ export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceM
         style={{ gridColumn: 'span 12' }}
       >
         <AiWorkforceBriefing
-          stadiumName={matchData.stadium.name}
+          stadiumName={matchData.venue.name}
           currentPhase={matchData.currentPhase}
           resources={matchData.resources}
           primaryRecommendation={primaryRecommendation}
@@ -76,7 +76,7 @@ export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceM
         transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
         style={{ gridColumn: 'span 8' }}
       >
-        <InteractiveWorkforceMap zones={matchData.stadium.zones} resources={matchData.resources} />
+        <InteractiveWorkforceMap zones={matchData.venue.zones} resources={matchData.resources} />
       </motion.div>
 
       {/* Sections 4, 5, 6: Team Status (Span 6), Allocation (Span 3), Forecast (Span 3) */}

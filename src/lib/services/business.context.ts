@@ -9,11 +9,14 @@ export interface BusinessContext {
   /** The user executing the action (if authenticated) */
   userId?: string;
 
+  /** Multi-tenant boundary: The organization the user belongs to */
+  organizationId?: string;
+
   /** The role of the user (e.g., 'operations_manager') */
   role?: string;
 
-  /** Multi-tenant boundary: The stadium the user is currently operating in */
-  stadiumId: string;
+  /** Multi-tenant boundary: The venue the user is currently operating in */
+  venueId: string;
 
   /** Additional metadata attached to the context */
   metadata?: Record<string, unknown>;
@@ -22,11 +25,11 @@ export interface BusinessContext {
 /**
  * Creates an empty/system context for automated jobs or unauthenticated actions.
  */
-export function createSystemContext(stadiumId: string): BusinessContext {
+export function createSystemContext(venueId: string): BusinessContext {
   return {
     correlationId: crypto.randomUUID(),
     userId: 'system',
     role: 'system_admin',
-    stadiumId,
+    venueId,
   };
 }

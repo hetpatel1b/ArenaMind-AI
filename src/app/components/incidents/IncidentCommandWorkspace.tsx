@@ -9,7 +9,7 @@ export interface IncidentMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  stadium: { name: string; capacity: number; zones: any[] };
+  venue: { name: string; capacity: number; zones: any[] };
   incidents: any[];
   resources: any[];
   aiRecommendations: any[];

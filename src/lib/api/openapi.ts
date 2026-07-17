@@ -40,7 +40,7 @@ export function generateOpenApiDocument() {
     info: {
       version: '1.0.0',
       title: 'ArenaMind AI Operations API',
-      description: 'Enterprise API for autonomous stadium management and live operations.',
+      description: 'Enterprise API for autonomous venue management and live operations.',
     },
     servers: [
       { url: 'http://localhost:3000', description: 'Local Development' },

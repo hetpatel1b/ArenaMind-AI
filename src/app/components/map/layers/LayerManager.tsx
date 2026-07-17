@@ -60,7 +60,7 @@ export function LayerManager() {
         }}
       />
 
-      {/* Stadium Geometry Layer (always visible base) */}
+      {/* Venue Geometry Layer (always visible base) */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
         <StadiumLayer />
       </div>

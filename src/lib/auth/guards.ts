@@ -26,15 +26,15 @@ export async function requirePermission(permission: Permission): Promise<UserSes
   return session;
 }
 
-export async function requireStadiumAccess(stadiumId: string): Promise<UserSessionContext> {
+export async function requireStadiumAccess(venueId: string): Promise<UserSessionContext> {
   const session = await requireAuth();
 
   if (session.role === 'system_admin') {
     return session;
   }
 
-  if (session.stadiumId !== stadiumId) {
-    throw new AuthorizationError('Cross-tenant access violation');
+  if (session.organizationId !== venueId) {
+    throw new AuthorizationError('You do not have access to this venue');
   }
 
   return session;

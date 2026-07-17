@@ -3,10 +3,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useWorkforceWorkspace } from './useWorkforceWorkspace';
+import { useGenericMutation } from '@/lib/api-client/mutations';
+import { workforceApi } from '@/lib/api-client/features/workforce';
 
 export function WorkforceShiftCommand({ type }: { type: 'shifts' | 'breaks' }) {
   const { state } = useWorkforceWorkspace();
   const { units, selectedDepartment } = state;
+
+  const forceShiftMutation = useGenericMutation(
+    (variables: { department?: string }) => workforceApi.forceShiftRotation(variables),
+    {
+      invalidateKeys: [['workforce', 'engine']],
+      optimisticUpdate: async (queryClient, variables) => {
+        // Implement optimistic update logic if needed
+      }
+    }
+  );
 
   const filteredUnits = selectedDepartment
     ? units.filter((u) => u.department === selectedDepartment)
@@ -37,8 +49,12 @@ export function WorkforceShiftCommand({ type }: { type: 'shifts' | 'breaks' }) {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button style={primaryBtnStyle}>
-            {type === 'shifts' ? 'Force Shift Rotation' : 'Schedule Global Break'}
+          <button 
+            style={{...primaryBtnStyle, opacity: forceShiftMutation.isPending ? 0.5 : 1}} 
+            disabled={forceShiftMutation.isPending}
+            onClick={() => forceShiftMutation.mutate({ department: selectedDepartment || undefined })}
+          >
+            {forceShiftMutation.isPending ? 'Processing...' : (type === 'shifts' ? 'Force Shift Rotation' : 'Schedule Global Break')}
           </button>
           <button style={secondaryBtnStyle}>View Overtime Risks</button>
         </div>

@@ -55,7 +55,7 @@ export class AlertService extends BaseService {
 
       const match = await prisma.match.findUnique({ where: { id: matchId } });
       if (!match) throw new NotFoundError('Match not found');
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       const targetUserId = payload.userId || ctx.userId; // Default to self if not specified
 

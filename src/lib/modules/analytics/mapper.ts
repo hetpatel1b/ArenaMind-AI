@@ -5,7 +5,7 @@ export function toKpiSnapshotDto(snapshot: KpiSnapshot): KpiSnapshotDto {
   return {
     id: snapshot.id,
     matchId: snapshot.matchId,
-    stadiumId: snapshot.stadiumId,
+    venueId: snapshot.venueId as string,
     phase: snapshot.phase,
     openIncidents: snapshot.openIncidents,
     tier1Incidents: snapshot.tier1Incidents,

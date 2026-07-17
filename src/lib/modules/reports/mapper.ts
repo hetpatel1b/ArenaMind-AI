@@ -4,7 +4,7 @@ import { ReportDto } from './dto';
 export function toReportDto(report: Report): ReportDto {
   return {
     id: report.id,
-    stadiumId: report.stadiumId,
+    venueId: report.venueId as string,
     matchId: report.matchId,
     userId: report.userId,
     type: report.type,

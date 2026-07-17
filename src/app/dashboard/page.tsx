@@ -1,49 +1,40 @@
-import { getServerSession } from '@/lib/auth/server-session';
-import { prisma } from '@/lib/db/client';
+import { auth } from '@/server/auth/auth';
+import { prisma } from '@/server/database/prisma';
 import { redirect } from 'next/navigation';
-import { CommandCenterDashboard } from '@/app/components/dashboard/CommandCenterDashboard';
+import { DashboardClient } from './DashboardClient';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  const session = await getServerSession();
+  const session = await auth();
 
-  if (!session) {
-    redirect('/unauthorized');
+  if (!session || !session.user) {
+    redirect('/login');
   }
 
-  // Fetch all core operational data for the active match based on the user's stadium
-  const stadiumId = session.stadiumId;
+  const organizationId = (session.user as any).organizationId;
 
-  // By casting the column to text, we avoid ALL Postgres type-mismatch errors
-  // regardless of whether the DB column is currently an enum or text!
-  const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM matches 
-    WHERE stadium_id = ${stadiumId}::uuid 
-    AND match_status::text = 'active'
-    LIMIT 1
-  `;
-
-  if (!activeMatchIds || activeMatchIds.length === 0 || !activeMatchIds[0]) {
+  if (!organizationId) {
     return (
       <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
-        <h1>No Active Match Found</h1>
-        <p>Please ensure your Demo Operator Workspace has been fully provisioned.</p>
+        <h1>No Organization Linked</h1>
+        <p>Your account is not linked to any organization.</p>
       </div>
     );
   }
 
-  // Now fetch all the nested relational data using the UUID, which Prisma handles perfectly
-  const match = await prisma.match.findUnique({
+  // Fetch the active match for the organization
+  const match = await prisma.match.findFirst({
     where: {
-      id: activeMatchIds[0]!.id,
+      organizationId,
+      matchStatus: 'active',
     },
     include: {
-      stadium: {
+      venue: {
         include: {
           zones: {
             include: {
-              crowdData: {
+              crowdSnapshots: {
                 orderBy: { recordedAt: 'desc' },
                 take: 1,
               },
@@ -78,19 +69,18 @@ export default async function DashboardPage() {
   });
 
   if (!match) {
-    // If no active match is found, perhaps the demo provisioning failed or hasn't run.
-    // In a real app, we'd show an empty state, but for ArenaMind AI we can redirect to a setup page.
     return (
       <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
         <h1>No Active Match Found</h1>
-        <p>Please ensure your Demo Operator Workspace has been fully provisioned.</p>
+        <p>Please ensure a match is set to active in your organization.</p>
       </div>
     );
   }
 
   return (
-    <CommandCenterDashboard
-      matchData={JSON.parse(JSON.stringify(match)) as any} // Typing appropriately in the client component
+    <DashboardClient
+      initialMatchData={JSON.parse(JSON.stringify(match)) as any}
+      organizationId={organizationId}
     />
   );
 }

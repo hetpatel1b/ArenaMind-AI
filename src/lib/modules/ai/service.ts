@@ -70,7 +70,7 @@ export class AiService extends BaseService {
         // 4. Save to Repository
         const recommendation = await aiRecommendationRepository.create({
           match: { connect: { id: matchId } },
-          stadium: { connect: { id: ctx.stadiumId } },
+          venue: { connect: { id: ctx.venueId } },
           featureName: feature,
           modelName: 'gemini-2.0-flash',
           promptVersion: 'v1.0',
@@ -109,7 +109,7 @@ export class AiService extends BaseService {
 
   async getLatestRecommendations(ctx: BusinessContext, matchId: string, feature?: AIFeature) {
     return this.execute('getLatestRecommendations', ctx, async () => {
-      const filter: any = { matchId, stadiumId: ctx.stadiumId };
+      const filter: any = { matchId, venueId: ctx.venueId };
       if (feature) filter.featureName = feature;
 
       const { data } = await aiRecommendationRepository.findAll({

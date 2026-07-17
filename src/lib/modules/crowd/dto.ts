@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { registerSchema } from '@/lib/api/openapi';
 
 export const CrowdDataDtoSchema = registerSchema(
-  'CrowdData',
+  'CrowdSnapshot',
   z.object({
     id: z.string().uuid(),
     matchId: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     zoneId: z.string().uuid(),
     fanCount: z.number(),
     safeCapacity: z.number(),

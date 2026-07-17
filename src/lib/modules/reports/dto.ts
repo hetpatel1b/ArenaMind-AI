@@ -5,7 +5,7 @@ export const ReportDtoSchema = registerSchema(
   'Report',
   z.object({
     id: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     matchId: z.string().uuid().nullable(),
     userId: z.string().uuid(),
     type: z.string(),

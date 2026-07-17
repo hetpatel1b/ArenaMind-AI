@@ -1,16 +1,30 @@
-import { createRouteHandler } from '@/lib/api/route-factory';
-import { parseQueryParams } from '@/lib/api/dto';
-import { matchService } from '@/lib/modules/matches/service';
-import { paginatedResponse } from '@/lib/api/response';
+import { NextResponse } from 'next/server';
+import { MatchService } from '@/server/services/match.service';
+import { withAuth, AuthenticatedRequest } from '@/server/middleware/rbac';
+import { createMatchSchema } from '@/server/validators/match.schema';
 
-export const GET = createRouteHandler(
-  async (req, { bizContext }) => {
-    const query = parseQueryParams(req.nextUrl.searchParams);
-    const { data, meta } = await matchService.listMatches(bizContext, query);
-    return paginatedResponse(data, meta);
-  },
-  {
-    requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
+  const { organizationId } = req.user;
+  if (!organizationId) {
+    return NextResponse.json({ error: 'No organization linked' }, { status: 400 });
   }
-);
+
+  const matches = await MatchService.getMatchesByOrganization(organizationId);
+  return NextResponse.json(matches);
+});
+
+export const POST = withAuth(async (req: AuthenticatedRequest) => {
+  const { organizationId, id: userId } = req.user;
+  if (!organizationId) {
+    return NextResponse.json({ error: 'No organization linked' }, { status: 400 });
+  }
+
+  try {
+    const body = await req.json();
+    const data = createMatchSchema.parse({ ...body, organizationId });
+    const match = await MatchService.createMatch(data, userId);
+    return NextResponse.json(match, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.errors || 'Invalid request' }, { status: 400 });
+  }
+});

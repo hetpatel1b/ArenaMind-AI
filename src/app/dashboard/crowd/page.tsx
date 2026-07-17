@@ -12,12 +12,12 @@ export default async function CrowdIntelligencePage() {
     redirect('/unauthorized');
   }
 
-  const stadiumId = session.stadiumId;
+  const organizationId = session.organizationId;
 
-  // We find the active match for this stadium and deeply fetch crowd data
+  // We find the active match for this venue and deeply fetch crowd data
   const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
     SELECT id FROM matches 
-    WHERE stadium_id = ${stadiumId}::uuid 
+    WHERE organization_id = ${organizationId}::uuid 
     AND match_status::text = 'active'
     LIMIT 1
   `;
@@ -36,11 +36,11 @@ export default async function CrowdIntelligencePage() {
       id: activeMatchIds[0]!.id,
     },
     include: {
-      stadium: {
+      venue: {
         include: {
           zones: {
             include: {
-              crowdData: {
+              crowdSnapshots: {
                 orderBy: { recordedAt: 'desc' },
                 take: 5, // Get some historical points for trends
               },

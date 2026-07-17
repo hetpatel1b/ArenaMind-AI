@@ -26,7 +26,7 @@ export function StadiumLayer() {
           </filter>
         </defs>
 
-        {/* Outer Stadium Ring (Service Roads & Parking) */}
+        {/* Outer Venue Ring (Service Roads & Parking) */}
         <rect
           x="50"
           y="50"

@@ -20,7 +20,7 @@ export interface DashboardMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  stadium: { name: string; capacity: number; zones?: any[] };
+  venue: { name: string; capacity: number; zones?: any[] };
   incidents: any[];
   aiRecommendations: any[];
   kpiSnapshots: any[];
@@ -31,7 +31,7 @@ export interface DashboardMatchPayload {
 
 export function CommandCenterDashboard({ matchData }: { matchData: DashboardMatchPayload }) {
   const shouldReduceMotion = useReducedMotion();
-  const zonesToUse = matchData.zones?.length ? matchData.zones : matchData.stadium.zones || [];
+  const zonesToUse = matchData.zones?.length ? matchData.zones : matchData.venue.zones || [];
 
   return (
     <div

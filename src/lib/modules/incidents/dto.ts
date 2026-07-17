@@ -6,7 +6,7 @@ export const IncidentDtoSchema = registerSchema(
   z.object({
     id: z.string().uuid(),
     matchId: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     zoneId: z.string().uuid().nullable(),
     incidentTypeId: z.string().uuid().nullable(),
     title: z.string(),

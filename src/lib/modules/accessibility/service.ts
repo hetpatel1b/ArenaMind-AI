@@ -28,8 +28,8 @@ export class AccessibilityService extends BaseService {
         throw new NotFoundError(`Accessibility request with ID ${requestId} not found`);
       }
 
-      // We don't have stadiumId directly on the request, but we can verify tenant access
-      // using the match's stadiumId if we did a join, but for Phase 2D.2 we trust the match routing barrier.
+      // We don't have venueId directly on the request, but we can verify tenant access
+      // using the match's venueId if we did a join, but for Phase 2D.2 we trust the match routing barrier.
 
       return toAccessibilityRequestDto(request);
     });
@@ -74,7 +74,7 @@ export class AccessibilityService extends BaseService {
       const match = await prisma.match.findUnique({ where: { id: matchId } });
       if (!match) throw new NotFoundError('Match not found');
 
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       const request = await prisma.$transaction(async (tx) => {
         const req = await tx.accessibilityRequest.create({
@@ -115,7 +115,7 @@ export class AccessibilityService extends BaseService {
       }
 
       const match = await prisma.match.findUnique({ where: { id: existing.matchId } });
-      this.enforceTenantIsolation(ctx, match!.stadiumId);
+      this.enforceTenantIsolation(ctx, match!.venueId);
 
       const updated = await prisma.$transaction(async (tx) => {
         const result = await tx.accessibilityRequest.update({

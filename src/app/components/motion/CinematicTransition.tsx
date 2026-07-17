@@ -20,7 +20,7 @@ export function CinematicTransition({ onComplete }: { onComplete?: () => void })
     // Phase 0: Initial render (Opacity fade in)
     const t1 = setTimeout(() => setPhase(1), 300); // Identity Verification
     const t2 = setTimeout(() => setPhase(2), 600); // Role Verification
-    const t3 = setTimeout(() => setPhase(3), 900); // Loading Stadium Context
+    const t3 = setTimeout(() => setPhase(3), 900); // Loading Venue Context
     const t4 = setTimeout(() => setPhase(4), 1300); // Loading Match Context
     const t5 = setTimeout(() => setPhase(5), 1700); // Initializing ArenaMind AI
     const t6 = setTimeout(() => setPhase(6), 2100); // AI Copilot Online
@@ -63,7 +63,7 @@ export function CinematicTransition({ onComplete }: { onComplete?: () => void })
         overflow: 'hidden',
       }}
     >
-      {/* GPU Accelerated Stadium Zoom Background */}
+      {/* GPU Accelerated Venue Zoom Background */}
       <motion.div
         initial={{ scale: 1.1, opacity: 0 }}
         animate={{ scale: phase >= 1 ? 1.4 : 1.1, opacity: phase >= 1 ? 0.4 : 0 }}
@@ -175,7 +175,7 @@ export function CinematicTransition({ onComplete }: { onComplete?: () => void })
               color: phase >= 4 ? 'var(--text-secondary)' : 'var(--text-primary)',
             }}
           >
-            &gt; Loading Stadium Context...{' '}
+            &gt; Loading Venue Context...{' '}
             {phase >= 4 && <span style={{ color: 'var(--status-success)' }}>[OK]</span>}
           </div>
           <div

@@ -6,8 +6,8 @@ import { Providers } from '@/components/providers';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'ArenaMind AI | Stadium Operations Copilot',
-  description: 'The Intelligent Stadium Operations Copilot for modern venue management.',
+  title: 'ArenaMind AI | Venue Operations Copilot',
+  description: 'The Intelligent Venue Operations Copilot for modern venue management.',
 };
 
 export default function RootLayout({

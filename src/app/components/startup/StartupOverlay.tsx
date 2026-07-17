@@ -8,7 +8,7 @@ import { useStartup } from './StartupProvider';
 // 0.0 Black screen
 // 0.2 ArenaMind icon fades in
 // 0.5 ArenaMind AI title appears
-// 0.8 "Initializing Stadium Intelligence"
+// 0.8 "Initializing Venue Intelligence"
 // 1.3 "AI Core Ready"
 // 1.7 Overlay begins dissolving
 // 2.0 Done

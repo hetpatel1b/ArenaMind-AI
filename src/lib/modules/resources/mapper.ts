@@ -4,7 +4,7 @@ import { ResourceDto } from './dto';
 export function toResourceDto(resource: Resource): ResourceDto {
   return {
     id: resource.id,
-    stadiumId: resource.stadiumId,
+    venueId: resource.venueId as string,
     matchId: resource.matchId,
     zoneId: resource.zoneId,
     resourceTypeId: resource.resourceTypeId,

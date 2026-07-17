@@ -145,22 +145,21 @@ export function AccountCenter() {
                   ENVIRONMENT
                 </span>
                 <select
-                  value={state.lastSelectedEnvironment}
-                  onChange={(e) => setEnvironment(e.target.value)}
+                  value="production"
+                  disabled
                   style={{
                     width: '100%',
                     padding: 'var(--space-2)',
                     backgroundColor: 'rgba(255,255,255,0.05)',
                     border: '1px solid var(--border-strong)',
-                    color: 'var(--text-primary)',
+                    color: 'var(--text-secondary)',
                     borderRadius: 'var(--radius-sm)',
                     outline: 'none',
-                    cursor: 'pointer',
+                    cursor: 'not-allowed',
+                    opacity: 0.8,
                   }}
                 >
                   <option value="production">Production</option>
-                  <option value="staging">Staging</option>
-                  <option value="development">Development</option>
                 </select>
               </div>
 
@@ -170,6 +169,10 @@ export function AccountCenter() {
                   (lbl) => (
                     <button
                       key={lbl}
+                      onClick={() => {
+                        alert('Coming soon');
+                        setIsOpen(false);
+                      }}
                       style={{
                         textAlign: 'left',
                         padding: 'var(--space-3)',

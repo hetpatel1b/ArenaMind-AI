@@ -29,7 +29,7 @@ export function AIReasoningLayer() {
   ];
 
   const getPos = (id: string) => {
-    if (id === 'Stadium') return { x: 500, y: 400 };
+    if (id === 'Venue') return { x: 500, y: 400 };
     const inc = incidents.find((i) => i.id === id);
     if (inc) return { x: inc.x, y: inc.y };
     const asset = assets.find((a) => a.id === id);

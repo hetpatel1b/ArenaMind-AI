@@ -78,7 +78,7 @@ export interface ScenarioNotification {
 
 export interface ScenarioTemplate {
   meta: ScenarioMeta;
-  stadium: {
+  venue: {
     name: string;
     shortName: string;
     city: string;

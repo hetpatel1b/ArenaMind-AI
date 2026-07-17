@@ -1,15 +1,13 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
 
-import { UserSessionContext } from '@/lib/auth/server-session';
+import type { UserSessionContext } from '@/lib/auth/server-session';
 
 type AuthContextType = {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   userContext: UserSessionContext | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
@@ -22,21 +20,20 @@ export function AuthProvider({
   initialSession,
 }: {
   children: React.ReactNode;
-  initialSession: Session | null;
+  initialSession: any | null;
 }) {
-  const [session, setSession] = useState<Session | null>(initialSession);
-  const [user, setUser] = useState<User | null>(initialSession?.user ?? null);
+  const { data: nextAuthSession, status } = useSession();
+  const [session, setSession] = useState<any | null>(initialSession);
+  const [user, setUser] = useState<any | null>(initialSession?.user ?? null);
   const [userContext, setUserContext] = useState<UserSessionContext | null>(null);
   const [isLoading, setIsLoading] = useState(!initialSession);
   const [isContextLoading, setIsContextLoading] = useState(!!initialSession);
-  const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     if (session) {
       // eslint-disable-next-line
       setIsContextLoading(true);
-      fetch('/api/auth/session')
+      fetch('/api/auth/context')
         .then((res) => {
           if (res.ok) return res.json();
           return null;
@@ -56,28 +53,31 @@ export function AuthProvider({
   }, [session]);
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      setIsLoading(false);
+    if (status === 'loading') {
+      setIsLoading(true);
+      return;
+    }
 
-      if (event === 'SIGNED_IN') {
-        router.refresh();
-      } else if (event === 'SIGNED_OUT') {
-        router.refresh();
-        router.push('/login');
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase, router]);
+    if (nextAuthSession?.user) {
+      setSession(nextAuthSession);
+      setUser({
+        id: nextAuthSession.user.id || '',
+        email: nextAuthSession.user.email || '',
+        user_metadata: {
+          full_name: nextAuthSession.user.name || '',
+        },
+      });
+    } else {
+      setSession(null);
+      setUser(null);
+    }
+    
+    setIsLoading(false);
+  }, [nextAuthSession, status]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear next auth session directly
+    await nextAuthSignOut({ redirect: true, callbackUrl: '/login' });
   };
 
   return (

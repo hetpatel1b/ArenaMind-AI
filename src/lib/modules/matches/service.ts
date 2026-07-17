@@ -20,8 +20,8 @@ export class MatchService extends BaseService {
         throw new NotFoundError(`Match with ID ${id} not found`);
       }
 
-      // Enforce tenant isolation: user can only access matches at their stadium
-      this.enforceTenantIsolation(ctx, match.stadiumId);
+      // Enforce tenant isolation: user can only access matches at their venue
+      this.enforceTenantIsolation(ctx, match.venueId);
 
       return toMatchDto(match);
     });
@@ -32,7 +32,7 @@ export class MatchService extends BaseService {
     query: QueryParamsDTO
   ): Promise<PaginatedResult<MatchDto>> {
     return this.execute('listMatches', ctx, async () => {
-      const filter = ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {};
+      const filter = ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {};
 
       const { data, meta } = await matchRepository.findAll({
         filter,
@@ -58,7 +58,7 @@ export class MatchService extends BaseService {
       const existing = await matchRepository.findById(matchId);
       if (!existing) throw new NotFoundError('Match not found');
 
-      this.enforceTenantIsolation(ctx, existing.stadiumId);
+      this.enforceTenantIsolation(ctx, existing.venueId);
 
       const updated = await prisma.$transaction(async (tx) => {
         // If phase changed, log the transition
@@ -79,7 +79,7 @@ export class MatchService extends BaseService {
             ...payload,
           },
           include: {
-            stadium: true,
+            venue: true,
           },
         });
 

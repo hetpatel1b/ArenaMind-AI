@@ -41,7 +41,7 @@ export function HeroBackground() {
         backgroundColor: 'var(--bg-app, #050507)',
       }}
     >
-      {/* Stadium Blueprint / Grid */}
+      {/* Venue Blueprint / Grid */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.15, rotate: shouldReduceMotion ? 0 : [0, 1] }}

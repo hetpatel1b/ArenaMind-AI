@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 const LAYERS = [
   { name: 'Mission Control Client', label: 'Presentation', color: '#38bdf8' },
   { name: 'ArenaMind Core Engine', label: 'Intelligence', color: '#4ade80' },
-  { name: 'Stadium Edge Network', label: 'Ingestion', color: '#818cf8' },
+  { name: 'Venue Edge Network', label: 'Ingestion', color: '#818cf8' },
 ];
 
 export function StoryArchitecture() {

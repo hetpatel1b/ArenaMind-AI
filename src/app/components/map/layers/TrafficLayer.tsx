@@ -33,7 +33,7 @@ export function TrafficLayer() {
         ],
         status: 'CONGESTED',
       },
-      // Road leading to stadium
+      // Road leading to venue
       {
         id: 'R2',
         points: [

@@ -95,7 +95,7 @@ export function InteractiveMobilityMap({ zones, mobilityState }: InteractiveMobi
             backgroundColor: 'rgba(255,255,255,0.01)',
           }}
         >
-          {/* Stadium Marker */}
+          {/* Venue Marker */}
           <div
             style={{
               fontSize: '10px',

@@ -16,12 +16,12 @@ export class StadiumService extends BaseService {
     return this.execute('getStadiumById', ctx, async () => {
       this.enforceTenantIsolation(ctx, id);
 
-      const stadium = await stadiumRepository.findById(id);
-      if (!stadium) {
-        throw new NotFoundError(`Stadium with ID ${id} not found`);
+      const venue = await stadiumRepository.findById(id);
+      if (!venue) {
+        throw new NotFoundError(`Venue with ID ${id} not found`);
       }
 
-      return toStadiumDto(stadium);
+      return toStadiumDto(venue);
     });
   }
 
@@ -30,8 +30,8 @@ export class StadiumService extends BaseService {
     query: QueryParamsDTO
   ): Promise<PaginatedResult<StadiumDto>> {
     return this.execute('listStadiums', ctx, async () => {
-      // Operations managers can only see their own stadium unless global admin
-      const filter = ctx.stadiumId !== 'GLOBAL' ? { id: ctx.stadiumId } : {};
+      // Operations managers can only see their own venue unless global admin
+      const filter = ctx.venueId !== 'GLOBAL' ? { id: ctx.venueId } : {};
 
       const { data, meta } = await stadiumRepository.findAll({
         filter,

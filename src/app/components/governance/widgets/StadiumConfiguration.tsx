@@ -43,7 +43,7 @@ export function StadiumConfiguration({ stadiumData }: StadiumConfigurationProps)
             Environment Configuration
           </h3>
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
-            Stadium & Operational Parameters
+            Venue & Operational Parameters
           </span>
         </div>
         <button

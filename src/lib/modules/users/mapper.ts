@@ -4,7 +4,7 @@ import { ProfileDto } from './dto';
 export function toProfileDto(user: User): ProfileDto {
   return {
     id: user.id,
-    fullName: user.fullName,
+    fullName: user.name || 'Unknown',
     role: user.role,
     department: user.department,
     phoneNumber: user.phoneNumber,

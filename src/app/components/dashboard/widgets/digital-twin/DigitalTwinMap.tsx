@@ -126,7 +126,7 @@ export function DigitalTwinMap({ zones, incidents, resources }: DigitalTwinMapPr
               color: '#fff',
             }}
           >
-            Living Stadium Digital Twin
+            Living Venue Digital Twin
           </h3>
         </div>
 

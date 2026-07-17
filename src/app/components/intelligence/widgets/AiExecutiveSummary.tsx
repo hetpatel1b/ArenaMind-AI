@@ -96,7 +96,7 @@ export function AiExecutiveSummary({
           >
             <span className="badge badge-ai">Executive Summary</span>
             <span className="text-subtle" style={{ fontSize: 'var(--text-sm)' }}>
-              {matchData.stadium.name}
+              {matchData.venue.name}
             </span>
           </div>
 

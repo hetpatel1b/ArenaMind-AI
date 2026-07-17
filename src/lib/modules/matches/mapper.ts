@@ -4,7 +4,7 @@ import { MatchDto } from './dto';
 export function toMatchDto(match: Match): MatchDto {
   return {
     id: match.id,
-    stadiumId: match.stadiumId,
+    venueId: match.venueId,
     matchNumber: match.matchNumber,
     homeTeam: match.homeTeam,
     awayTeam: match.awayTeam,

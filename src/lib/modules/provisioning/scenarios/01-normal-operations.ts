@@ -7,8 +7,8 @@ export const normalOperations: ScenarioTemplate = {
     description: 'Standard fan arrival phase with smooth operational flow and high health score.',
     healthScore: 96,
   },
-  stadium: {
-    name: 'Lusail Stadium',
+  venue: {
+    name: 'Lusail Venue',
     shortName: 'LUS',
     city: 'Lusail',
     country: 'Qatar',

@@ -11,7 +11,7 @@ export function InteractiveCrowdHeatmap({ zones }: InteractiveCrowdHeatmapProps)
   const shouldReduceMotion = useReducedMotion();
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
 
-  // Layout similar to stadium map but specialized for crowd flow
+  // Layout similar to venue map but specialized for crowd flow
   const zoneLayouts: Record<
     string,
     { top: string; left: string; width: string; height: string; borderRadius?: string }
@@ -117,10 +117,10 @@ export function InteractiveCrowdHeatmap({ zones }: InteractiveCrowdHeatmapProps)
             const layout = zoneLayouts[zone.shortCode];
             if (!layout) return null;
 
-            const crowdData = zone.crowdData?.[0];
-            const density = crowdData ? Number(crowdData.densityPct) : 0;
-            const ingressRate = crowdData?.ingressRate || 0;
-            const egressRate = crowdData?.egressRate || 0;
+            const crowdSnapshots = zone.crowdSnapshots?.[0];
+            const density = crowdSnapshots ? Number(crowdSnapshots.densityPct) : 0;
+            const ingressRate = crowdSnapshots?.ingressRate || 0;
+            const egressRate = crowdSnapshots?.egressRate || 0;
 
             const isHovered = hoveredZoneId === zone.id;
 

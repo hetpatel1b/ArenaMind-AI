@@ -24,7 +24,7 @@ export class ResourceService extends BaseService {
         throw new NotFoundError(`Resource with ID ${resourceId} not found`);
       }
 
-      this.enforceTenantIsolation(ctx, resource.stadiumId);
+      this.enforceTenantIsolation(ctx, resource.venueId as string);
 
       return toResourceDto(resource);
     });
@@ -48,7 +48,7 @@ export class ResourceService extends BaseService {
 
       const filter = {
         matchId,
-        ...(ctx.stadiumId !== 'GLOBAL' ? { stadiumId: ctx.stadiumId } : {}),
+        ...(ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {}),
         ...userFilters,
       };
 
@@ -79,13 +79,13 @@ export class ResourceService extends BaseService {
         throw new NotFoundError('Resource not found');
       }
 
-      this.enforceTenantIsolation(ctx, existing.stadiumId);
+      this.enforceTenantIsolation(ctx, existing.venueId as string);
 
-      // Verify the new zone exists and belongs to the same stadium (if zoneId is provided)
+      // Verify the new zone exists and belongs to the same venue (if zoneId is provided)
       if (payload.zoneId) {
         const zone = await prisma.zone.findUnique({ where: { id: payload.zoneId } });
-        if (!zone || zone.stadiumId !== existing.stadiumId) {
-          throw new NotFoundError('Zone not found in this stadium');
+        if (!zone || zone.venueId !== existing.venueId) {
+          throw new NotFoundError('Zone not found in this venue');
         }
       }
 

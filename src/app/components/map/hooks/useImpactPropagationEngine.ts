@@ -24,8 +24,8 @@ export function useImpactPropagationEngine() {
       },
       {
         id: 'prop-2',
-        sourceId: 'METRO-1', // Stadium North
-        targetId: 'INC-9932', // Stadium Gate Congestion
+        sourceId: 'METRO-1', // Venue North
+        targetId: 'INC-9932', // Venue Gate Congestion
         label: 'Arrival Bottleneck',
         severity: 'MEDIUM',
         timeDelay: '+10m',

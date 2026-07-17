@@ -6,7 +6,7 @@ export const TransportDtoSchema = registerSchema(
   z.object({
     id: z.string(),
     matchId: z.string().uuid(),
-    stadiumId: z.string().uuid(),
+    venueId: z.string().uuid(),
     type: z.enum(['shuttle', 'parking', 'train', 'drop-off']),
     name: z.string(),
     capacity: z.number(),

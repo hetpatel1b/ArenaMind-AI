@@ -6,7 +6,7 @@ interface LogContext {
   correlationId?: string;
   requestId?: string;
   userId?: string;
-  stadiumId?: string;
+  venueId?: string;
   spanId?: string;
 }
 

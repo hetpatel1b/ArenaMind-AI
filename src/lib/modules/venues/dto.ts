@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { registerSchema } from '@/lib/api/openapi';
 
 export const StadiumDtoSchema = registerSchema(
-  'Stadium',
+  'Venue',
   z.object({
     id: z.string().uuid(),
     name: z.string(),

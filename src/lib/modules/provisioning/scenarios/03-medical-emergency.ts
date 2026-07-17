@@ -8,8 +8,8 @@ export const medicalEmergency: ScenarioTemplate = {
       'First half match play interrupted by a severe medical emergency in the lower tier seating.',
     healthScore: 74,
   },
-  stadium: {
-    name: 'SoFi Stadium',
+  venue: {
+    name: 'SoFi Venue',
     shortName: 'SOF',
     city: 'Los Angeles',
     country: 'USA',

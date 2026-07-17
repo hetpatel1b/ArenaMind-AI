@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { signIn } from 'next-auth/react';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
@@ -27,20 +27,21 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  const supabase = createClient();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const res = await signIn('credentials', {
         email,
         password,
+        redirect: false,
       });
 
-      if (error) throw error;
+      if (res?.error) {
+        throw new Error('Invalid credentials');
+      }
 
       setIsTransitioning(true);
     } catch (err: any) {

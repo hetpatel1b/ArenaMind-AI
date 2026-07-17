@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ApplicationError } from './app.error';
-import { logger } from '../observability/logger'; // We will create this in Step 5
+import { logger } from '../observability/logger';
+import { errorResponse } from '../api/response';
 
 /**
  * Maps an internal error or Exception to a standard NextResponse.
@@ -17,15 +18,11 @@ export function mapErrorToResponse(
       logger?.error(error.message, { ...error.details, ...reqContext, stack: error.stack });
     }
 
-    return NextResponse.json(
-      {
-        error: {
-          code: error.code,
-          message: error.message,
-          ...(process.env.NODE_ENV === 'development' && { details: error.details }),
-        },
-      },
-      { status: error.statusCode }
+    return errorResponse(
+      error.message,
+      error.code,
+      error.statusCode,
+      process.env.NODE_ENV === 'development' ? error.details : undefined
     );
   }
 
@@ -37,14 +34,10 @@ export function mapErrorToResponse(
     ...reqContext,
   });
 
-  return NextResponse.json(
-    {
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred',
-        ...(process.env.NODE_ENV === 'development' && { dev_message: unknownError.message }),
-      },
-    },
-    { status: 500 }
+  return errorResponse(
+    'An unexpected error occurred',
+    'INTERNAL_ERROR',
+    500,
+    process.env.NODE_ENV === 'development' ? unknownError.message : undefined
   );
 }

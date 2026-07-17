@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useGenericMutation } from '@/lib/api-client/mutations';
+import { incidentApi } from '@/lib/api-client/features/incident';
 
 export function CopilotWhatIfEngine() {
   const [selectedOption, setSelectedOption] = useState<
     'APPROVE' | 'IGNORE' | 'ESCALATE' | 'EVACUATE' | null
   >(null);
+
+  const executeMutation = useGenericMutation(
+    (variables: { scenario: string }) => incidentApi.executeScenario(variables),
+    {
+      invalidateKeys: [['incidents', 'engine']],
+    }
+  );
 
   const options = [
     {
@@ -103,19 +112,22 @@ export function CopilotWhatIfEngine() {
         <motion.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          onClick={() => executeMutation.mutate({ scenario: selectedOption })}
+          disabled={executeMutation.isPending}
           style={{
-            background: '#3e82f7',
+            background: executeMutation.isPending ? 'var(--bg-surface-active)' : '#3e82f7',
             border: 'none',
             color: '#fff',
             padding: '12px',
             borderRadius: '8px',
             fontSize: '13px',
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: executeMutation.isPending ? 'not-allowed' : 'pointer',
             marginTop: '8px',
+            opacity: executeMutation.isPending ? 0.7 : 1,
           }}
         >
-          EXECUTE SCENARIO
+          {executeMutation.isPending ? 'EXECUTING...' : 'EXECUTE SCENARIO'}
         </motion.button>
       )}
     </div>

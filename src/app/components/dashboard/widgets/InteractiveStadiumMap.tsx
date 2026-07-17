@@ -14,7 +14,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
 
   // Map zone shortCodes to abstract relative coordinates (x, y, width, height) in percentage
-  // Abstract representation of stadium zones using CSS Grid layout
+  // Abstract representation of venue zones using CSS Grid layout
   const zoneLayouts: Record<
     string,
     { top: string; left: string; width: string; height: string; borderRadius?: string }
@@ -82,7 +82,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
             margin: 0,
           }}
         >
-          Interactive Stadium Overview
+          Interactive Venue Overview
         </h3>
         <div
           style={{
@@ -145,8 +145,8 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
             const layout = zoneLayouts[zone.shortCode];
             if (!layout) return null;
 
-            const crowdData = zone.crowdData?.[0];
-            const density = crowdData ? Number(crowdData.densityPct) : 0;
+            const crowdSnapshots = zone.crowdSnapshots?.[0];
+            const density = crowdSnapshots ? Number(crowdSnapshots.densityPct) : 0;
             const zoneIncidents = incidents.filter((i) => i.zoneId === zone.id);
             const zoneResources = resources.filter((r) => r.zoneId === zone.id);
 
@@ -171,7 +171,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
                   justifyContent: 'center',
                   alignItems: 'center',
                   cursor: 'pointer',
-                  // special handling for pitch/concourse to look like a stadium
+                  // special handling for pitch/concourse to look like a venue
                   boxShadow: isHovered ? '0 0 20px rgba(255,255,255,0.1)' : 'none',
                 }}
               >
@@ -277,7 +277,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
                         {zone.name}
                       </div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                        Capacity: {crowdData?.fanCount || 0} / {zone.capacity} ({density.toFixed(1)}
+                        Capacity: {crowdSnapshots?.fanCount || 0} / {zone.capacity} ({density.toFixed(1)}
                         %)
                       </div>
                     </motion.div>
@@ -292,7 +292,7 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
   );
 }
 
-// Helper to ensure correct visual stacking of abstract stadium shapes
+// Helper to ensure correct visual stacking of abstract venue shapes
 function orderZIndex(shortCode: string) {
   const order: Record<string, number> = {
     z_ext: 1,

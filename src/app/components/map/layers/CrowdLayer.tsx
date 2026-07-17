@@ -23,7 +23,7 @@ const generateCrowd = (count: number) => {
   return crowd;
 };
 
-const crowdData = generateCrowd(800);
+const crowdSnapshots = generateCrowd(800);
 
 export function CrowdLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,7 +40,7 @@ export function CrowdLayer() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      crowdData.forEach((p) => {
+      crowdSnapshots.forEach((p) => {
         p.angle += p.speed * p.direction;
         p.x = 600 + Math.cos(p.angle) * p.radius;
         p.y = 400 + Math.sin(p.angle) * p.radius * 0.6;

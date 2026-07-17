@@ -8,8 +8,8 @@ export const highCrowd: ScenarioTemplate = {
       'Pre-kickoff phase with dangerous crowd density at the South Gate requiring immediate intervention.',
     healthScore: 82,
   },
-  stadium: {
-    name: 'MetLife Stadium',
+  venue: {
+    name: 'MetLife Venue',
     shortName: 'MET',
     city: 'New York',
     country: 'USA',
