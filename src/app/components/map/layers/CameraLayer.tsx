@@ -15,14 +15,20 @@ const cameras = [
   { id: 'CAM-SE', x: 900, y: 600, baseRotation: -135, sweepRange: 30, status: 'active' },
 ];
 
+let seed = 42;
+function prng() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 const cameraAnimations = cameras.map((cam) => {
   const rotStart = cam.baseRotation - cam.sweepRange / 2;
   const rotEnd = cam.baseRotation + cam.sweepRange / 2;
-  const sweepDuration = 10 + Math.random() * 10; // 10-20s
+  const sweepDuration = 10 + prng() * 10; // 10-20s
 
-  const p1 = 0.05 + Math.random() * 0.1; // pause at start
-  const move1End = 0.4 + Math.random() * 0.1; // move to end
-  const p2 = move1End + (0.05 + Math.random() * 0.1); // pause at end
+  const p1 = 0.05 + prng() * 0.1; // pause at start
+  const move1End = 0.4 + prng() * 0.1; // move to end
+  const p2 = move1End + (0.05 + prng() * 0.1); // pause at end
 
   return {
     ...cam,

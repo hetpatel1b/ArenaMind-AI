@@ -7,10 +7,10 @@ import { useIncidentEngine, globalIncidents } from './useIncidentEngine';
 const DUMMY_FUTURE_CROWD: FutureEntity[] = Array.from({ length: 20 }).map((_, i) => ({
   id: `fut-crowd-${i}`,
   type: 'crowd-cluster',
-  x: 400 + (Math.random() * 200 - 100),
-  y: 200 + (Math.random() * 100 - 50),
+  x: 400 + Math.sin(i) * 200,
+  y: 200 + Math.cos(i) * 100,
   confidence: 85,
-  radius: 20 + Math.random() * 15,
+  radius: 20 + (i % 15),
 }));
 
 export interface FutureEntity {

@@ -1,19 +1,37 @@
-# Contributing to ArenaMind AI
+# Contributing to ArenaMind
 
-We love your input! We want to make contributing to this project as easy and transparent as possible.
+Thank you for your interest in ArenaMind.
 
-## Pull Requests
+## Current Contribution Policy
 
-1. Fork the repo and create your branch from `develop`.
-2. If you've added code that should be tested, add tests.
-3. Ensure the test suite passes.
-4. Make sure your code lints.
-5. Issue that pull request!
+ArenaMind is maintained exclusively by the **ArenaMind Core Team**. At this time, the project is **not accepting external code contributions**.
 
-## Any contributions you make will be under the MIT Software License
+### What this means
 
-In short, when you submit code changes, your submissions are understood to be under the same MIT License that covers the project. Feel free to contact the maintainers if that's a concern.
+- **Pull Requests** from external contributors will not be reviewed or merged.
+- **Feature requests** are tracked internally and are not open for public submission.
+- **Code contributions**, including bug fixes, are managed by the core team.
 
-## Report bugs using Github's issues
+### Bug Reports
 
-We use GitHub issues to track public bugs. Report a bug by opening a new issue; it's that easy!
+If you encounter a reproducible bug, you may open a GitHub Issue. Please include:
+
+1. **Environment** — Operating system, browser, Node.js version
+2. **Steps to reproduce** — A clear, minimal sequence of actions
+3. **Expected behavior** — What should happen
+4. **Actual behavior** — What happens instead
+5. **Screenshots or logs** — If applicable
+
+Bug reports that do not include reproduction steps may be closed without investigation.
+
+### Security Vulnerabilities
+
+Do **not** open a public issue for security vulnerabilities. Please follow the responsible disclosure process described in [`SECURITY.md`](./SECURITY.md).
+
+### Questions
+
+For general questions about ArenaMind, please refer to the documentation in the [`docs/`](./docs/) directory and the [`README.md`](./README.md).
+
+---
+
+This policy may change in the future. Any updates will be reflected in this document.

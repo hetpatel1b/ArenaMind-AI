@@ -30,22 +30,30 @@ export function useCollaborationEngine() {
   useEffect(() => {
     let animationId: number;
     let lastEventTime = performance.now();
+    let tickCount = 0;
+
+    let seed = 9999;
+    const prng = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
 
     // Initialize mock state
     const operators: CollaborationOperator[] = MOCK_OPERATORS.map((op) => ({
       ...op,
-      cursor: { x: 500 + Math.random() * 200, y: 300 + Math.random() * 200 },
+      cursor: { x: 500 + prng() * 200, y: 300 + prng() * 200 },
       selection: null,
       viewport: { x: 0, y: 0, zoom: 1 },
     }));
 
     // Generate random targets for operators to move towards
     const targets = operators.map(() => ({
-      x: 300 + Math.random() * 600,
-      y: 200 + Math.random() * 400,
+      x: 300 + prng() * 600,
+      y: 200 + prng() * 400,
     }));
 
     const update = (time: number) => {
+      tickCount++;
       // 1. Interpolate cursors
       operators.forEach((op, i) => {
         if (!op.cursor) return;
@@ -58,34 +66,37 @@ export function useCollaborationEngine() {
 
           // If close to target, pick a new one occasionally
           if (Math.hypot(target.x - op.cursor.x, target.y - op.cursor.y) < 10) {
-            if (Math.random() < 0.01) {
+            if (prng() < 0.01) {
               // Random chance to pick new target
               targets[i] = {
-                x: 100 + Math.random() * 1000,
-                y: 100 + Math.random() * 600,
+                x: 100 + prng() * 1000,
+                y: 100 + prng() * 600,
               };
             }
           }
         }
 
         // Randomly select resources occasionally
-        if (Math.random() < 0.001) {
-          const res = globalResources[Math.floor(Math.random() * globalResources.length)];
+        if (prng() < 0.001) {
+          const res = globalResources[Math.floor(prng() * globalResources.length)];
           if (res) {
             op.selection = res.id;
           }
-        } else if (Math.random() < 0.002) {
+        } else if (prng() < 0.002) {
           op.selection = null; // deselect
         }
       });
 
-      collabDispatch({ type: 'SET_OPERATORS', payload: [...operators] });
+      // Throttle state updates to avoid React getting crushed
+      if (tickCount % 2 === 0) {
+        collabDispatch({ type: 'SET_OPERATORS', payload: [...operators] });
+      }
 
       // 2. Generate random command feed events
       if (time - lastEventTime > 8000) {
         lastEventTime = time;
-        if (Math.random() > 0.5) {
-          const op = operators[Math.floor(Math.random() * operators.length)];
+        if (prng() > 0.5) {
+          const op = operators[Math.floor(prng() * operators.length)];
           if (op) {
             const messages = [
               'Approved deployment.',
@@ -97,11 +108,11 @@ export function useCollaborationEngine() {
             collabDispatch({
               type: 'ADD_COMMAND_EVENT',
               payload: {
-                id: `evt-${Date.now()}`,
+                id: `evt-${time}`, // use time for deterministic id over time
                 timestamp: Date.now(),
                 operatorId: op.id,
                 department: op.department,
-                message: messages[Math.floor(Math.random() * messages.length)] || 'System updated.',
+                message: messages[Math.floor(prng() * messages.length)] || 'System updated.',
                 type: 'action',
               },
             });

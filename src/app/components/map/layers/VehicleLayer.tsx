@@ -3,17 +3,23 @@
 import React, { useEffect, useRef } from 'react';
 import { useMap } from '../context/MapContext';
 
+let seed = 333;
+function prng() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 const generateVehicles = (count: number) => {
   const vehicles = [];
   for (let i = 0; i < count; i++) {
     // Outer service road ring (rx=200 around 600,400)
-    const angle = Math.random() * Math.PI * 2;
-    const type = Math.random() > 0.7 ? 'security' : Math.random() > 0.5 ? 'medical' : 'maintenance';
+    const angle = prng() * Math.PI * 2;
+    const type = prng() > 0.7 ? 'security' : prng() > 0.5 ? 'medical' : 'maintenance';
     vehicles.push({
       angle,
       type,
-      speed: 0.0002 + Math.random() * 0.0003,
-      direction: Math.random() > 0.5 ? 1 : -1,
+      speed: 0.0002 + prng() * 0.0003,
+      direction: prng() > 0.5 ? 1 : -1,
     });
   }
   return vehicles;

@@ -23,16 +23,22 @@ export function WorkforceDeploymentWorkspace() {
   }, [state.selectedDepartment]);
 
   useEffect(() => {
-    // Initialize entities once
+    // Initialize entities once deterministically
     if (entitiesRef.current.length === 0) {
+      let seed = 123;
+      const prng = () => {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      };
+
       for (let i = 0; i < ENTITY_COUNT; i++) {
         entitiesRef.current.push({
-          x: Math.random() * 800,
-          y: Math.random() * 600,
-          vx: (Math.random() - 0.5) * 1,
-          vy: (Math.random() - 0.5) * 1,
-          color: COLORS[Math.floor(Math.random() * COLORS.length)] || '#38BDF8',
-          department: DEPARTMENTS[Math.floor(Math.random() * DEPARTMENTS.length)] || 'MEDICAL',
+          x: prng() * 800,
+          y: prng() * 600,
+          vx: (prng() - 0.5) * 1,
+          vy: (prng() - 0.5) * 1,
+          color: COLORS[Math.floor(prng() * COLORS.length)] || '#38BDF8',
+          department: DEPARTMENTS[Math.floor(prng() * DEPARTMENTS.length)] || 'MEDICAL',
         });
       }
     }

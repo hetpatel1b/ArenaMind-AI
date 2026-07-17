@@ -50,6 +50,7 @@ export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
         <div
@@ -185,7 +186,7 @@ export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
         )}
 
         {/* Chat Input */}
-        <div style={{ padding: '0 24px 24px 24px' }}>
+        <div style={{ padding: '0 24px 24px 24px', flexShrink: 0 }}>
           <CopilotChatInput onSend={sendMessage} onStop={stopGeneration} isLoading={isLoading} />
         </div>
       </div>

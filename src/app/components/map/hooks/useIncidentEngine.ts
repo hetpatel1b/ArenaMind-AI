@@ -53,107 +53,82 @@ export interface Incident {
   radius: number; // impact radius
 }
 
-// Global store
-export const globalIncidents: Incident[] = [
-  {
-    id: 'INC-2948',
-    category: 'Crowd Congestion',
-    phase: 'Awaiting Approval',
-    severity: 'Warning',
-    x: 400,
-    y: 200,
-    zone: 'Gate A',
-    confidence: 94,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 5), // 5 mins ago
-    assignedResources: [],
-    radius: 40,
-    recommendations: [
-      {
-        id: 'REC-1',
-        action: 'Deploy Security Team',
-        confidence: 92,
-        impact: 'High',
-        eta: '3m',
-        requiresApproval: true,
-      },
-      {
-        id: 'REC-2',
-        action: 'Open Emergency Exit 2',
-        confidence: 85,
-        impact: 'Medium',
-        eta: 'Immediate',
-        requiresApproval: true,
-      },
-      {
-        id: 'REC-3',
-        action: 'Create Crowd Diversion',
-        confidence: 78,
-        impact: 'Low',
-        eta: '5m',
-        requiresApproval: false,
-      },
-    ],
-  },
-  {
-    id: 'INC-9932',
-    category: 'Medical Emergency',
-    phase: 'Analyzing',
-    severity: 'Critical',
-    x: 750,
-    y: 600,
-    zone: 'South Concourse',
-    confidence: 99,
-    detectedAt: new Date(Date.now() - 1000 * 60 * 1), // 1 min ago
-    assignedResources: [],
-    radius: 80,
-    recommendations: [
-      {
-        id: 'REC-4',
-        action: 'Dispatch Med-Evac Cart',
-        confidence: 98,
-        impact: 'Critical',
-        eta: '1m',
-        requiresApproval: true,
-      },
-      {
-        id: 'REC-5',
-        action: 'Clear Path Sector 4',
-        confidence: 95,
-        impact: 'High',
-        eta: 'Immediate',
-        requiresApproval: true,
-      },
-    ],
-  },
-];
+import { DemoState } from '@/lib/demo/DemoState';
+import { useDemoState } from '@/lib/demo/useDemoState';
+import { useMemo } from 'react';
 
 export function useIncidentEngine() {
-  const incidentsRef = useRef<Incident[]>(globalIncidents);
+  const demoState = useDemoState();
+
+  // Re-map globalIncidents dynamically when demoState changes
+  const mappedIncidents: Incident[] = useMemo(
+    () =>
+      demoState.incidents.map((inc, i) => ({
+        id: inc.id,
+        category:
+          inc.type === 'Medical'
+            ? 'Medical Emergency'
+            : inc.type === 'Security'
+              ? 'Security Threat'
+              : inc.type === 'Crowd Control'
+                ? 'Crowd Congestion'
+                : 'Lost Child',
+        phase: inc.status === 'resolved' ? 'Resolved' : 'Analyzing',
+        severity:
+          inc.severity === 'critical'
+            ? 'Critical'
+            : inc.severity === 'high'
+              ? 'Warning'
+              : 'Information',
+        x: i === 0 ? 400 : i === 1 ? 750 : 200,
+        y: i === 0 ? 200 : i === 1 ? 600 : 300,
+        zone: inc.location,
+        confidence: 95,
+        detectedAt: new Date(),
+        assignedResources: inc.status === 'resolved' ? ['Med-1'] : [],
+        radius: inc.type === 'Medical' ? 80 : 40,
+        recommendations:
+          inc.status === 'resolved'
+            ? []
+            : [
+                {
+                  id: `REC-${inc.id}-1`,
+                  action: demoState.copilot.recommendations[0] || 'Dispatch Team',
+                  confidence: 94,
+                  impact: 'High',
+                  eta: '3m',
+                  requiresApproval: true,
+                },
+              ],
+      })),
+    [demoState.incidents, demoState.copilot.recommendations]
+  );
+
+  const incidentsRef = useRef<Incident[]>(mappedIncidents);
+
+  // Keep ref up to date for the simulation loop
+  useEffect(() => {
+    incidentsRef.current = mappedIncidents;
+  }, [mappedIncidents]);
 
   useEffect(() => {
     let animationId: number;
     let lastTick = performance.now();
+    let tickCount = 0;
 
     const simulate = (time: number) => {
-      // Run slower simulation loop (e.g. every 1 second)
+      // Deterministic loop for simulation
       if (time - lastTick > 1000) {
         lastTick = time;
+        tickCount++;
 
-        // Randomly progress phases (very slow)
         incidentsRef.current.forEach((inc) => {
-          if (inc.phase === 'Detected' && Math.random() > 0.8) inc.phase = 'Verified';
-          else if (inc.phase === 'Verified' && Math.random() > 0.8) inc.phase = 'Analyzing';
-          else if (inc.phase === 'Analyzing' && Math.random() > 0.8)
-            inc.phase = 'AI Recommendation';
-          else if (inc.phase === 'AI Recommendation' && Math.random() > 0.5)
-            inc.phase = 'Awaiting Approval';
-          // After resources assigned, we move to Contained, etc. (handled in UI actions usually, but we simulate some)
-          else if (inc.phase === 'Resources Assigned' && Math.random() > 0.9)
-            inc.phase = 'Contained';
-          else if (inc.phase === 'Contained' && Math.random() > 0.9) {
-            inc.phase = 'Resolved';
-            inc.severity = 'Resolved';
-            inc.resolvedAt = new Date();
+          // Deterministic phase progression every 5 seconds for active incidents
+          if (inc.phase !== 'Resolved' && tickCount % 5 === 0) {
+            if (inc.phase === 'Detected') inc.phase = 'Verified';
+            else if (inc.phase === 'Verified') inc.phase = 'Analyzing';
+            else if (inc.phase === 'Analyzing') inc.phase = 'AI Recommendation';
+            else if (inc.phase === 'AI Recommendation') inc.phase = 'Awaiting Approval';
           }
         });
       }
@@ -167,3 +142,40 @@ export function useIncidentEngine() {
 
   return { incidentsRef };
 }
+
+// Keep export for non-React files that might import it, although it won't be perfectly reactive there.
+// Components should use the hook.
+export const globalIncidents = DemoState.incidents.map((inc, i) => ({
+  id: inc.id,
+  category:
+    inc.type === 'Medical'
+      ? 'Medical Emergency'
+      : inc.type === 'Security'
+        ? 'Security Threat'
+        : inc.type === 'Crowd Control'
+          ? 'Crowd Congestion'
+          : 'Lost Child',
+  phase: inc.status === 'resolved' ? 'Resolved' : 'Analyzing',
+  severity:
+    inc.severity === 'critical' ? 'Critical' : inc.severity === 'high' ? 'Warning' : 'Information',
+  x: i === 0 ? 400 : i === 1 ? 750 : 200,
+  y: i === 0 ? 200 : i === 1 ? 600 : 300,
+  zone: inc.location,
+  confidence: 95,
+  detectedAt: new Date(),
+  assignedResources: inc.status === 'resolved' ? ['Med-1'] : [],
+  radius: inc.type === 'Medical' ? 80 : 40,
+  recommendations:
+    inc.status === 'resolved'
+      ? []
+      : [
+          {
+            id: `REC-${inc.id}-1`,
+            action: DemoState.copilot.recommendations[0] || 'Dispatch Team',
+            confidence: 94,
+            impact: 'High',
+            eta: '3m',
+            requiresApproval: true,
+          },
+        ],
+}));

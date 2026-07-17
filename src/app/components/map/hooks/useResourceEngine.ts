@@ -27,6 +27,13 @@ export interface OperationalResource {
   speed: number;
 }
 
+// Deterministic PRNG to replace Math.random
+let seed = 12345;
+function prng() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 // Pre-generate 1000+ resources
 const generateResources = (count: number): OperationalResource[] => {
   const resources: OperationalResource[] = [];
@@ -43,36 +50,36 @@ const generateResources = (count: number): OperationalResource[] => {
   const zones = ['Gate A', 'Gate B', 'VIP', 'Media', 'Parking', 'Transit', 'Service'];
 
   for (let i = 0; i < count; i++) {
-    const type = types[Math.floor(Math.random() * types.length)]!;
+    const type = types[Math.floor(prng() * types.length)]!;
 
     // Distribute randomly across the venue bounds (roughly 1200x800)
     // Focus around inner ring (rx=150) and outer ring (rx=200)
-    const isInner = Math.random() > 0.4;
-    const angle = Math.random() * Math.PI * 2;
-    const radius = isInner ? 200 + Math.random() * 150 : 400 + Math.random() * 150;
+    const isInner = prng() > 0.4;
+    const angle = prng() * Math.PI * 2;
+    const radius = isInner ? 200 + prng() * 150 : 400 + prng() * 150;
 
     const x = 600 + Math.cos(angle) * radius;
     const y = 400 + Math.sin(angle) * radius * 0.6; // Elliptical
 
     let status: ResourceStatus = 'AVAILABLE';
-    const rand = Math.random();
+    const rand = prng();
     if (rand > 0.95) status = 'OFFLINE';
     else if (rand > 0.8) status = 'BUSY';
     else if (rand > 0.6) status = 'MOVING';
 
     resources.push({
-      id: `RES-${type.substring(0, 3).toUpperCase()}-${Math.floor(Math.random() * 9000) + 1000}`,
+      id: `RES-${type.substring(0, 3).toUpperCase()}-${Math.floor(prng() * 9000) + 1000}`,
       type,
       x,
       y,
       targetX: x, // initially stationary
       targetY: y,
       status,
-      zone: zones[Math.floor(Math.random() * zones.length)]!,
-      operator: `OP-${Math.floor(Math.random() * 99)}`,
-      battery: 10 + Math.floor(Math.random() * 90),
-      signal: Math.random() > 0.1 ? 4 : Math.floor(Math.random() * 4),
-      speed: 0.1 + Math.random() * 0.4,
+      zone: zones[Math.floor(prng() * zones.length)]!,
+      operator: `OP-${Math.floor(prng() * 99)}`,
+      battery: 10 + Math.floor(prng() * 90),
+      signal: prng() > 0.1 ? 4 : Math.floor(prng() * 4),
+      speed: 0.1 + prng() * 0.4,
     });
   }
   return resources;
@@ -107,13 +114,13 @@ export function useResourceEngine() {
 
           if (dist < 5) {
             // Assign new patrol target
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 50 + Math.random() * 150;
+            const angle = prng() * Math.PI * 2;
+            const distance = 50 + prng() * 150;
             res.targetX = Math.max(100, Math.min(1100, res.x + Math.cos(angle) * distance));
             res.targetY = Math.max(100, Math.min(700, res.y + Math.sin(angle) * distance));
 
             // Occasionally switch back to available
-            if (Math.random() > 0.9) {
+            if (prng() > 0.9) {
               res.status = 'AVAILABLE';
             }
           } else {
@@ -121,11 +128,11 @@ export function useResourceEngine() {
             res.x += (dx / dist) * res.speed;
             res.y += (dy / dist) * res.speed;
           }
-        } else if (res.status === 'AVAILABLE' && Math.random() > 0.995) {
+        } else if (res.status === 'AVAILABLE' && prng() > 0.995) {
           // Occasionally start moving
           res.status = 'MOVING';
-          const angle = Math.random() * Math.PI * 2;
-          const distance = 50 + Math.random() * 150;
+          const angle = prng() * Math.PI * 2;
+          const distance = 50 + prng() * 150;
           res.targetX = Math.max(100, Math.min(1100, res.x + Math.cos(angle) * distance));
           res.targetY = Math.max(100, Math.min(700, res.y + Math.sin(angle) * distance));
         }

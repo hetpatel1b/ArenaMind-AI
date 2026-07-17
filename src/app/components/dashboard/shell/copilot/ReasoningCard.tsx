@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CopilotPhase } from '@/lib/hooks/useCopilotState';
 import { useLiveMetric } from '@/lib/hooks/useLiveTelemetry';
+import { useDemoState } from '@/lib/demo/useDemoState';
 
 export function ReasoningCard({ phase }: { phase: CopilotPhase }) {
   const liveConfidence = useLiveMetric(98, 95, 100, 10000, 1);
-  const confidence = Math.round(liveConfidence);
+  const demoState = useDemoState();
+  const confidence = demoState.copilot.confidence || Math.round(liveConfidence);
 
   const [activeNode, setActiveNode] = useState(0);
 
@@ -21,11 +23,11 @@ export function ReasoningCard({ phase }: { phase: CopilotPhase }) {
   if (phase === 'MONITORING' || phase === 'ANALYZING' || phase === 'COMPLETED') return null;
 
   const nodes = [
-    { label: 'Observation', desc: 'South Gate density increased 17%' },
-    { label: 'Pattern Recognition', desc: 'Unexpected synchronized arrivals detected' },
-    { label: 'Prediction', desc: 'Gate congestion expected within 11 minutes' },
-    { label: 'Simulation', desc: 'Simulating redistribution via West Gate' },
-    { label: 'Recommendation', desc: 'Deploy Medical Bravo & Redirect traffic' },
+    { label: 'Observation', desc: demoState.copilot.currentObservations },
+    { label: 'Pattern Recognition', desc: demoState.copilot.historicalComparison },
+    { label: 'Prediction', desc: demoState.copilot.reasoning },
+    { label: 'Simulation', desc: 'Simulating optimal distribution' },
+    { label: 'Recommendation', desc: demoState.copilot.recommendations[0] || 'Observe Situation' },
   ];
 
   return (

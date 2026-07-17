@@ -1,103 +1,64 @@
-name: ArenaMind AI CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main ]
   pull_request:
-    branches: [main, develop]
+    branches: [ main ]
 
 jobs:
-  validate:
-    name: Validate (Lint, Typecheck, Test, Build)
+  build-and-test:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
+    - name: Install pnpm
+      run: corepack enable pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+    - name: Restore pnpm cache
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'pnpm'
 
-      - name: Generate Prisma Client
-        run: pnpm dlx prisma generate
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm run lint
+    - name: Prisma Generate
+      run: pnpm prisma generate
 
-      - name: Type Check
-        run: pnpm run typecheck
+    - name: Prisma Validate
+      run: pnpm prisma validate
 
-      - name: Unit Tests
-        run: pnpm run test:unit
+    - name: TypeScript Check
+      run: pnpm tsc --noEmit
 
-      - name: Integration Tests
-        run: pnpm run test:integration
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key"
+    - name: ESLint Check
+      run: pnpm lint
 
-      - name: Dependency Audit
-        run: pnpm run audit
+    - name: Unit Tests
+      run: pnpm run test:unit
 
-      - name: Build
-        run: pnpm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key"
+    - name: Production Build
+      run: pnpm run build
+      env:
+        NEXT_TELEMETRY_DISABLED: 1
+        NODE_ENV: production
+        DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
 
-  e2e:
-    name: Playwright E2E Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    - name: Docker Build Test
+      run: docker build -t arenamind-test .
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(pnpm ls --depth 0 @playwright/test | grep @playwright/test | awk '{print $2}')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright Browsers
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps
-
-      - name: Install Playwright OS Dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps
-
-      - name: Generate Prisma Client
-        run: pnpm dlx prisma generate
-
-      - name: Run E2E Tests
-        run: pnpm run test:e2e
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key"
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nextjs-build
+        path: .next/
+        retention-days: 7

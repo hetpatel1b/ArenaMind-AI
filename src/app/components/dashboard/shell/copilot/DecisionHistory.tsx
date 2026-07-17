@@ -1,35 +1,16 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useActivityFeed } from '@/lib/hooks/useLiveTelemetry';
-
-const initialDecisions = [
-  { id: '1', time: '18:21', text: 'Gate 2 overflow prevented.' },
-  { id: '2', time: '18:08', text: 'Medical Team Bravo repositioned.' },
-  { id: '3', time: '17:56', text: 'Camera 212 recalibrated.' },
-];
+import { useDemoState } from '@/lib/demo/useDemoState';
 
 export function DecisionHistory() {
-  const generateDecision = () => {
-    const decisions = [
-      'Gate 2 overflow prevented.',
-      'Medical Team Bravo repositioned.',
-      'Camera 212 recalibrated.',
-      'Transit surge predicted.',
-      'Drone 4 dispatched to Sector B.',
-      'VIP protocol activated.',
-    ];
-    return {
-      id: Math.random().toString(36).substring(7),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: decisions[Math.floor(Math.random() * decisions.length)],
-    };
-  };
+  const demoState = useDemoState();
 
-  // This will add a new decision every 20-30 seconds
-  const history = useActivityFeed(initialDecisions, generateDecision, 25000);
-
-  // Max 5 entries
-  const displayHistory = history.slice(0, 5);
+  const displayHistory = [
+    { id: '1', time: '20:45', text: demoState.copilot.recommendations[0] || 'Observe Situation' },
+    { id: '2', time: '20:44', text: demoState.copilot.recommendations[1] || 'Increase Monitoring' },
+    { id: '3', time: '20:30', text: 'Lost child reunited.' },
+    { id: '4', time: '20:00', text: 'Parking overflow diverted to Lot 3.' },
+  ];
 
   return (
     <div

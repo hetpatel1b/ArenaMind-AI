@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useActivityFeed } from '@/lib/hooks/useLiveTelemetry';
+import { DemoState } from '@/lib/demo/DemoState';
+import { useDemoState } from '@/lib/demo/useDemoState';
 
 interface OperationalActivityFeedProps {
   incidents: any[];
@@ -10,31 +12,30 @@ interface OperationalActivityFeedProps {
 
 export function OperationalActivityFeed({ incidents }: OperationalActivityFeedProps) {
   const shouldReduceMotion = useReducedMotion();
+  const demoState = useDemoState();
 
-  const generateMockEvent = () => {
-    const mockTitles = [
-      'South Gate congestion normalized.',
-      'Medical Team Bravo arrived.',
-      'Camera 214 recalibrated.',
-      'Drone 3 battery replaced.',
-      'Gate 6 reopened.',
-      'AI confidence increased.',
-      'Resource Unit 4 redeployed.',
-    ];
+  // Map DemoState notifications to the feed format
+  const staticEvents = demoState.notifications.map((n) => {
+    let tier = 3;
+    if (n.type === 'error') tier = 1;
+    if (n.type === 'warning') tier = 2;
+
     return {
-      id: Math.random().toString(36).substring(7),
-      title: mockTitles[Math.floor(Math.random() * mockTitles.length)],
+      id: n.id,
+      title: n.message,
       description: 'System updated status automatically based on live telemetry.',
-      createdAt: new Date().toISOString(),
-      severityTier: 3, // Info
+      // Generate a date for today using the fixed time
+      createdAt: new Date(`${new Date().toDateString()} ${n.time}`).toISOString(),
+      severityTier: tier,
       aiType: null,
     };
-  };
+  });
 
-  const liveIncidents = useActivityFeed(incidents || [], generateMockEvent, 16000);
+  // Combine passed incidents with static events
+  const combined = [...(incidents || []), ...staticEvents];
 
   // Combine and sort incidents by created date (newest first)
-  const sortedEvents = [...liveIncidents].sort((a, b) => {
+  const sortedEvents = combined.sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 

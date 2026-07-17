@@ -1,19 +1,15 @@
 import { createRouteHandler } from '@/lib/api/route-factory';
-import { successResponse } from '@/lib/api/response';
-import { prisma } from '@/lib/db/client';
+import { HealthService } from '@/lib/platform/health/HealthService';
+import { NextResponse } from 'next/server';
 
 export const GET = createRouteHandler(
   async () => {
-    // Basic DB ping to ensure connection pool is healthy
-    const dbStatus = await prisma.$queryRaw`SELECT 1 as result`
-      .then(() => 'up')
-      .catch(() => 'down');
-
-    return successResponse({
-      status: 'ok',
-      database: dbStatus,
-      timestamp: new Date().toISOString(),
-    });
+    const result = await HealthService.checkHealth();
+    // Return early with custom NextResponse to allow setting 503 status
+    // since createRouteHandler typically returns 200 for successResponse
+    return NextResponse.json(result, {
+      status: result.status === 'down' ? 503 : 200,
+    }) as any;
   },
   { requireAuth: false, globalAccess: true }
 );

@@ -107,7 +107,7 @@ function infrastructureReducer(
       const actionName = action.payload.action;
 
       const evt: (typeof state.timelineEvents)[0] = {
-        id: Math.random().toString(),
+        id: `evt-${Date.now()}-${state.timelineEvents.length}`,
         time: new Date().toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit',

@@ -21,33 +21,58 @@ const PROTECTED_ROUTES = [
 export default auth(async (request) => {
   const session = request.auth;
   const { pathname } = request.nextUrl;
+  let response = NextResponse.next();
 
   // NextAuth automatically handles session parsing, we just need to verify existence.
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
-  // Bypass nextauth API endpoints
-  if (pathname.startsWith('/api/auth')) {
-    return NextResponse.next();
-  }
-
-  // Rule 1: Unauthenticated user opening protected routes -> Redirect to /login
-  if (!session && isProtectedRoute) {
-    if (pathname.startsWith('/api')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!pathname.startsWith('/api/auth')) {
+    // Rule 1: Unauthenticated user opening protected routes -> Redirect to /login
+    if (!session && isProtectedRoute) {
+      if (pathname.startsWith('/api')) {
+        response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      } else {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = '/login';
+        response = NextResponse.redirect(loginUrl);
+      }
     }
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    return NextResponse.redirect(loginUrl);
+    // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
+    else if (session && pathname === '/login') {
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = '/dashboard';
+      response = NextResponse.redirect(dashboardUrl);
+    }
   }
 
-  // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
-  if (session && pathname === '/login') {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = '/dashboard';
-    return NextResponse.redirect(dashboardUrl);
-  }
+  // Inject Enterprise Security Headers
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
-  return NextResponse.next();
+  response.headers.set('Content-Security-Policy', cspHeader);
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  );
+  response.headers.delete('x-powered-by');
+
+  return response;
 });
 
 export const config = {

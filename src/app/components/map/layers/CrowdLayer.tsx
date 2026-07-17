@@ -2,12 +2,18 @@
 
 import React, { useEffect, useRef } from 'react';
 
+let seed = 777;
+function prng() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 const generateCrowd = (count: number) => {
   const crowd = [];
   for (let i = 0; i < count; i++) {
     // Distribute around the concourse ring (rx=120 around 600,400)
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 250 + Math.random() * 100;
+    const angle = prng() * Math.PI * 2;
+    const radius = 250 + prng() * 100;
     const x = 600 + Math.cos(angle) * radius;
     const y = 400 + Math.sin(angle) * radius * 0.6; // Elliptical distribution
 
@@ -16,8 +22,8 @@ const generateCrowd = (count: number) => {
       y,
       angle,
       radius,
-      speed: 0.0005 + Math.random() * 0.001,
-      direction: Math.random() > 0.5 ? 1 : -1,
+      speed: 0.0005 + prng() * 0.001,
+      direction: prng() > 0.5 ? 1 : -1,
     });
   }
   return crowd;

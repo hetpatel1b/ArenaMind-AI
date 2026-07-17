@@ -32,14 +32,20 @@ export const InfrastructureTopologyEngine: React.FC = React.memo(() => {
 
     // Setup entities once
     if (entitiesRef.current.length === 0) {
+      let seed = 444;
+      const prng = () => {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+      };
+
       entitiesRef.current = Array.from({ length: 250 }).map((_, i) => ({
         id: `node-${i}`,
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
-        type: Math.random() > 0.8 ? 'db' : Math.random() > 0.5 ? 'server' : 'pod',
+        x: prng() * width,
+        y: prng() * height,
+        vx: (prng() - 0.5) * 0.5,
+        vy: (prng() - 0.5) * 0.5,
+        radius: prng() * 2 + 1,
+        type: prng() > 0.8 ? 'db' : prng() > 0.5 ? 'server' : 'pod',
       }));
     }
 

@@ -2,17 +2,23 @@
 
 import React, { useEffect, useRef } from 'react';
 
+let seed = 888;
+function prng() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 // Hardcode 500+ sensor positions relative to the 1200x800 coordinate system
 const generateSensors = (count: number) => {
   const sensors = [];
   for (let i = 0; i < count; i++) {
     // Generate mostly around concourses and grandstands
-    const isInner = Math.random() > 0.3;
-    const x = isInner ? 200 + Math.random() * 800 : 50 + Math.random() * 1100;
-    const y = isInner ? 150 + Math.random() * 500 : 50 + Math.random() * 700;
+    const isInner = prng() > 0.3;
+    const x = isInner ? 200 + prng() * 800 : 50 + prng() * 1100;
+    const y = isInner ? 150 + prng() * 500 : 50 + prng() * 700;
 
     // Status probability: 90% healthy (blue), 8% warning (amber), 2% critical (red)
-    const rand = Math.random();
+    const rand = prng();
     let status = 'healthy';
     if (rand > 0.98) status = 'critical';
     else if (rand > 0.9) status = 'warning';
@@ -21,8 +27,8 @@ const generateSensors = (count: number) => {
       x,
       y,
       status,
-      phase: Math.random() * Math.PI * 2, // Randomize breathing phase
-      speed: 0.02 + Math.random() * 0.03, // Randomize breathing speed
+      phase: prng() * Math.PI * 2, // Randomize breathing phase
+      speed: 0.02 + prng() * 0.03, // Randomize breathing speed
     });
   }
   return sensors;

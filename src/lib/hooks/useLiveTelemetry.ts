@@ -34,25 +34,33 @@ export function useLiveMetric(
   }, []);
 
   useEffect(() => {
-    // Add some random jitter to the interval so multiple metrics don't update on the exact same frame
-    const jitter = Math.random() * (intervalMs * 0.2);
+    // Deterministic jitter based on interval
+    const jitter = (intervalMs * 0.1) % 1000;
+
+    // Track elapsed time for deterministic oscillation
+    let elapsed = 0;
 
     const intervalId = setInterval(() => {
       if (!isTabActive.current) return;
 
-      setValue((current) => {
-        const step = Math.random() * stepMax * 2 - stepMax;
-        let nextValue = current + step;
+      setValue(() => {
+        elapsed += 1;
+        // Deterministic sine wave oscillation around the initial value
+        // The value will gently sway up and down by at most stepMax
+        const step = Math.sin(elapsed) * stepMax;
+        let nextValue = initialValue + step;
 
-        if (nextValue < minBound) nextValue = minBound + Math.abs(step);
-        if (nextValue > maxBound) nextValue = maxBound - Math.abs(step);
+        if (nextValue < minBound) nextValue = minBound;
+        if (nextValue > maxBound) nextValue = maxBound;
 
-        return nextValue;
+        // Optionally round to 2 decimal places if it's a small number, or floor if it's large
+        if (maxBound > 100) return Math.floor(nextValue);
+        return Number(nextValue.toFixed(1));
       });
     }, intervalMs + jitter);
 
     return () => clearInterval(intervalId);
-  }, [minBound, maxBound, intervalMs, stepMax]);
+  }, [minBound, maxBound, intervalMs, stepMax, initialValue]);
 
   return value;
 }
@@ -73,11 +81,10 @@ export function useTelemetry(values: string[], intervalMs: number = 10000) {
   }, []);
 
   useEffect(() => {
-    const jitter = Math.random() * 2000;
     const intervalId = setInterval(() => {
       if (!isTabActive.current) return;
       setIndex((prev) => (prev + 1) % values.length);
-    }, intervalMs + jitter);
+    }, intervalMs);
     return () => clearInterval(intervalId);
   }, [values.length, intervalMs]);
 
@@ -110,10 +117,16 @@ export function useActivityFeed<T>(
   }, []);
 
   useEffect(() => {
-    const jitter = Math.random() * 5000;
+    // Deterministic jitter based on interval
+    const jitter = (intervalMs * 0.05) % 1000;
+
+    let counter = 0;
+
     const intervalId = setInterval(() => {
       if (!isTabActive.current) return;
       setEvents((currentEvents) => {
+        // Prevent infinite generation if static (or use generateEvent with a counter)
+        counter++;
         const newEvent = generateEvent();
         // Keep max history length to 50 to prevent memory leaks
         return [newEvent, ...currentEvents].slice(0, 50);
@@ -134,7 +147,8 @@ export function useStatusPulse() {
   const [duration, setDuration] = useState(3);
 
   useEffect(() => {
-    setTimeout(() => setDuration(3 + Math.random()), 0);
+    // Fixed deterministic duration instead of Math.random
+    setTimeout(() => setDuration(3.5), 0);
   }, []);
 
   if (shouldReduceMotion) {
