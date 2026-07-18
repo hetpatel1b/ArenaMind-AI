@@ -49,6 +49,4 @@ jobs:
         path: ./
 
     - name: License Validation
-      run: |
-        pnpm install -g license-checker
-        license-checker --summary --failOn "GPL-3.0"
+      run: pnpm dlx license-checker --summary --failOn "GPL-3.0"
