@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CopilotPhase } from '@/lib/hooks/useCopilotState';
-import { useLiveMetric } from '@/lib/hooks/useLiveTelemetry';
-import { useDemoState } from '@/lib/demo/useDemoState';
+import { useAgentOrchestrator } from '@/app/components/map/hooks/useAgentOrchestrator';
 
 export function ReasoningCard({ phase }: { phase: CopilotPhase }) {
-  const liveConfidence = useLiveMetric(98, 95, 100, 10000, 1);
-  const demoState = useDemoState();
-  const confidence = demoState.copilot.confidence || Math.round(liveConfidence);
+  const { getExplainability } = useAgentOrchestrator();
+  const intel = getExplainability('global')[0];
+  const confidence = intel?.confidence || 0;
 
   const [activeNode, setActiveNode] = useState(0);
 
@@ -23,11 +22,14 @@ export function ReasoningCard({ phase }: { phase: CopilotPhase }) {
   if (phase === 'MONITORING' || phase === 'ANALYZING' || phase === 'COMPLETED') return null;
 
   const nodes = [
-    { label: 'Observation', desc: demoState.copilot.currentObservations },
-    { label: 'Pattern Recognition', desc: demoState.copilot.historicalComparison },
-    { label: 'Prediction', desc: demoState.copilot.reasoning },
+    {
+      label: 'Observation',
+      desc: intel?.evidence || 'I do not have sufficient verified operational evidence.',
+    },
+    { label: 'Pattern Recognition', desc: intel?.historicalMatch || 'N/A' },
+    { label: 'Prediction', desc: intel?.ignoredSignals || 'N/A' },
     { label: 'Simulation', desc: 'Simulating optimal distribution' },
-    { label: 'Recommendation', desc: demoState.copilot.recommendations[0] || 'Observe Situation' },
+    { label: 'Recommendation', desc: 'No live recommendations available.' },
   ];
 
   return (

@@ -44,23 +44,7 @@ export function IncidentCommandWorkspace({ matchData }: { matchData: IncidentMat
     };
   });
 
-  const fallbackIncidents: Incident[] = [
-    {
-      id: 'mock-1',
-      title: 'Sector 4 Disturbance',
-      priority: 'HIGH',
-      category: 'Security',
-      location: 'Gate A',
-      reportedTime: new Date().toISOString(),
-      assignedTeam: null,
-      currentStage: 'REPORTED',
-      aiConfidence: 95,
-      requiresHumanApproval: true,
-      progress: 0,
-      evidence: [],
-      reasoningLog: [],
-    },
-  ];
+  const fallbackIncidents: Incident[] = [];
 
   const initialIncidents = mappedIncidents.length > 0 ? mappedIncidents : fallbackIncidents;
   const criticalCount = initialIncidents.filter(

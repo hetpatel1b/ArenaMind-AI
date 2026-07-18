@@ -49,7 +49,7 @@ export function LiveIncidentMission({ incident }: { incident: Incident }) {
               letterSpacing: '-0.5px',
             }}
           >
-            Mission Alpha-Nine
+            {incident.title || 'Mission Unassigned'}
           </h2>
         </div>
         <div
@@ -85,16 +85,22 @@ export function LiveIncidentMission({ incident }: { incident: Incident }) {
             gap: '16px',
           }}
         >
-          <SitRepItem label="COMMANDER" value="Dir. Vance (SEC-1)" />
-          <SitRepItem label="UNITS DEPLOYED" value="4 Active Teams" />
+          <SitRepItem label="COMMANDER" value="Unassigned" />
+          <SitRepItem label="UNITS DEPLOYED" value="Unknown" />
           <SitRepItem label="COORDINATES" value={incident.location} />
-          <SitRepItem label="GLOBAL ETA" value="03m 42s" color="#fff" />
+          <SitRepItem label="GLOBAL ETA" value="Unknown" color="#fff" />
           <SitRepItem
             label="THREAT LEVEL"
             value={incident.priority}
             color={incident.priority === 'CRITICAL' ? '#ff453a' : '#ff9f0a'}
           />
-          <SitRepItem label="AI PROGNOSIS" value="Stable - 89% Confidence" color="#34c759" />
+          <SitRepItem
+            label="AI PROGNOSIS"
+            value={
+              incident.aiConfidence ? `Stable - ${incident.aiConfidence}% Confidence` : 'Unknown'
+            }
+            color="#34c759"
+          />
         </div>
       </div>
 
@@ -136,7 +142,7 @@ export function LiveIncidentMission({ incident }: { incident: Incident }) {
         </div>
 
         <div style={{ fontSize: '13px', fontWeight: 500, color: '#fff' }}>
-          Establish Outer Perimeter Containment
+          Awaiting specific mission objectives.
         </div>
 
         <div
@@ -163,7 +169,7 @@ export function LiveIncidentMission({ incident }: { incident: Incident }) {
         </div>
       </div>
 
-      {/* Recent Feed (Mock) */}
+      {/* Recent Feed (Requires Real Data) */}
       <div
         style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
       >
@@ -178,9 +184,9 @@ export function LiveIncidentMission({ incident }: { incident: Incident }) {
         >
           Latest Logs
         </div>
-        <LogItem time="-02m" text="Units arrived at sector 7G." />
-        <LogItem time="-04m" text="Perimeter breach confirmed by drone." />
-        <LogItem time="-08m" text="Operation authorized by Dir. Vance." />
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+          No active logs available.
+        </div>
       </div>
     </motion.div>
   );

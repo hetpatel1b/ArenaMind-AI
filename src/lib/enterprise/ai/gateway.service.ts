@@ -313,10 +313,9 @@ Answer the user's questions strictly based on this context. Be concise and preci
 
       return {
         status: 'error',
-        requestId:
-          typeof crypto !== 'undefined' && crypto.randomUUID
-            ? crypto.randomUUID()
-            : Math.random().toString(),
+        metadata: {
+          traceId: crypto.randomUUID(),
+        },
         providerAttempted: 'grok',
         providerFailed: 'all',
         retryCount: 0,

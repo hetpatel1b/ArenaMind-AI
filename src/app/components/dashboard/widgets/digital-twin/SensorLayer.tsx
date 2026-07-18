@@ -20,20 +20,6 @@ export function SensorLayer({ layout }: SensorLayerProps) {
     };
 
     const items: any[] = [];
-    for (let i = 0; i < 500; i++) {
-      const angle = prng() * Math.PI * 2;
-      const radius = 250 + prng() * 200; // Between pitch and exterior
-      const cx = 500 + Math.cos(angle) * radius;
-      const cy = 500 + Math.sin(angle) * radius * 0.8;
-
-      const rand = prng();
-      let status = 'ONLINE'; // 90%
-      if (rand > 0.98)
-        status = 'CRITICAL'; // 2%
-      else if (rand > 0.9) status = 'OFFLINE'; // 8%
-
-      items.push({ x: cx, y: cy, status, offset: prng() * Math.PI * 2 });
-    }
     setTimeout(() => setSensors(items), 0);
   }, []);
 

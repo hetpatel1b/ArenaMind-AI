@@ -51,26 +51,17 @@ export function useAgentOrchestrator() {
   }, [incidents]);
 
   const executiveMetrics: ExecutiveMetrics = useMemo(() => {
-    // If backend data is unavailable, we explicitly return 0 rather than mock metrics
-    if (!data?.data) {
+    const metrics = data?.data?.engineMetrics;
+    if (!metrics) {
       return {
-        healthIndex: 0,
-        safetyScore: 0,
-        crowdStability: 0,
-        transportStability: 0,
-        medicalReadiness: 0,
+        healthIndex: null as any,
+        safetyScore: null as any,
+        crowdStability: null as any,
+        transportStability: null as any,
+        medicalReadiness: null as any,
       };
     }
-
-    // In a real implementation this would map from data.data.engineMetrics or similar
-    // For now we map to 0s to guarantee no synthetic telemetry.
-    return {
-      healthIndex: 0,
-      safetyScore: 0,
-      crowdStability: 0,
-      transportStability: 0,
-      medicalReadiness: 0,
-    };
+    return metrics;
   }, [data]);
 
   const getExplainability = (incidentId: string): ExplainabilityLog[] => {
@@ -81,7 +72,7 @@ export function useAgentOrchestrator() {
         {
           id: `expl-${incidentId}-fallback`,
           agent: 'System',
-          evidence: 'I do not have sufficient operational evidence.',
+          evidence: 'I do not have sufficient verified operational evidence.',
           historicalMatch: 'N/A',
           ignoredSignals: 'N/A',
           model: 'Gateway-v1',
@@ -93,7 +84,7 @@ export function useAgentOrchestrator() {
     return reasoningStream.map((stream: any, index: number) => ({
       id: `expl-${incidentId}-${index}`,
       agent: 'Intelligence Agent',
-      evidence: stream.content || 'I do not have sufficient operational evidence.',
+      evidence: stream.content || 'I do not have sufficient verified operational evidence.',
       historicalMatch: 'N/A',
       ignoredSignals: 'N/A',
       model: 'Gateway-v1',

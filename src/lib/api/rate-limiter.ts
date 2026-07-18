@@ -41,15 +41,6 @@ export async function enforceRateLimit(
         windowEnd,
       },
     });
-
-    // Clean up old records periodically
-    if (Math.random() < 0.01) {
-      await prisma.rateLimit
-        .deleteMany({
-          where: { windowEnd: { lt: new Date() } },
-        })
-        .catch(() => {});
-    }
   } catch (error) {
     if (error instanceof RateLimitError) throw error;
     // Log but allow pass-through if DB fails (fail-open)

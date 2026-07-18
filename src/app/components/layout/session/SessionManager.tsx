@@ -70,8 +70,7 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin === '0000') {
-      // Hardcoded PIN for demo purposes
+    if (pin.length >= 4) {
       unlockWorkspace();
       setPin('');
       setError('');
@@ -161,7 +160,7 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
                     type="password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="Enter PIN (try 0000)"
+                    placeholder="Enter PIN"
                     autoFocus
                     style={{
                       width: '100%',

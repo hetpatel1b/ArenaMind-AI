@@ -33,9 +33,12 @@ export interface OperationalResource {
 export const globalResources: OperationalResource[] = [];
 
 // Helper to assign a resource to an incident location
-export const dispatchResource = (resourceId: string, targetX: number, targetY: number) => {
-  // Production pipeline should POST to an API here instead of mutating a mock array
-  console.warn(`[Enterprise Pipeline] Dispatching resource ${resourceId} to ${targetX},${targetY}`);
+export const dispatchResource = async (resourceId: string, targetX: number, targetY: number) => {
+  return fetch('/api/v1/workforce/dispatch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resourceId, targetX, targetY }),
+  });
 };
 
 export function useResourceEngine() {

@@ -28,7 +28,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <AuthProvider initialSession={null}>
         <QueryClientProvider client={queryClient}>
           {children}
-          <ExecutiveDemoPanel />
+          {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && <ExecutiveDemoPanel />}
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </AuthProvider>

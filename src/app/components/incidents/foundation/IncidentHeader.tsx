@@ -15,7 +15,7 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
           ? '#ffd60a'
           : '#34c759';
 
-  const elapsedTime = '03:42:15'; // Mock for now, would be calculated from reportedTime
+  const elapsedTime = 'Unknown'; // Requires real calculation from backend time
 
   return (
     <div

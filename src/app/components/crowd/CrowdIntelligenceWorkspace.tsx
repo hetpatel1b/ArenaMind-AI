@@ -30,25 +30,25 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
 
   // Re-derive behavior metrics to feed legacy signature of BehaviorIntelligence
   // (In a real app, BehaviorIntelligence would accept the new state directly, but for now we map it)
-  const behaviorMock = {
+  const behaviorMetrics = {
     flowStability: {
-      value: 85 - state.global.peakDensity * 0.2,
+      value: state.global.peakDensity ? 100 - state.global.peakDensity : null,
       trend: 'stable',
       status: 'optimal',
     },
-    crowdMood: { value: state.zones[0]?.mood || 90, trend: 'stable', status: 'optimal' },
+    crowdMood: { value: state.zones[0]?.mood || null, trend: 'stable', status: 'optimal' },
     compressionRisk: {
       value:
-        state.zones.find((z) => z.id === state.global.highestRiskZoneId)?.compressionScore || 10,
+        state.zones.find((z) => z.id === state.global.highestRiskZoneId)?.compressionScore || null,
       trend: 'up',
       status: 'warning',
     },
     queueHealth: {
-      value: state.queues[0]?.health === 'critical' ? 30 : 90,
+      value: null,
       trend: 'down',
       status: 'warning',
     },
-    movementDirection: 'ingress',
+    movementDirection: 'Unknown',
   } as any;
 
   const highestRiskZoneName = state.global.highestRiskZoneId
@@ -162,7 +162,7 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
               <FlowAnalytics flow={state.flow as any} />
             </div>
             <div style={{ flex: '1 1 300px', minWidth: '300px' }}>
-              <BehaviorIntelligence behavior={behaviorMock} />
+              <BehaviorIntelligence behavior={behaviorMetrics} />
             </div>
           </div>
         </div>

@@ -3,8 +3,6 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useActivityFeed } from '@/lib/hooks/useLiveTelemetry';
-import { DemoState } from '@/lib/demo/DemoState';
-import { useDemoState } from '@/lib/demo/useDemoState';
 
 interface OperationalActivityFeedProps {
   incidents: any[];
@@ -12,27 +10,8 @@ interface OperationalActivityFeedProps {
 
 export function OperationalActivityFeed({ incidents }: OperationalActivityFeedProps) {
   const shouldReduceMotion = useReducedMotion();
-  const demoState = useDemoState();
 
-  // Map DemoState notifications to the feed format
-  const staticEvents = demoState.notifications.map((n) => {
-    let tier = 3;
-    if (n.type === 'error') tier = 1;
-    if (n.type === 'warning') tier = 2;
-
-    return {
-      id: n.id,
-      title: n.message,
-      description: 'System updated status automatically based on live telemetry.',
-      // Generate a date for today using the fixed time
-      createdAt: new Date(`${new Date().toDateString()} ${n.time}`).toISOString(),
-      severityTier: tier,
-      aiType: null,
-    };
-  });
-
-  // Combine passed incidents with static events
-  const combined = [...(incidents || []), ...staticEvents];
+  const combined = [...(incidents || [])];
 
   // Combine and sort incidents by created date (newest first)
   const sortedEvents = combined.sort((a, b) => {

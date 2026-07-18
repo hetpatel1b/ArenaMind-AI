@@ -10,36 +10,7 @@ interface CameraLayerProps {
 export function CameraLayer({ layout }: CameraLayerProps) {
   const [hoveredCam, setHoveredCam] = useState<string | null>(null);
 
-  const cameras = [
-    {
-      id: 'CAM-212',
-      cx: layout.z_north.cx - 200,
-      cy: layout.z_north.cy - 50,
-      angle: 45,
-      status: 'Healthy',
-    },
-    {
-      id: 'CAM-213',
-      cx: layout.z_north.cx + 200,
-      cy: layout.z_north.cy - 50,
-      angle: 135,
-      status: 'Healthy',
-    },
-    {
-      id: 'CAM-404',
-      cx: layout.z_south.cx,
-      cy: layout.z_south.cy + 50,
-      angle: 270,
-      status: 'Healthy',
-    },
-    {
-      id: 'CAM-110',
-      cx: layout.z_west.cx - 50,
-      cy: layout.z_west.cy,
-      angle: 0,
-      status: 'Degraded',
-    },
-  ];
+  const cameras: any[] = [];
 
   return (
     <div

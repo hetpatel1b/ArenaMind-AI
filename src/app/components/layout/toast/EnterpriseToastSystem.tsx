@@ -31,7 +31,7 @@ class ToastManager {
   }
 
   add(toast: Omit<ToastMessage, 'id'>) {
-    const id = Math.random().toString(36).substring(2, 9);
+    const id = crypto.randomUUID();
     const newToast = { ...toast, id };
 
     // Stack limit to 5

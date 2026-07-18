@@ -73,8 +73,6 @@ export class AIJobQueueService {
       // Simulated processing
       setTimeout(() => {
         clearTimeout(timeout);
-        // Random failure simulation for testing retries (remove in strict prod)
-        // if (Math.random() > 0.8) reject(new Error('Random network failure'));
         resolve();
       }, 500);
     });

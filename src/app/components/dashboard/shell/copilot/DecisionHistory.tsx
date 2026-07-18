@@ -1,16 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDemoState } from '@/lib/demo/useDemoState';
-
 export function DecisionHistory() {
-  const demoState = useDemoState();
-
-  const displayHistory = [
-    { id: '1', time: '20:45', text: demoState.copilot.recommendations[0] || 'Observe Situation' },
-    { id: '2', time: '20:44', text: demoState.copilot.recommendations[1] || 'Increase Monitoring' },
-    { id: '3', time: '20:30', text: 'Lost child reunited.' },
-    { id: '4', time: '20:00', text: 'Parking overflow diverted to Lot 3.' },
-  ];
+  const displayHistory: any[] = [];
 
   return (
     <div

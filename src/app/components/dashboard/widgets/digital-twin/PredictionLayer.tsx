@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useTelemetry } from '@/lib/hooks/useLiveTelemetry';
 
 interface PredictionLayerProps {
   layout: any;
@@ -12,7 +11,7 @@ interface PredictionLayerProps {
 export function PredictionLayer({ layout, zones }: PredictionLayerProps) {
   // Mock prediction for the south zone (z_south)
   const zSouth = layout['z_south'];
-  const timer = useTelemetry(['11 min', '10 min', '9 min', '8 min'], 60000);
+  const timer = 'Unknown';
 
   if (!zSouth) return null;
 

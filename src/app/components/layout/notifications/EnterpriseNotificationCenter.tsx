@@ -6,50 +6,7 @@ import { NotificationItem, NotificationData, NotificationPriority } from './Noti
 import { useHeaderState } from '@/app/hooks/useHeaderState';
 
 // Mock data generator for enterprise notification center
-const MOCK_NOTIFICATIONS: NotificationData[] = [
-  {
-    id: 'n1',
-    title: 'Critical Gate Congestion',
-    message: 'Gate 4 capacity exceeded by 15%. AI dispatching crowd control teams.',
-    priority: 'CRITICAL',
-    timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-  },
-  {
-    id: 'n2',
-    title: 'Unauthorized Access',
-    message: 'Unknown biometric signature detected at Server Room B.',
-    priority: 'CRITICAL',
-    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-  },
-  {
-    id: 'n3',
-    title: 'High CPU Load',
-    message: 'Analytics Cluster #3 operating at 94% capacity. Auto-scaling initiated.',
-    priority: 'WARNING',
-    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-  },
-  {
-    id: 'n4',
-    title: 'VIP Arrival',
-    message: 'Delegation Alpha has arrived at West Entrance.',
-    priority: 'INFO',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-  },
-  {
-    id: 'n5',
-    title: 'System Backup Complete',
-    message: 'Global database synchronized across all edge nodes successfully.',
-    priority: 'SUCCESS',
-    timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  {
-    id: 'n6',
-    title: 'Camera Offline',
-    message: 'Camera CAM-204 lost connection. Attempting remote reboot.',
-    priority: 'WARNING',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-  },
-];
+const MOCK_NOTIFICATIONS: NotificationData[] = [];
 
 export function EnterpriseNotificationCenter({
   isOpen,

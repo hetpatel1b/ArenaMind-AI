@@ -66,7 +66,7 @@ export class ProviderManager {
 
         return {
           status: 'error',
-          requestId: isNodeCrypto ? crypto.randomUUID() : Math.random().toString(),
+          requestId: crypto.randomUUID(),
           providerAttempted: primary,
           providerFailed: 'all',
           retryCount: totalRetries,
