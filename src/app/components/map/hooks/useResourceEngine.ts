@@ -35,7 +35,7 @@ export const globalResources: OperationalResource[] = [];
 // Helper to assign a resource to an incident location
 export const dispatchResource = (resourceId: string, targetX: number, targetY: number) => {
   // Production pipeline should POST to an API here instead of mutating a mock array
-  console.log(`[Enterprise Pipeline] Dispatching resource ${resourceId} to ${targetX},${targetY}`);
+  console.warn(`[Enterprise Pipeline] Dispatching resource ${resourceId} to ${targetX},${targetY}`);
 };
 
 export function useResourceEngine() {
