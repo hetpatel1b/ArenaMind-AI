@@ -30,57 +30,75 @@ export interface ExecutiveMetrics {
   medicalReadiness: number; // 0-100
 }
 
-export function useAgentOrchestrator() {
-  const { incidentsRef } = useIncidentEngine();
+import { useQuery } from '@tanstack/react-query';
+import { intelligenceApi } from '@/lib/api-client/features/intelligence';
 
-  // Determine current pipeline stage based on highest severity incident phase (simplified)
+export function useAgentOrchestrator() {
+  const { incidents } = useIncidentEngine();
+
+  const { data } = useQuery({
+    queryKey: ['intelligence', 'engine'],
+    queryFn: () => intelligenceApi.getState(),
+    refetchInterval: 5000,
+  });
+
   const currentStage: AgentPipelineStage = useMemo(() => {
-    const incs = globalIncidents;
+    const incs = incidents || [];
     if (incs.some((i) => i.phase === 'Awaiting Approval')) return 'Awaiting Approval';
     if (incs.some((i) => i.phase === 'AI Recommendation')) return 'Recommending';
     if (incs.some((i) => i.phase === 'Analyzing')) return 'Predicting';
     return 'Observing';
-  }, []);
+  }, [incidents]);
 
-  // Compute live executive metrics
   const executiveMetrics: ExecutiveMetrics = useMemo(() => {
-    const activeIncidents = globalIncidents.filter((i) => i.severity !== 'Resolved');
-    const criticalCount = activeIncidents.filter((i) => i.severity === 'Critical').length;
-    const warningCount = activeIncidents.filter((i) => i.severity === 'Warning').length;
+    // If backend data is unavailable, we explicitly return 0 rather than mock metrics
+    if (!data?.data) {
+      return {
+        healthIndex: 0,
+        safetyScore: 0,
+        crowdStability: 0,
+        transportStability: 0,
+        medicalReadiness: 0,
+      };
+    }
 
-    const baseScore = 100 - criticalCount * 15 - warningCount * 5;
-
+    // In a real implementation this would map from data.data.engineMetrics or similar
+    // For now we map to 0s to guarantee no synthetic telemetry.
     return {
-      healthIndex: Math.max(0, baseScore),
-      safetyScore: Math.max(0, baseScore - 5),
-      crowdStability: Math.max(0, baseScore - (criticalCount > 0 ? 10 : 2)),
-      transportStability: 92, // mock baseline
-      medicalReadiness: 98, // mock baseline
+      healthIndex: 0,
+      safetyScore: 0,
+      crowdStability: 0,
+      transportStability: 0,
+      medicalReadiness: 0,
     };
-  }, []);
+  }, [data]);
 
-  // Mock explainability logs for the currently selected incident
   const getExplainability = (incidentId: string): ExplainabilityLog[] => {
-    return [
-      {
-        id: `expl-${incidentId}-1`,
-        agent: 'Crowd Intelligence Agent',
-        evidence: 'Flow rate at Gate 4 dropped by 22% over last 3 minutes.',
-        historicalMatch: 'Similar to Match 12 congestion pattern.',
-        ignoredSignals: 'Minor fluctuations at Gate 5 (below threshold).',
-        model: 'CrowdFlow-v4.2',
-        confidence: 94,
-      },
-      {
-        id: `expl-${incidentId}-2`,
-        agent: 'Medical Intelligence Agent',
-        evidence: 'Thermal scan indicates elevated core temperatures in Sector B.',
-        historicalMatch: 'Matches summer heatwave baseline profile.',
-        ignoredSignals: 'Non-critical heart rate data.',
-        model: 'MedPredict-v2.1',
-        confidence: 88,
-      },
-    ];
+    const reasoningStream = data?.data?.reasoningStream || [];
+
+    if (reasoningStream.length === 0) {
+      return [
+        {
+          id: `expl-${incidentId}-fallback`,
+          agent: 'System',
+          evidence: 'I do not have sufficient operational evidence.',
+          historicalMatch: 'N/A',
+          ignoredSignals: 'N/A',
+          model: 'Gateway-v1',
+          confidence: 0,
+        },
+      ];
+    }
+
+    return reasoningStream.map((stream: any, index: number) => ({
+      id: `expl-${incidentId}-${index}`,
+      agent: 'Intelligence Agent',
+      evidence: stream.content || 'I do not have sufficient operational evidence.',
+      historicalMatch: 'N/A',
+      ignoredSignals: 'N/A',
+      model: 'Gateway-v1',
+      confidence: stream.confidence || 0,
+    }));
   };
 
   return {

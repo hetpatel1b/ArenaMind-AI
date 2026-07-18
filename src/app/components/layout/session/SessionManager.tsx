@@ -47,13 +47,22 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
     return () => clearInterval(checkIdle);
   }, [session.locked, session.lastActive, lockWorkspace]);
 
-  // Heartbeat & Latency simulation
+  // Heartbeat & Latency measurement
   useEffect(() => {
-    const heartbeat = setInterval(() => {
+    const heartbeat = setInterval(async () => {
       if (!session.locked) {
-        // Simulate a network ping
-        const ping = Math.floor(Math.random() * 20) + 5;
-        setLatency(ping);
+        try {
+          const start = performance.now();
+          const res = await fetch('/api/v1/health');
+          if (res.ok) {
+            const end = performance.now();
+            setLatency(Math.round(end - start));
+          } else {
+            setLatency(0); // 0 or a designated error state
+          }
+        } catch (e) {
+          setLatency(0);
+        }
       }
     }, HEARTBEAT_INTERVAL_MS);
     return () => clearInterval(heartbeat);

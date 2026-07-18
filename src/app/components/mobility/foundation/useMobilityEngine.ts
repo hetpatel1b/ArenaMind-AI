@@ -17,18 +17,34 @@ export function useMobilityEngine() {
     sparkline: [],
   };
 
+  const snapshots = data?.data || [];
+
+  // Safely map paginated DB snapshots to the composite object the UI expects.
+  const metroSnapshot = snapshots.find((s: any) => s.transitMode === 'metro');
+  const busSnapshot = snapshots.find((s: any) => s.transitMode === 'bus');
+  const carSnapshot = snapshots.find((s: any) => s.transitMode === 'car');
+
+  const createSidebarEntry = (snapshot: any) => ({
+    status: snapshot?.status || 'OFFLINE',
+    progress: snapshot ? 100 : 0,
+    trend: 'neutral',
+    capacity: snapshot?.passengerCount || 0,
+    health: snapshot ? 100 - snapshot.delayMinutes : 0,
+    sparkline: [],
+  });
+
   return {
-    metrics: data?.metrics || {
-      metroHealth: 0,
-      busCapacity: 0,
-      parkingOccupancy: 0,
-      trafficLoad: 0,
-      emergencyRoutes: 'UNKNOWN',
-      vipRoutes: 'UNKNOWN',
+    metrics: {
+      metroHealth: metroSnapshot ? 100 - metroSnapshot.delayMinutes : 0,
+      busCapacity: busSnapshot?.passengerCount || 0,
+      parkingOccupancy: carSnapshot?.passengerCount || 0,
+      trafficLoad: carSnapshot ? carSnapshot.delayMinutes * 10 : 0,
+      emergencyRoutes: snapshots.length > 0 ? 'NOMINAL' : 'UNKNOWN',
+      vipRoutes: snapshots.length > 0 ? 'NOMINAL' : 'UNKNOWN',
       averageETA: 'N/A',
       congestionIndex: 0,
       predictedDelay: '0m',
-      networkAvailability: 0,
+      networkAvailability: snapshots.length > 0 ? 100 : 0,
       fleetReadiness: 0,
       signalHealth: 0,
       activeRoutes: 0,
@@ -36,28 +52,28 @@ export function useMobilityEngine() {
       transitCapacity: 0,
       carbonOffset: 0,
     },
-    activeAlerts: data?.alerts || [],
-    copilotReasoning: data?.reasoningStream || [],
-    sidebarData: data?.sidebarData || {
-      metro: defaultHealth,
-      bus: defaultHealth,
-      road: defaultHealth,
-      parking: defaultHealth,
+    activeAlerts: [],
+    copilotReasoning: [],
+    sidebarData: {
+      metro: createSidebarEntry(metroSnapshot),
+      bus: createSidebarEntry(busSnapshot),
+      road: createSidebarEntry(carSnapshot),
+      parking: createSidebarEntry(carSnapshot),
       rideShare: defaultHealth,
       emergency: defaultHealth,
       accessibility: defaultHealth,
     },
-    predictions: data?.predictions || {},
-    missions: data?.missions || [],
-    dispatchResources: data?.dispatchResources || [],
-    whatIfScenarios: data?.whatIfScenarios || [],
-    transitLines: data?.transitLines || [],
-    parkingLots: data?.parkingLots || [],
-    routes: data?.routes || [],
-    fleetUnits: data?.fleetUnits || [],
-    operationalMemory: data?.operationalMemory || [],
-    operators: data?.operators || [],
-    vehicles: data?.vehicles || [],
-    tick: data?.tick || 0,
+    predictions: {},
+    missions: [],
+    dispatchResources: [],
+    whatIfScenarios: [],
+    transitLines: [],
+    parkingLots: [],
+    routes: [],
+    fleetUnits: [],
+    operationalMemory: [],
+    operators: [],
+    vehicles: [],
+    tick: 0,
   };
 }

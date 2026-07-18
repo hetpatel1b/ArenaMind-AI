@@ -53,129 +53,34 @@ export interface Incident {
   radius: number; // impact radius
 }
 
-import { DemoState } from '@/lib/demo/DemoState';
-import { useDemoState } from '@/lib/demo/useDemoState';
+import { useQuery } from '@tanstack/react-query';
+import { incidentApi } from '@/lib/api-client/features/incident';
+
 import { useMemo } from 'react';
 
 export function useIncidentEngine() {
-  const demoState = useDemoState();
+  const matchId = '123e4567-e89b-12d3-a456-426614174000'; // Default match id for now
 
-  // Re-map globalIncidents dynamically when demoState changes
-  const mappedIncidents: Incident[] = useMemo(
-    () =>
-      demoState.incidents.map((inc, i) => ({
-        id: inc.id,
-        category:
-          inc.type === 'Medical'
-            ? 'Medical Emergency'
-            : inc.type === 'Security'
-              ? 'Security Threat'
-              : inc.type === 'Crowd Control'
-                ? 'Crowd Congestion'
-                : 'Lost Child',
-        phase: inc.status === 'resolved' ? 'Resolved' : 'Analyzing',
-        severity:
-          inc.severity === 'critical'
-            ? 'Critical'
-            : inc.severity === 'high'
-              ? 'Warning'
-              : 'Information',
-        x: i === 0 ? 400 : i === 1 ? 750 : 200,
-        y: i === 0 ? 200 : i === 1 ? 600 : 300,
-        zone: inc.location,
-        confidence: 95,
-        detectedAt: new Date(),
-        assignedResources: inc.status === 'resolved' ? ['Med-1'] : [],
-        radius: inc.type === 'Medical' ? 80 : 40,
-        recommendations:
-          inc.status === 'resolved'
-            ? []
-            : [
-                {
-                  id: `REC-${inc.id}-1`,
-                  action: demoState.copilot.recommendations[0] || 'Dispatch Team',
-                  confidence: 94,
-                  impact: 'High',
-                  eta: '3m',
-                  requiresApproval: true,
-                },
-              ],
-      })),
-    [demoState.incidents, demoState.copilot.recommendations]
-  );
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['incidents', matchId],
+    queryFn: () => incidentApi.getState({ matchId }),
+    refetchInterval: 5000,
+  });
 
-  const incidentsRef = useRef<Incident[]>(mappedIncidents);
+  // Map backend response or fallback to empty array safely using useMemo
+  const incidents = useMemo(() => {
+    return Array.isArray(data?.data) ? data.data : [];
+  }, [data]);
 
-  // Keep ref up to date for the simulation loop
-  useEffect(() => {
-    incidentsRef.current = mappedIncidents;
-  }, [mappedIncidents]);
+  const incidentsRef = useRef<Incident[]>(incidents);
 
   useEffect(() => {
-    let animationId: number;
-    let lastTick = performance.now();
-    let tickCount = 0;
+    incidentsRef.current = incidents;
+  }, [incidents]);
 
-    const simulate = (time: number) => {
-      // Deterministic loop for simulation
-      if (time - lastTick > 1000) {
-        lastTick = time;
-        tickCount++;
-
-        incidentsRef.current.forEach((inc) => {
-          // Deterministic phase progression every 5 seconds for active incidents
-          if (inc.phase !== 'Resolved' && tickCount % 5 === 0) {
-            if (inc.phase === 'Detected') inc.phase = 'Verified';
-            else if (inc.phase === 'Verified') inc.phase = 'Analyzing';
-            else if (inc.phase === 'Analyzing') inc.phase = 'AI Recommendation';
-            else if (inc.phase === 'AI Recommendation') inc.phase = 'Awaiting Approval';
-          }
-        });
-      }
-
-      animationId = requestAnimationFrame(simulate);
-    };
-
-    animationId = requestAnimationFrame(simulate);
-    return () => cancelAnimationFrame(animationId);
-  }, []);
-
-  return { incidentsRef };
+  return { incidents, incidentsRef, isLoading, isError };
 }
 
-// Keep export for non-React files that might import it, although it won't be perfectly reactive there.
-// Components should use the hook.
-export const globalIncidents = DemoState.incidents.map((inc, i) => ({
-  id: inc.id,
-  category:
-    inc.type === 'Medical'
-      ? 'Medical Emergency'
-      : inc.type === 'Security'
-        ? 'Security Threat'
-        : inc.type === 'Crowd Control'
-          ? 'Crowd Congestion'
-          : 'Lost Child',
-  phase: inc.status === 'resolved' ? 'Resolved' : 'Analyzing',
-  severity:
-    inc.severity === 'critical' ? 'Critical' : inc.severity === 'high' ? 'Warning' : 'Information',
-  x: i === 0 ? 400 : i === 1 ? 750 : 200,
-  y: i === 0 ? 200 : i === 1 ? 600 : 300,
-  zone: inc.location,
-  confidence: 95,
-  detectedAt: new Date(),
-  assignedResources: inc.status === 'resolved' ? ['Med-1'] : [],
-  radius: inc.type === 'Medical' ? 80 : 40,
-  recommendations:
-    inc.status === 'resolved'
-      ? []
-      : [
-          {
-            id: `REC-${inc.id}-1`,
-            action: DemoState.copilot.recommendations[0] || 'Dispatch Team',
-            confidence: 94,
-            impact: 'High',
-            eta: '3m',
-            requiresApproval: true,
-          },
-        ],
-}));
+// Fallback for non-React files that previously imported this.
+// They should be refactored to use the hook, but this prevents crashes.
+export const globalIncidents: Incident[] = [];

@@ -22,38 +22,9 @@ export function TrafficLayer() {
     let animationFrameId: number;
     let time = 0;
 
-    const roads: RoadSegment[] = [
-      // Highway running top to bottom on the right
-      {
-        id: 'R1',
-        points: [
-          { x: 1000, y: -100 },
-          { x: 950, y: 400 },
-          { x: 1000, y: 900 },
-        ],
-        status: 'CONGESTED',
-      },
-      // Road leading to venue
-      {
-        id: 'R2',
-        points: [
-          { x: 200, y: -100 },
-          { x: 300, y: 200 },
-          { x: 500, y: 300 },
-        ],
-        status: 'SLOW',
-      },
-      // City center grid
-      {
-        id: 'R3',
-        points: [
-          { x: 700, y: 200 },
-          { x: 900, y: 200 },
-          { x: 900, y: 400 },
-        ],
-        status: 'NOMINAL',
-      },
-    ];
+    // In production, road geometry and live traffic statuses must be queried from
+    // the enterprise mobility backend. Hardcoded mock segments are not permitted.
+    const roads: RoadSegment[] = [];
 
     const render = () => {
       if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {

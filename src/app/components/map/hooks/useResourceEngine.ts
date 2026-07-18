@@ -41,19 +41,26 @@ export const dispatchResource = (resourceId: string, targetX: number, targetY: n
 export function useResourceEngine() {
   const resourcesRef = useRef<OperationalResource[]>(globalResources);
 
-  const { data } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['workforce', 'locations'],
-    queryFn: workforceApi.getState,
+    queryFn: () => workforceApi.getState(),
     refetchInterval: 5000,
   });
 
   useEffect(() => {
-    if (data?.resources && Array.isArray(data.resources)) {
+    // Safely update resources if valid data returns, else default to empty
+    if (data?.data && Array.isArray(data.data)) {
+      resourcesRef.current = data.data;
+    } else if (data?.resources && Array.isArray(data.resources)) {
       resourcesRef.current = data.resources;
+    } else {
+      resourcesRef.current = [];
     }
   }, [data]);
 
   return {
     resourcesRef,
+    isLoading,
+    isError,
   };
 }
