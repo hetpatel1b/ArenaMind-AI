@@ -8,6 +8,38 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AuthProvider } from './providers/auth-provider';
 import { ExecutiveDemoPanel } from '@/app/components/demo/ExecutiveDemoPanel';
 
+// Suppress transient "Failed to fetch" errors from third-party auth libraries
+// (Supabase token refresh, next-auth session polling) that surface as unhandled
+// promise rejections in the Next.js dev error overlay.
+// Must be at module scope so it installs before any child effects fire.
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    const err = event.reason;
+    const message = err instanceof Error ? err.message : String(err ?? '');
+    if (message.includes('Failed to fetch')) {
+      event.preventDefault();
+    }
+  });
+
+  // Suppress Next.js error overlay for Supabase's AuthRetryableFetchError
+  const originalConsoleError = console.error;
+  console.error = (...args: Parameters<typeof console.error>) => {
+    const isAuthRetryError = args.some(
+      (arg) =>
+        (typeof arg === 'string' && arg.includes('AuthRetryableFetchError')) ||
+        (arg instanceof Error && arg.name === 'AuthRetryableFetchError') ||
+        (arg &&
+          typeof arg === 'object' &&
+          'name' in arg &&
+          (arg as { name?: string }).name === 'AuthRetryableFetchError')
+    );
+    if (isAuthRetryError) {
+      return;
+    }
+    originalConsoleError(...args);
+  };
+}
+
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -24,7 +56,7 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <SessionProvider>
+    <SessionProvider refetchOnWindowFocus={false} refetchInterval={300}>
       <AuthProvider initialSession={null}>
         <QueryClientProvider client={queryClient}>
           {children}

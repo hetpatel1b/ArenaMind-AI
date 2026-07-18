@@ -216,7 +216,7 @@ function OverviewTab({ engine }: { engine: MobilityEngineState }) {
         <MetricCard label="Travel Time" value={engine.metrics.averageETA} color="#3B82F6" />
         <MetricCard
           label="Congestion"
-          value={`${engine.metrics.congestionIndex.toFixed(1)}/10`}
+          value={`${(engine.metrics.congestionIndex ?? 0).toFixed(1)}/10`}
           color="#F59E0B"
         />
         <MetricCard

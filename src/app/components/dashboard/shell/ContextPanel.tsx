@@ -8,22 +8,29 @@ export function ContextPanel() {
   const [lastIncidentEvent, setLastIncidentEvent] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel('system_incidents')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'incidents' },
-        (payload) => {
-          setIsOpen(true);
-          setLastIncidentEvent(`New Incident: ${(payload.new as any).title}`);
-        }
-      )
-      .subscribe();
+    let channel: ReturnType<ReturnType<typeof createClient>['channel']> | null = null;
+    try {
+      const supabase = createClient();
+      channel = supabase
+        .channel('system_incidents')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'incidents' },
+          (payload) => {
+            setIsOpen(true);
+            setLastIncidentEvent(`New Incident: ${(payload.new as any).title}`);
+          }
+        )
+        .subscribe(() => {
+          // Silently handle subscription status changes
+        });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        if (channel) supabase.removeChannel(channel);
+      };
+    } catch {
+      // Supabase connection failed — silently ignore
+    }
   }, []);
 
   if (!isOpen) {

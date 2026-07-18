@@ -126,23 +126,23 @@ export const MobilityMetricRibbon = memo(function MobilityMetricRibbon({
     >
       <MetricCard
         label="Metro Health"
-        value={`${metrics.metroHealth}%`}
-        status={metrics.metroHealth > 90 ? 'good' : 'warning'}
+        value={`${metrics.metroHealth ?? 0}%`}
+        status={(metrics.metroHealth ?? 0) > 90 ? 'good' : 'warning'}
       />
       <MetricCard
         label="Bus Capacity"
-        value={`${metrics.busCapacity}%`}
-        status={metrics.busCapacity > 80 ? 'warning' : 'good'}
+        value={`${metrics.busCapacity ?? 0}%`}
+        status={(metrics.busCapacity ?? 0) > 80 ? 'warning' : 'good'}
       />
       <MetricCard
         label="Parking Occup."
-        value={`${metrics.parkingOccupancy}%`}
-        status={metrics.parkingOccupancy > 90 ? 'critical' : 'good'}
+        value={`${metrics.parkingOccupancy ?? 0}%`}
+        status={(metrics.parkingOccupancy ?? 0) > 90 ? 'critical' : 'good'}
       />
       <MetricCard
         label="Traffic Load"
-        value={`${metrics.trafficLoad}%`}
-        status={metrics.trafficLoad > 70 ? 'warning' : 'good'}
+        value={`${metrics.trafficLoad ?? 0}%`}
+        status={(metrics.trafficLoad ?? 0) > 70 ? 'warning' : 'good'}
       />
       <MetricCard
         label="Emerg. Routes"
@@ -157,24 +157,24 @@ export const MobilityMetricRibbon = memo(function MobilityMetricRibbon({
       <MetricCard label="Avg ETA" value={metrics.averageETA} />
       <MetricCard
         label="Congestion Idx"
-        value={metrics.congestionIndex.toFixed(1)}
-        status={metrics.congestionIndex > 7 ? 'warning' : 'good'}
+        value={(metrics.congestionIndex ?? 0).toFixed(1)}
+        status={(metrics.congestionIndex ?? 0) > 7 ? 'warning' : 'good'}
       />
       <MetricCard label="Pred. Delay" value={metrics.predictedDelay} />
       <MetricCard
         label="Network Avail."
-        value={`${metrics.networkAvailability}%`}
-        status={metrics.networkAvailability > 98 ? 'good' : 'critical'}
+        value={`${metrics.networkAvailability ?? 0}%`}
+        status={(metrics.networkAvailability ?? 0) > 98 ? 'good' : 'critical'}
       />
       <MetricCard
         label="Fleet Ready"
-        value={`${metrics.fleetReadiness}%`}
-        status={metrics.fleetReadiness > 85 ? 'good' : 'warning'}
+        value={`${metrics.fleetReadiness ?? 0}%`}
+        status={(metrics.fleetReadiness ?? 0) > 85 ? 'good' : 'warning'}
       />
       <MetricCard
         label="Signal Health"
-        value={`${metrics.signalHealth}%`}
-        status={metrics.signalHealth > 95 ? 'good' : 'critical'}
+        value={`${metrics.signalHealth ?? 0}%`}
+        status={(metrics.signalHealth ?? 0) > 95 ? 'good' : 'critical'}
       />
     </div>
   );

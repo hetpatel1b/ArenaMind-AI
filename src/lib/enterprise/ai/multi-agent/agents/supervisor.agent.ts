@@ -38,19 +38,23 @@ CONSENSUS ENGINE REPORT:
 - Dominant Recommendation: ${consensusResult.dominantRecommendation}
 - Agent Votes: ${JSON.stringify(consensusResult.agentVotes)}
 
-You must take the Consensus Engine Report into account when framing the final response. If the Conflict Score is high, clearly explain the tradeoffs in your reasoning.
-
-
 === SHARED TELEMETRY CONTEXT ===
 ${JSON.stringify(contextData)}
 ================================
 
-CRITICAL INSTRUCTION: You MUST return a JSON object matching this schema. You MUST provide an "observation" and "recommendation" string alongside the executiveSummary.
+CRITICAL INSTRUCTIONS:
+1. You are a conversational AI Copilot. You MUST answer the user's specific prompt directly and conversationally.
+2. Put your conversational response directed at the user inside the "observation" field. This is what the user reads first.
+3. If the user asks a general question (e.g. "hi", "how are you"), reply naturally in "observation" and leave "recommendation" empty or general.
+4. If the user asks an operational question, integrate the Consensus Engine Report and Telemetry Context into your "observation" and "recommendation".
+5. You MUST return ONLY a JSON object matching the exact schema below.
+
+SCHEMA:
 {
-  "observation": "string",
+  "observation": "string (Your direct, conversational response to the user's prompt)",
   "evidence": ["string"],
-  "reasoning": "string",
-  "recommendation": "string",
+  "reasoning": "string (Your internal reasoning for this response)",
+  "recommendation": "string (Specific operational recommendation, if applicable)",
   "confidence": 0-100,
   "missingInformation": ["string"],
   "executiveSummary": {

@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
   },
+  logging: {
+    // Disable browser console forwarding to terminal to suppress transient
+    // "Failed to fetch" errors from Supabase/next-auth during development
+    browserToTerminal: false,
+  },
   serverExternalPackages: ['@prisma/client', 'bcrypt'],
   async headers() {
     return [

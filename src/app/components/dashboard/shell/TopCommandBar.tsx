@@ -22,20 +22,27 @@ export function TopCommandBar() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel('system_notifications')
-      .on('broadcast', { event: 'email_sent' }, (payload) => {
-        setUnreadCount((prev) => prev + 1);
-      })
-      .on('broadcast', { event: 'sms_sent' }, (payload) => {
-        setUnreadCount((prev) => prev + 1);
-      })
-      .subscribe();
+    let channel: ReturnType<ReturnType<typeof createClient>['channel']> | null = null;
+    try {
+      const supabase = createClient();
+      channel = supabase
+        .channel('system_notifications')
+        .on('broadcast', { event: 'email_sent' }, (payload) => {
+          setUnreadCount((prev) => prev + 1);
+        })
+        .on('broadcast', { event: 'sms_sent' }, (payload) => {
+          setUnreadCount((prev) => prev + 1);
+        })
+        .subscribe(() => {
+          // Silently handle subscription status changes
+        });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        if (channel) supabase.removeChannel(channel);
+      };
+    } catch {
+      // Supabase connection failed — silently ignore
+    }
   }, []);
 
   return (

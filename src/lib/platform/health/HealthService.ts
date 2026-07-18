@@ -56,9 +56,10 @@ export class HealthService {
 
     // Determine overall status
     let overallStatus: HealthStatus = 'up';
-    if (dbResult.status === 'down' || redisResult.status === 'down') {
+    if (dbResult.status === 'down') {
       overallStatus = 'down';
     } else if (
+      redisResult.status === 'down' ||
       storageResult.status === 'down' ||
       grokStatus === 'down' ||
       geminiStatus === 'down'

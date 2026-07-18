@@ -47,7 +47,13 @@ export const apiClient = async <T = any>(
     },
   };
 
-  const response = await fetch(url, config);
+  let response: Response;
+  try {
+    response = await fetch(url, config);
+  } catch (err) {
+    // Network-level errors (e.g. "Failed to fetch" when the server is unreachable)
+    throw new ApiError(0, err instanceof Error ? err.message : 'Network request failed');
+  }
 
   if (!response.ok) {
     let errorData;
