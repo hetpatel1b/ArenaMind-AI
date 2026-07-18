@@ -30,6 +30,7 @@ RUN pnpm prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co"
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY="dummy"
+ENV DATABASE_URL="postgres://dummy:dummy@localhost:5432/dummy"
 
 RUN pnpm run build
 
