@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { mobilityApi } from '@/lib/api-client/features/mobility';
 import { useEffect } from 'react';
+import type { TrafficStatus, MobilityAlert, CopilotReasoningStep } from './MobilityTypes';
 export function useMobilityEngine() {
   const { data } = useQuery({
     queryKey: ['mobility', 'engine'],
@@ -9,12 +10,12 @@ export function useMobilityEngine() {
   });
 
   const defaultHealth = {
-    status: 'OFFLINE',
+    status: 'OFFLINE' as TrafficStatus,
     progress: 0,
-    trend: 'neutral',
+    trend: 'neutral' as 'up' | 'down' | 'neutral',
     capacity: 0,
     health: 0,
-    sparkline: [],
+    sparkline: [] as number[],
   };
 
   const snapshots = data?.data || [];
@@ -25,12 +26,12 @@ export function useMobilityEngine() {
   const carSnapshot = snapshots.find((s: any) => s.transitMode === 'car');
 
   const createSidebarEntry = (snapshot: any) => ({
-    status: snapshot?.status || 'OFFLINE',
+    status: (snapshot?.status || 'OFFLINE') as TrafficStatus,
     progress: snapshot ? 100 : 0,
-    trend: 'neutral',
+    trend: 'neutral' as 'up' | 'down' | 'neutral',
     capacity: snapshot?.passengerCount || 0,
     health: snapshot ? 100 - snapshot.delayMinutes : 0,
-    sparkline: [],
+    sparkline: [] as number[],
   });
 
   return {
@@ -39,8 +40,8 @@ export function useMobilityEngine() {
       busCapacity: busSnapshot?.passengerCount || 0,
       parkingOccupancy: carSnapshot?.passengerCount || 0,
       trafficLoad: carSnapshot ? carSnapshot.delayMinutes * 10 : 0,
-      emergencyRoutes: snapshots.length > 0 ? 'NOMINAL' : 'UNKNOWN',
-      vipRoutes: snapshots.length > 0 ? 'NOMINAL' : 'UNKNOWN',
+      emergencyRoutes: (snapshots.length > 0 ? 'CLEAR' : 'IMPACTED') as 'CLEAR' | 'IMPACTED',
+      vipRoutes: (snapshots.length > 0 ? 'CLEAR' : 'IMPACTED') as 'CLEAR' | 'IMPACTED',
       averageETA: 'N/A',
       congestionIndex: 0,
       predictedDelay: '0m',
@@ -52,8 +53,8 @@ export function useMobilityEngine() {
       transitCapacity: 0,
       carbonOffset: 0,
     },
-    activeAlerts: [],
-    copilotReasoning: [],
+    activeAlerts: [] as MobilityAlert[],
+    copilotReasoning: [] as CopilotReasoningStep[],
     sidebarData: {
       metro: createSidebarEntry(metroSnapshot),
       bus: createSidebarEntry(busSnapshot),
