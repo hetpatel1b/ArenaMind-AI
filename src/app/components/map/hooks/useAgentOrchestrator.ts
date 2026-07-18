@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useIncidentEngine, globalIncidents } from './useIncidentEngine';
+import { useIncidentEngine, globalIncidents, type Incident } from './useIncidentEngine';
 
 export type AgentPipelineStage =
   | 'Observing'
@@ -43,7 +43,7 @@ export function useAgentOrchestrator() {
   });
 
   const currentStage: AgentPipelineStage = useMemo(() => {
-    const incs = incidents || [];
+    const incs: Incident[] = incidents || [];
     if (incs.some((i) => i.phase === 'Awaiting Approval')) return 'Awaiting Approval';
     if (incs.some((i) => i.phase === 'AI Recommendation')) return 'Recommending';
     if (incs.some((i) => i.phase === 'Analyzing')) return 'Predicting';
