@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { mobilityApi } from '@/lib/api-client/features/mobility';
 import { useEffect } from 'react';
-import type { TrafficStatus, MobilityAlert, CopilotReasoningStep } from './MobilityTypes';
+import type {
+  TrafficStatus,
+  MobilityAlert,
+  CopilotReasoningStep,
+  MobilityEngineState,
+} from './MobilityTypes';
 export function useMobilityEngine() {
   const { data } = useQuery({
     queryKey: ['mobility', 'engine'],
@@ -64,7 +69,7 @@ export function useMobilityEngine() {
       emergency: defaultHealth,
       accessibility: defaultHealth,
     },
-    predictions: {},
+    predictions: {} as MobilityEngineState['predictions'],
     missions: [],
     dispatchResources: [],
     whatIfScenarios: [],
