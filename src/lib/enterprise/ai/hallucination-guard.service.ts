@@ -67,6 +67,32 @@ export class HallucinationGuardService {
 
     return response;
   }
+
+  /**
+   * Detects basic prompt injection vectors in user input.
+   */
+  detectPromptInjection(userPrompt: string): void {
+    if (!userPrompt) return;
+    const lower = userPrompt.toLowerCase();
+
+    const injectionVectors = [
+      'ignore previous instructions',
+      'ignore all previous instructions',
+      'forget previous instructions',
+      'you are now',
+      'system prompt',
+      'system instruction',
+      'say the following',
+      'print the following',
+      'bypass security',
+    ];
+
+    for (const vector of injectionVectors) {
+      if (lower.includes(vector)) {
+        throw new Error('Prompt rejected: Security policy violation (Injection Detected).');
+      }
+    }
+  }
 }
 
 export const aiHallucinationGuardService = new HallucinationGuardService();

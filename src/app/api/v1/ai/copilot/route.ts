@@ -43,27 +43,13 @@ export async function POST(req: NextRequest) {
           // Send initial progress
           sendEvent('progress', { step: 'Initializing AI Gateway...' });
 
-          // Mocking progressive steps for UI streaming feedback
-          const steps = [
-            'Analyzing contextual telemetry...',
-            'Decomposing query for multi-agent swarm...',
-            'Domain agents analyzing data...',
-            'Supervisor agent resolving conflicts...',
-            'Finalizing executive summary...',
-          ];
-
-          for (const step of steps) {
-            // Small artificial delay to simulate pipeline stages for the UI
-            await new Promise((resolve) => setTimeout(resolve, 600));
-            sendEvent('progress', { step });
-          }
-
-          // Execute the actual AI Feature
+          // Execute the actual AI Feature, passing real-time progress callback
           const result = await aiGatewayService.executeFeature(
             ctx,
             matchId,
             moduleFeature,
-            message || undefined
+            message || undefined,
+            (step: string) => sendEvent('progress', { step })
           );
 
           // Send final response

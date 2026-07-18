@@ -1,13 +1,13 @@
 import { createHash } from 'crypto';
 
-interface CacheEntry {
-  data: any;
-  timestamp: number;
-}
+import Redis from 'ioredis';
+
+// Check if REDIS_URL exists, if not we gracefully fallback or fail,
+// but for enterprise audit we initialize the real client.
+const redisClient = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : null;
 
 export class ResponseCacheService {
-  private memoryCache = new Map<string, CacheEntry>();
-  private readonly defaultTTL = 1000 * 60 * 60; // 1 hour
+  private readonly defaultTTL = 60 * 60; // 1 hour in seconds
 
   private generateFingerprint(prompt: string, contextData: any): string {
     const dataString =
@@ -25,24 +25,21 @@ export class ResponseCacheService {
     matchId: string,
     prompt: string,
     contextData: any,
-    ttlMs: number = this.defaultTTL
+    ttlMs: number = this.defaultTTL * 1000
   ): Promise<any | null> {
     const fingerprint = this.generateFingerprint(prompt, contextData);
     const key = this.buildCacheKey(orgId || 'global', matchId, fingerprint);
 
-    // Memory Check
-    const entry = this.memoryCache.get(key);
-    if (entry) {
-      if (Date.now() - entry.timestamp < ttlMs) {
-        return entry.data;
-      } else {
-        this.memoryCache.delete(key);
+    if (redisClient) {
+      try {
+        const cached = await redisClient.get(key);
+        if (cached) {
+          return JSON.parse(cached);
+        }
+      } catch (err) {
+        console.error('[RedisCache] Error retrieving cache:', err);
       }
     }
-
-    // Redis placeholder check could go here for production
-    // const redisData = await redis.get(key);
-    // if (redisData) { ... }
 
     return null;
   }
@@ -67,30 +64,36 @@ export class ResponseCacheService {
     const fingerprint = this.generateFingerprint(prompt, contextData);
     const key = this.buildCacheKey(orgId || 'global', matchId, fingerprint);
 
-    this.memoryCache.set(key, {
-      data,
-      timestamp: Date.now(),
-    });
-
-    // Redis placeholder set
-    // await redis.setex(key, ttlSeconds, JSON.stringify(data));
-  }
-
-  async invalidateOrg(orgId: string): Promise<void> {
-    const prefix = `ai-cache:${orgId}:`;
-    for (const key of this.memoryCache.keys()) {
-      if (key.startsWith(prefix)) {
-        this.memoryCache.delete(key);
+    if (redisClient) {
+      try {
+        await redisClient.setex(key, this.defaultTTL, JSON.stringify(data));
+      } catch (err) {
+        console.error('[RedisCache] Error setting cache:', err);
       }
     }
   }
 
-  async invalidateMatch(orgId: string, matchId: string): Promise<void> {
-    const prefix = `ai-cache:${orgId}:${matchId}:`;
-    for (const key of this.memoryCache.keys()) {
-      if (key.startsWith(prefix)) {
-        this.memoryCache.delete(key);
+  async invalidateOrg(orgId: string): Promise<void> {
+    if (!redisClient) return;
+    try {
+      const keys = await redisClient.keys(`ai-cache:${orgId}:*`);
+      if (keys.length > 0) {
+        await redisClient.del(...keys);
       }
+    } catch (err) {
+      console.error('[RedisCache] Error invalidating org cache:', err);
+    }
+  }
+
+  async invalidateMatch(orgId: string, matchId: string): Promise<void> {
+    if (!redisClient) return;
+    try {
+      const keys = await redisClient.keys(`ai-cache:${orgId}:${matchId}:*`);
+      if (keys.length > 0) {
+        await redisClient.del(...keys);
+      }
+    } catch (err) {
+      console.error('[RedisCache] Error invalidating match cache:', err);
     }
   }
 }

@@ -19,15 +19,22 @@ export function AiMobilityBriefing({
 }: AiMobilityBriefingProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Determine global mobility status based on metro and parking
-  let globalStatus = 'Nominal';
-  let statusColor = 'var(--status-success)';
-  if (mobilityState.metro.capacity > 90 || mobilityState.parking.occupancy > 95) {
+  // Determine global mobility status based on actual API data
+  let globalStatus = 'Unknown';
+  let statusColor = 'var(--text-tertiary)';
+
+  if (mobilityState.metro.status === 'OFFLINE' || mobilityState.parking.status === 'OFFLINE') {
+    globalStatus = 'No operational data available';
+    statusColor = 'var(--text-tertiary)';
+  } else if (mobilityState.metro.capacity > 90 || mobilityState.parking.occupancy > 95) {
     globalStatus = 'Severe Congestion';
     statusColor = 'var(--status-critical)';
   } else if (mobilityState.metro.capacity > 70) {
     globalStatus = 'Elevated Load';
     statusColor = 'var(--status-warning)';
+  } else {
+    globalStatus = 'Nominal Flow';
+    statusColor = 'var(--status-success)';
   }
 
   const isCritical = globalStatus === 'Severe Congestion';
@@ -187,7 +194,7 @@ export function AiMobilityBriefing({
             <div
               style={{ fontSize: 'var(--text-sm)', color: 'var(--text-primary)', lineHeight: 1.4 }}
             >
-              Gridlock predicted at North Metro terminal within 15m.
+              System indicates critical load. Please review live feeds.
             </div>
           </div>
         )}

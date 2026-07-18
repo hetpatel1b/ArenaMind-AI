@@ -8,22 +8,29 @@ export function useMobilityEngine() {
     refetchInterval: 5000,
   });
 
-  const defaultHealth = { status: 'NOMINAL', progress: 100, trend: 'neutral', capacity: 100, health: 100, sparkline: [100, 100] };
+  const defaultHealth = {
+    status: 'OFFLINE',
+    progress: 0,
+    trend: 'neutral',
+    capacity: 0,
+    health: 0,
+    sparkline: [],
+  };
 
   return {
     metrics: data?.metrics || {
-      metroHealth: 100,
-      busCapacity: 100,
+      metroHealth: 0,
+      busCapacity: 0,
       parkingOccupancy: 0,
       trafficLoad: 0,
-      emergencyRoutes: 'CLEAR',
-      vipRoutes: 'CLEAR',
-      averageETA: '15m',
+      emergencyRoutes: 'UNKNOWN',
+      vipRoutes: 'UNKNOWN',
+      averageETA: 'N/A',
       congestionIndex: 0,
       predictedDelay: '0m',
-      networkAvailability: 100,
-      fleetReadiness: 100,
-      signalHealth: 100,
+      networkAvailability: 0,
+      fleetReadiness: 0,
+      signalHealth: 0,
       activeRoutes: 0,
       fleetStatus: 0,
       transitCapacity: 0,
@@ -40,11 +47,7 @@ export function useMobilityEngine() {
       emergency: defaultHealth,
       accessibility: defaultHealth,
     },
-    predictions: data?.predictions || {
-      m15: { id: 'm15', timeframe: '+15m', predictedCongestion: {}, confidence: 95, aiRecommendation: 'Nominal' },
-      m30: { id: 'm30', timeframe: '+30m', predictedCongestion: {}, confidence: 90, aiRecommendation: 'Nominal' },
-      m60: { id: 'm60', timeframe: '+60m', predictedCongestion: {}, confidence: 85, aiRecommendation: 'Nominal' }
-    },
+    predictions: data?.predictions || {},
     missions: data?.missions || [],
     dispatchResources: data?.dispatchResources || [],
     whatIfScenarios: data?.whatIfScenarios || [],

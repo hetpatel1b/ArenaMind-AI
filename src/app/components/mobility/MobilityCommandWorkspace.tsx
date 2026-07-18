@@ -29,6 +29,7 @@ export interface MobilityState {
   shuttles: { status: string; capacity: number; delay: number };
   parking: { status: string; occupancy: number; overflowActive: boolean };
   accessibility: { status: string; activeRequests: number; shuttleAvailability: number };
+  predictions?: Record<string, any>;
 }
 
 interface MobilityCommandWorkspaceProps {

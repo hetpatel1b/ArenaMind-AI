@@ -30,10 +30,13 @@ export class AIGatewayService {
     ctx: BusinessContext,
     matchId: string,
     feature: AIFeature,
-    userMessage?: string
+    userMessage?: string,
+    onProgress?: (msg: string) => void
   ): Promise<any> {
     const modelName = 'multi-agent-swarm';
     const start = Date.now();
+
+    if (onProgress) onProgress('Initializing AI Gateway...');
 
     // 1. Parallelize Context Retrieval
     const [rawContextData, memoryData, schemaConfig] = await Promise.all([
@@ -41,6 +44,8 @@ export class AIGatewayService {
       aiOperationalMemoryService.getHistoricalContext(ctx.organizationId, feature),
       promptRegistry.getPromptSchema(feature),
     ]);
+
+    if (onProgress) onProgress('Analyzing contextual telemetry...');
 
     // 2. Context Ranking
     const contextData = aiContextRankingService.rankContext(rawContextData);
@@ -68,6 +73,9 @@ export class AIGatewayService {
       throw new Error('Prompt rejected due to security policy violation.');
     }
 
+    // Prompt injection guard check could also go here
+    aiHallucinationGuardService.detectPromptInjection(userMessage || '');
+
     // 4. Cache Check
     const cachedResponse = await aiResponseCacheService.get(
       ctx.organizationId,
@@ -77,6 +85,7 @@ export class AIGatewayService {
     );
 
     if (cachedResponse) {
+      if (onProgress) onProgress('Cache hit, retrieving response...');
       await aiObservabilityService.logRequest({
         organizationId: ctx.organizationId,
         matchId,
@@ -112,11 +121,13 @@ export class AIGatewayService {
     }
 
     try {
+      if (onProgress) onProgress('Decomposing query for multi-agent swarm...');
       // 6. Multi-Agent Orchestration
       const orchestratorResponse = await aiAgentOrchestratorService.orchestrate(
         userMessage || `Analyze the current state and provide ${feature}.`,
         feature,
-        contextData
+        contextData,
+        onProgress
       );
 
       await conversationService.addMessage(

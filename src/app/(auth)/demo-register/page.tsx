@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { registerOperator } from './actions';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
@@ -23,8 +23,6 @@ export default function DemoRegisterPage() {
 
   // Caps lock detection
   const [capsLockActive, setCapsLockActive] = useState(false);
-
-  const supabase = createClient();
 
   const checkPasswordStrength = (pass: string) => {
     let strength = 0;
@@ -59,37 +57,16 @@ export default function DemoRegisterPage() {
     }
 
     try {
-      // 1. Create the Auth User in Supabase
-      const { error: signUpError, data: authData } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: name,
-            organization: organization,
-            role: 'operations_manager_demo',
-          },
-        },
-      });
+      // 1. Create the Auth User in Supabase & Provision via Server Action
+      const result = await registerOperator({ email, password, name, organization });
 
-      if (signUpError) throw signUpError;
-      if (!authData.session) throw new Error('Failed to retrieve session');
+      if (result.error) throw new Error(result.error);
 
-      // 2. Provision the Demo Workspace
-      const response = await fetch('/api/workspaces/provision', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to provision demo workspace');
-      }
-
-      // 3. Initiate Cinematic Boot Sequence
+      // 2. Trigger cinematic transition, then push
       setIsTransitioning(true);
+      setTimeout(() => {
+        router.push('/login'); // Redirect to login so they can sign in with NextAuth!
+      }, 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to provision demo access');
     } finally {

@@ -30,14 +30,20 @@ export function AiWorkforceBriefing({
     totalResources > 0 ? Math.round((availableResources / totalResources) * 100) : 0;
 
   // Determine global workforce status
-  let workforceStatus = 'Nominal';
-  let statusColor = 'var(--status-success)';
-  if (availabilityPercentage < 20) {
+  let workforceStatus = 'Unknown';
+  let statusColor = 'var(--text-tertiary)';
+
+  if (totalResources === 0) {
+    workforceStatus = 'No operational data available';
+  } else if (availabilityPercentage < 20) {
     workforceStatus = 'Critical Shortage';
     statusColor = 'var(--status-critical)';
   } else if (availabilityPercentage < 40) {
     workforceStatus = 'Elevated Load';
     statusColor = 'var(--status-warning)';
+  } else {
+    workforceStatus = 'Nominal Flow';
+    statusColor = 'var(--status-success)';
   }
 
   const isCritical = workforceStatus === 'Critical Shortage';
@@ -283,8 +289,7 @@ export function AiWorkforceBriefing({
               }}
             >
               <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Evidence:</span>{' '}
-              {primaryRecommendation.data.evidence ||
-                'Workforce fatigue modeling indicates impending breach.'}{' '}
+              {primaryRecommendation.data.evidence || 'No verifiable telemetry provided.'}{' '}
               (Confidence: {Math.round(primaryRecommendation.confidenceScore * 100)}%)
             </div>
           </div>

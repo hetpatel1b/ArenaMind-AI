@@ -76,11 +76,31 @@ export default async function DashboardPage() {
       </div>
     );
   }
+  // Recursive function to convert all Dates to ISO strings and Decimals to numbers
+  const serializeData = <T,>(obj: T): any => {
+    if (obj === null || obj === undefined) return obj;
+    if (obj instanceof Date) return obj.toISOString();
+    if (
+      typeof obj === 'object' &&
+      typeof (obj as any).toNumber === 'function' &&
+      'd' in obj &&
+      'e' in obj &&
+      's' in obj
+    ) {
+      return (obj as any).toNumber();
+    }
+    if (Array.isArray(obj)) return obj.map((item) => serializeData(item));
+    if (typeof obj === 'object') {
+      const res: any = {};
+      for (const key of Object.keys(obj)) {
+        res[key] = serializeData((obj as any)[key]);
+      }
+      return res;
+    }
+    return obj;
+  };
 
-  return (
-    <DashboardClient
-      initialMatchData={JSON.parse(JSON.stringify(match)) as any}
-      organizationId={organizationId}
-    />
-  );
+  const serializedMatch = serializeData(match);
+
+  return <DashboardClient initialMatchData={serializedMatch} organizationId={organizationId} />;
 }

@@ -25,7 +25,13 @@ DO NOT UNDERESTIMATE RISK. Be highly pessimistic when life safety is involved.`;
    * If the LLM generates a category that contradicts the numerical score, we fix it.
    */
   validateRiskAnalysis(analysis: AIRiskAnalysis): AIRiskAnalysis {
-    let correctedCategory: 'nominal' | 'elevated' | 'critical' = 'nominal';
+    if (analysis.overallExecutiveRisk === undefined || isNaN(analysis.overallExecutiveRisk)) {
+      throw new Error(
+        '[RiskEngine] Insufficient evidence: overallExecutiveRisk is missing or invalid.'
+      );
+    }
+
+    let correctedCategory: 'nominal' | 'elevated' | 'critical';
 
     if (analysis.overallExecutiveRisk > 70) correctedCategory = 'critical';
     else if (analysis.overallExecutiveRisk > 30) correctedCategory = 'elevated';

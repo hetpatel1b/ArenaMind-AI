@@ -11,24 +11,24 @@ interface ArrivalExitForecastProps {
 export function ArrivalExitForecast({ mobilityState }: ArrivalExitForecastProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  // Forecast curves change based on whether we are predicting arrival (pre-match) or exit (egress)
-  const isEgress = mobilityState.parking.status === 'emptying';
+  const predictionsObj = mobilityState.predictions || {};
+  const predictionValues = Object.values(predictionsObj) as any[];
 
-  const forecast = isEgress
-    ? [
-        { min: '+0m', vol: 20 },
-        { min: '+15m', vol: 95 }, // The egress spike
-        { min: '+30m', vol: 60 },
-        { min: '+45m', vol: 30 },
-        { min: '+60m', vol: 10 },
-      ]
-    : [
-        { min: '+0m', vol: 30 },
-        { min: '+30m', vol: 50 },
-        { min: '+60m', vol: 90 }, // Arrival peak just before match
-        { min: '+90m', vol: 20 },
-        { min: '+120m', vol: 5 },
-      ];
+  // Safe Fallback: If no backend predictions exist, show empty baseline
+  const forecast =
+    predictionValues.length > 0
+      ? predictionValues.map((p) => ({
+          min: p.timeframe,
+          vol: p.predictedCongestion?.volume || 0,
+          isWarning: p.predictedCongestion?.volume > 80,
+        }))
+      : [
+          { min: '+15m', vol: 0, isWarning: false },
+          { min: '+30m', vol: 0, isWarning: false },
+          { min: '+60m', vol: 0, isWarning: false },
+        ];
+
+  const hasWarning = forecast.some((f) => f.isWarning);
 
   return (
     <div
@@ -73,7 +73,7 @@ export function ArrivalExitForecast({ mobilityState }: ArrivalExitForecastProps)
             <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
             <polyline points="16 6 23 6 23 13"></polyline>
           </svg>
-          {isEgress ? 'Egress Forecast' : 'Ingress Forecast'}
+          {predictionValues.length > 0 ? 'Mobility Forecast' : 'Forecast (Offline)'}
         </h3>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
           Predicted Transit Volume
@@ -148,28 +148,30 @@ export function ArrivalExitForecast({ mobilityState }: ArrivalExitForecastProps)
       <div
         style={{
           marginTop: 'auto',
-          backgroundColor: isEgress ? 'rgba(255, 59, 48, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+          backgroundColor: hasWarning ? 'rgba(255, 59, 48, 0.1)' : 'rgba(255, 255, 255, 0.05)',
           padding: 'var(--space-2)',
           borderRadius: 'var(--radius-sm)',
-          border: `1px solid ${isEgress ? 'rgba(255, 59, 48, 0.2)' : 'transparent'}`,
+          border: `1px solid ${hasWarning ? 'rgba(255, 59, 48, 0.2)' : 'transparent'}`,
         }}
       >
         <span
           style={{
             display: 'block',
             fontSize: '10px',
-            color: isEgress ? 'var(--status-critical)' : 'var(--text-tertiary)',
+            color: hasWarning ? 'var(--status-critical)' : 'var(--text-tertiary)',
             fontWeight: 700,
             textTransform: 'uppercase',
             marginBottom: '2px',
           }}
         >
-          {isEgress ? 'Warning' : 'Timeline'}
+          {hasWarning ? 'Warning' : 'Timeline'}
         </span>
         <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-          {isEgress
-            ? 'Severe queue formation predicted at +15m.'
-            : 'Steady arrival rate. No bottlenecks predicted.'}
+          {predictionValues.length === 0
+            ? 'No predictive models active.'
+            : hasWarning
+              ? 'High congestion predicted in upcoming window.'
+              : 'Flow volume predicted to remain within safe thresholds.'}
         </span>
       </div>
     </div>

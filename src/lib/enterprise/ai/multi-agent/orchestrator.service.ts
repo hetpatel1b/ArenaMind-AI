@@ -34,7 +34,8 @@ export class AgentOrchestratorService {
   async orchestrate(
     userPrompt: string,
     featureName: string,
-    contextData: any
+    contextData: any,
+    onProgress?: (msg: string) => void
   ): Promise<Partial<StructuredAIResponse>> {
     // 1. Task Planning
     const plan = aiTaskPlanningService.planExecution(userPrompt, featureName);
@@ -44,19 +45,18 @@ export class AgentOrchestratorService {
       (id) => this.agentRegistry[id]
     );
 
-    // 3. Sequential Execution (prevents free-tier API rate limits during hackathon)
+    // 3. Concurrent Execution for Enterprise Performance
+    if (onProgress) onProgress('Domain agents analyzing data concurrently...');
     const start = Date.now();
-    const rawResults: PromiseSettledResult<Partial<StructuredAIResponse>>[] = [];
-    for (const agent of agentsToRun) {
-      try {
-        const value = await agent.execute(contextData, userPrompt);
-        rawResults.push({ status: 'fulfilled', value });
-        // Stagger requests to avoid triggering burst rate limits
-        await new Promise((r) => setTimeout(r, 800));
-      } catch (reason) {
-        rawResults.push({ status: 'rejected', reason });
-      }
-    }
+
+    const rawResults = await Promise.allSettled(
+      agentsToRun.map(async (agent) => {
+        const result = await agent.execute(contextData, userPrompt);
+        if (onProgress) onProgress(`Agent ${agent.agentId} completed analysis.`);
+        return result;
+      })
+    );
+
     const latencyMs = Date.now() - start;
 
     // 4. Format outputs for Supervisor
@@ -79,6 +79,7 @@ export class AgentOrchestratorService {
     });
 
     // 5. Supervisor Aggregation & Conflict Resolution
+    if (onProgress) onProgress('Supervisor agent resolving conflicts...');
     const finalResponse = await aiSupervisorAgent.executeSupervisor(
       contextData,
       userPrompt,
