@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChatMessage } from './IncidentTypes';
 
@@ -98,7 +99,7 @@ export function CommunicationCenter({ messages }: { messages: ChatMessage[] }) {
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                       <div style={{ fontSize: '12px', fontWeight: 600, color }}>{msg.sender}</div>
                       <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                        {new Date(msg.timestamp).toLocaleTimeString()}
+                        {DateFormatter.formatTime(msg.timestamp)}
                       </div>
                     </div>
                     <div

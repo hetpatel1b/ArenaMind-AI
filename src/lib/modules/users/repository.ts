@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class UserRepository extends PrismaRepository<User, any, any> {
   constructor() {
-    super(prisma.user as any);
+    super(prisma.user, 'user');
   }
 }
 

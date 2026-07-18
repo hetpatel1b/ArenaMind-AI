@@ -24,16 +24,17 @@ export abstract class PrismaRepository<
   TCreateDTO,
   TUpdateDTO,
 > implements IBaseRepository<TEntity, TCreateDTO, TUpdateDTO> {
-  constructor(protected readonly delegate: PrismaDelegate) {}
+  constructor(
+    protected readonly delegate: PrismaDelegate,
+    protected readonly modelName: string
+  ) {}
 
   /**
    * Helper to resolve the correct delegate (either the global client or a transaction client).
    */
   protected getDelegate(tx?: ITransaction): PrismaDelegate {
     return tx
-      ? (tx as unknown as Record<string, PrismaDelegate>)[
-          this.constructor.name.replace('Repository', '').toLowerCase()
-        ] || this.delegate
+      ? (tx as unknown as Record<string, PrismaDelegate>)[this.modelName] || this.delegate
       : this.delegate;
   }
 
@@ -54,7 +55,7 @@ export abstract class PrismaRepository<
     const { filter, pagination, sort, includeDeleted } = options || {};
 
     const where: Record<string, unknown> = { ...(filter || {}) };
-    
+
     // Default to excluding soft-deleted records unless explicitly requested
     if (!includeDeleted && where.deletedAt === undefined) {
       where.deletedAt = null;
@@ -117,7 +118,7 @@ export abstract class PrismaRepository<
 
   public async count(filter?: Record<string, unknown>, includeDeleted = false): Promise<number> {
     const where: Record<string, unknown> = { ...(filter || {}) };
-    
+
     if (!includeDeleted && where.deletedAt === undefined) {
       where.deletedAt = null;
     }

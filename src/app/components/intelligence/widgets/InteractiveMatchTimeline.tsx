@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface InteractiveMatchTimelineProps {
@@ -198,7 +199,7 @@ export function InteractiveMatchTimeline({
                       marginBottom: '4px',
                     }}
                   >
-                    {event.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {DateFormatter.formatTimeShort(event.time)}
                   </span>
                   <span
                     style={{

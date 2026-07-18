@@ -55,7 +55,12 @@ export class StorageService {
       return await fs.promises.readFile(fullPath);
     } catch (error) {
       LoggerService.error(`Failed to read file from ${destinationKey}`, error);
-      if ((error as any).code === 'ENOENT') {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code: string }).code === 'ENOENT'
+      ) {
         throw new AppError(ErrorCategory.FILESYSTEM, 'File not found', 404);
       }
       throw new AppError(
@@ -72,7 +77,13 @@ export class StorageService {
       await fs.promises.unlink(fullPath);
       LoggerService.debug(`File deleted successfully from local storage: ${destinationKey}`);
     } catch (error) {
-      if ((error as any).code === 'ENOENT') return; // Idempotent delete
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code: string }).code === 'ENOENT'
+      )
+        return; // Idempotent delete
       LoggerService.error(`Failed to delete file ${destinationKey}`, error);
       throw new AppError(
         ErrorCategory.FILESYSTEM,

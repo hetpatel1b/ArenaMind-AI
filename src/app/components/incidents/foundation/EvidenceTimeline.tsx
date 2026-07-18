@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { Evidence } from './IncidentTypes';
 
 export function EvidenceTimeline({ items }: { items: Evidence[] }) {
@@ -42,7 +43,7 @@ export function EvidenceTimeline({ items }: { items: Evidence[] }) {
             >
               <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>{item.source}</div>
               <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                {new Date(item.timestamp).toLocaleTimeString()}
+                {DateFormatter.formatTime(item.timestamp)}
               </div>
             </div>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>

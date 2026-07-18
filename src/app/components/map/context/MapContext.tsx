@@ -259,7 +259,8 @@ const MapContext = createContext<{
 export function MapProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(mapReducer, initialState);
 
-  return <MapContext.Provider value={{ state, dispatch }}>{children}</MapContext.Provider>;
+  const contextValue = React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
+  return <MapContext.Provider value={contextValue}>{children}</MapContext.Provider>;
 }
 
 export function useMap() {

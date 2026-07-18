@@ -27,5 +27,5 @@ export const POST = createRouteHandler(
     const alert = await alertService.createAlert(bizContext, matchId, payload);
     return successResponse(alert, 201);
   },
-  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] as any }
+  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] }
 );

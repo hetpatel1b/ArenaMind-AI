@@ -24,7 +24,7 @@ export function withRole(allowedRoles: UserRole[], handler: ApiHandler) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
 
-      const userRole = (session.user as any).role as UserRole;
+      const userRole = session.user.role as UserRole;
 
       if (userRole !== 'super_admin' && !allowedRoles.includes(userRole)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -35,7 +35,7 @@ export function withRole(allowedRoles: UserRole[], handler: ApiHandler) {
       authenticatedReq.user = {
         id: session.user.id as string,
         role: userRole,
-        organizationId: (session.user as any).organizationId || null,
+        organizationId: session.user.organizationId || null,
       };
 
       return await handler(authenticatedReq, params);
@@ -61,8 +61,8 @@ export function withAuth(handler: ApiHandler) {
       const authenticatedReq = req as AuthenticatedRequest;
       authenticatedReq.user = {
         id: session.user.id as string,
-        role: (session.user as any).role as UserRole,
-        organizationId: (session.user as any).organizationId || null,
+        role: session.user.role as UserRole,
+        organizationId: session.user.organizationId || null,
       };
 
       return await handler(authenticatedReq, params);

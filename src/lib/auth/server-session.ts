@@ -15,7 +15,7 @@ export async function getServerSession(): Promise<UserSessionContext | null> {
     return null;
   }
 
-  const user = session.user as any;
+  const user = session.user;
 
   return {
     authId: user.id,

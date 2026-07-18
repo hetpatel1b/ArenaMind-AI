@@ -8,7 +8,7 @@ export class AiRecommendationRepository extends PrismaRepository<
   Prisma.AiRecommendationUpdateInput
 > {
   constructor() {
-    super(prisma.aiRecommendation as any);
+    super(prisma.aiRecommendation, 'aiRecommendation');
   }
 }
 
@@ -18,7 +18,7 @@ export class AiCallLogRepository extends PrismaRepository<
   Prisma.AiCallLogUpdateInput
 > {
   constructor() {
-    super(prisma.aiCallLog as any);
+    super(prisma.aiCallLog, 'aiCallLog');
   }
 }
 
@@ -28,7 +28,7 @@ export class AiFeedbackRepository extends PrismaRepository<
   Prisma.AiFeedbackUpdateInput
 > {
   constructor() {
-    super(prisma.aiFeedback as any);
+    super(prisma.aiFeedback, 'aiFeedback');
   }
 }
 

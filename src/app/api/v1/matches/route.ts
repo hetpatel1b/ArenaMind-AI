@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { GlobalErrorHandler } from '@/lib/platform/errors/GlobalErrorHandler';
 import { MatchService } from '@/server/services/match.service';
 import { withAuth, AuthenticatedRequest } from '@/server/middleware/rbac';
 import { createMatchSchema } from '@/server/validators/match.schema';
@@ -25,6 +26,6 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
     const match = await MatchService.createMatch(data, userId);
     return NextResponse.json(match, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ error: error.errors || 'Invalid request' }, { status: 400 });
+    return GlobalErrorHandler.handle(error);
   }
 });

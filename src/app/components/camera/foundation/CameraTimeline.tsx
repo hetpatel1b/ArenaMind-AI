@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCameraWorkspace } from './useCameraWorkspace';
 
@@ -10,8 +11,8 @@ export function CameraTimeline() {
   const [currentTime, setCurrentTime] = React.useState('');
 
   React.useEffect(() => {
-    setTimeout(() => setCurrentTime(new Date().toLocaleTimeString()), 0);
-    const interval = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000);
+    setTimeout(() => setCurrentTime(DateFormatter.formatTime(Date.now())), 0);
+    const interval = setInterval(() => setCurrentTime(DateFormatter.formatTime(Date.now())), 1000);
     return () => clearInterval(interval);
   }, []);
 

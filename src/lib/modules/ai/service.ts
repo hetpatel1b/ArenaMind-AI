@@ -18,8 +18,8 @@ export class AiService extends BaseService {
       let confidenceScore = 100;
       if (Array.isArray(data) && data.length > 0 && typeof data[0].confidence === 'number') {
         confidenceScore = data[0].confidence;
-      } else if (data && typeof (data as any).confidence === 'number') {
-        confidenceScore = (data as any).confidence;
+      } else if (data && typeof data.confidence === 'number') {
+        confidenceScore = data.confidence;
       }
 
       // 2. Save to Repository
@@ -29,7 +29,7 @@ export class AiService extends BaseService {
         featureName: feature,
         modelName: 'gemini-2.0-flash', // Now logged centrally, but kept here for backward compatibility
         promptVersion: 'v1.0',
-        data: data as any,
+        data: data,
         confidenceScore,
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours expiry
       });

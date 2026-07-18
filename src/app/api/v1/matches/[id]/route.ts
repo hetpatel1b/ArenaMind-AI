@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { matchService } from '@/lib/modules/matches/service';
 import { successResponse } from '@/lib/api/response';
@@ -13,7 +14,7 @@ export const GET = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );
 
@@ -28,5 +29,5 @@ export const PATCH = createRouteHandler(
     const match = await matchService.updateMatch(bizContext, matchId, payload);
     return successResponse(match);
   },
-  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] as any }
+  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] }
 );

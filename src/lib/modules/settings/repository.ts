@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class SettingRepository extends PrismaRepository<SystemSetting, any, any> {
   constructor() {
-    super(prisma.systemSetting as any);
+    super(prisma.systemSetting, 'systemSetting');
   }
 }
 

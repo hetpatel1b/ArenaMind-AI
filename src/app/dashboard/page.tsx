@@ -12,7 +12,7 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  const organizationId = (session.user as any).organizationId;
+  const organizationId = session.user.organizationId;
 
   if (!organizationId) {
     return (
@@ -80,23 +80,27 @@ export default async function DashboardPage() {
   const serializeData = <T,>(obj: T): any => {
     if (obj === null || obj === undefined) return obj;
     if (obj instanceof Date) return obj.toISOString();
+
+    // Check for Prisma Decimal
     if (
       typeof obj === 'object' &&
-      typeof (obj as any).toNumber === 'function' &&
+      'toNumber' in obj &&
+      typeof (obj as { toNumber?: unknown }).toNumber === 'function' &&
       'd' in obj &&
       'e' in obj &&
       's' in obj
     ) {
-      return (obj as any).toNumber();
+      return (obj as { toNumber: () => number }).toNumber();
     }
     if (Array.isArray(obj)) return obj.map((item) => serializeData(item));
     if (typeof obj === 'object') {
       const res: any = {};
       for (const key of Object.keys(obj)) {
-        res[key] = serializeData((obj as any)[key]);
+        res[key] = serializeData((obj as Record<string, unknown>)[key]);
       }
       return res;
     }
+    return obj;
     return obj;
   };
 

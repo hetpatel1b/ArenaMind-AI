@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { accessibilityService } from '@/lib/modules/accessibility/service';
 import { successResponse } from '@/lib/api/response';
@@ -14,7 +15,7 @@ export const GET = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );
 
@@ -37,6 +38,6 @@ export const PATCH = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );

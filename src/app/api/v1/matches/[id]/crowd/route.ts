@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { parseQueryParams } from '@/lib/api/dto';
 import { crowdService } from '@/lib/modules/crowd/service';
@@ -14,6 +15,6 @@ export const GET = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );

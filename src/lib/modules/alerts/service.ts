@@ -99,16 +99,16 @@ export class AlertService extends BaseService {
           throw new NotFoundError('Alert not found');
         }
 
-        const data = (notif.data as any) || {};
-        if (payload.acknowledged !== undefined) {
-          data.acknowledged = payload.acknowledged;
+        const data = (notif.data as Record<string, unknown>) || {};
+        if ((payload as Record<string, unknown>)?.acknowledged !== undefined) {
+          data.acknowledged = (payload as Record<string, unknown>)?.acknowledged;
           data.acknowledgedAt = new Date().toISOString();
           data.acknowledgedBy = ctx.userId;
         }
 
         const updatedNotif = await tx.notification.update({
           where: { id: alertId },
-          data: { data },
+          data: { data: data as import('@prisma/client').Prisma.InputJsonValue },
         });
 
         await tx.auditLog.create({

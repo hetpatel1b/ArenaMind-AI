@@ -17,6 +17,6 @@ export const PATCH = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );

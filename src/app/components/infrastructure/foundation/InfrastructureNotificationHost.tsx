@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInfrastructureWorkspace } from './useInfrastructureWorkspace';
 
@@ -52,9 +53,7 @@ const InfrastructureNotificationHost: React.FC = React.memo(() => {
               <strong style={{ color: notif.priority === 'URGENT' ? '#ff3333' : '#00ffcc' }}>
                 {notif.title}
               </strong>
-              <span style={{ color: '#555' }}>
-                {new Date(notif.timestamp).toLocaleTimeString()}
-              </span>
+              <span style={{ color: '#555' }}>{DateFormatter.formatTime(notif.timestamp)}</span>
             </div>
             <span style={{ color: '#bbb' }}>{notif.message}</span>
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>

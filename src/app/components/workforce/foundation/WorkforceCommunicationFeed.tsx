@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkforceWorkspace } from './useWorkforceWorkspace';
 
@@ -28,7 +29,7 @@ export function WorkforceCommunicationFeed() {
       type: 'SEND_MESSAGE',
       payload: {
         id: Date.now().toString(),
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: DateFormatter.formatTimeShort(Date.now()),
         sender: 'Executive Command',
         department: selectedDepartment || 'All Departments',
         content: inputValue.trim(),

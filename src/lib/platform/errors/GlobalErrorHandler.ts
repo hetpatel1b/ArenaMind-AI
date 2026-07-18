@@ -36,9 +36,14 @@ export class GlobalErrorHandler {
 
     if (error instanceof AppError) {
       appError = error;
-    } else if (error && typeof error === 'object' && (error as any).name === 'ZodError') {
+    } else if (
+      error &&
+      typeof error === 'object' &&
+      'name' in error &&
+      (error as { name: string }).name === 'ZodError'
+    ) {
       appError = new AppError(ErrorCategory.VALIDATION, 'Validation failed', 400, {
-        issues: (error as any).errors,
+        issues: (error as { issues?: unknown }).issues || (error as { errors?: unknown }).errors,
       });
     } else if (error instanceof Error) {
       appError = new AppError(ErrorCategory.INTERNAL, 'An unexpected error occurred.', 500, {

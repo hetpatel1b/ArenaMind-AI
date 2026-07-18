@@ -4,7 +4,6 @@ import { promptRegistry } from './prompt-registry.service';
 import { conversationService } from './conversation.service';
 import { aiSecurityService } from './security.service';
 import { aiObservabilityService } from './observability.service';
-import { aiResponseValidator } from './response-validator.service';
 import { aiCrossModuleCorrelationService } from './cross-module-correlation.service';
 import { aiOperationalMemoryService } from './operational-memory.service';
 import { aiExplainabilityService } from './explainability.service';
@@ -33,207 +32,73 @@ export class AIGatewayService {
     userMessage?: string,
     onProgress?: (msg: string) => void
   ): Promise<any> {
-    const modelName = 'multi-agent-swarm';
     const start = Date.now();
-
-    if (onProgress) onProgress('Initializing AI Gateway...');
-
-    // 1. Parallelize Context Retrieval
-    const [rawContextData, memoryData, schemaConfig] = await Promise.all([
-      aiCrossModuleCorrelationService.getUnifiedTelemetry(ctx, matchId),
-      aiOperationalMemoryService.getHistoricalContext(ctx.organizationId, feature),
-      promptRegistry.getPromptSchema(feature),
-    ]);
-
-    if (onProgress) onProgress('Analyzing contextual telemetry...');
-
-    // 2. Context Ranking
-    const contextData = aiContextRankingService.rankContext(rawContextData);
-
-    // 3. Prompt Intelligence Orchestration
-    const basePrompt = await promptRegistry.getSystemPrompt(feature, {
-      organizationId: ctx.organizationId,
-      role: ctx.role,
-    });
-
-    let enhancedPrompt = aiExplainabilityService.enhancePrompt(basePrompt);
-    enhancedPrompt += `\n\n${aiDecisionEngineService.getStrategyDirectives('balanced')}`;
-    enhancedPrompt += `\n${aiDecisionEngineService.getPrioritizationDirectives()}`;
-    enhancedPrompt += `\n${aiRiskEngineService.getRiskDirectives()}`;
-    enhancedPrompt += `\n${aiRecommendationRankingService.getRankingDirectives()}`;
-    enhancedPrompt += `\n${aiScenarioSimulationService.getSimulationDirectives()}`;
-    enhancedPrompt += `\n${aiExecutiveSummaryService.getSummaryDirectives()}`;
-
-    const systemPrompt = `${enhancedPrompt}\n\n=== TELEMETRY DATA ===\n${JSON.stringify(contextData)}\n\n=== OPERATIONAL MEMORY ===\n${memoryData}\n====================`;
-
-    if (
-      !aiSecurityService.validatePromptSafety(systemPrompt) ||
-      (userMessage && !aiSecurityService.validatePromptSafety(userMessage as string))
-    ) {
-      throw new Error('Prompt rejected due to security policy violation.');
-    }
-
-    // Prompt injection guard check could also go here
-    aiHallucinationGuardService.detectPromptInjection(userMessage || '');
-
-    // 4. Cache Check
-    const cachedResponse = await aiResponseCacheService.get(
-      ctx.organizationId,
-      matchId,
-      systemPrompt,
-      contextData
-    );
-
-    if (cachedResponse) {
-      if (onProgress) onProgress('Cache hit, retrieving response...');
-      await aiObservabilityService.logRequest({
-        organizationId: ctx.organizationId,
-        matchId,
-        userId: ctx.userId,
-        provider: 'multi-agent-swarm' as unknown as AIProviderType,
-        modelName: 'multi-agent-swarm',
-        featureName: feature,
-        promptVersion: 'v3.0.0-multi-agent',
-        latencyMs: Date.now() - start,
-        inputTokens: 0,
-        outputTokens: 0,
-        status: 'success',
-        cacheHit: true,
-      });
-      return cachedResponse;
-    }
-
-    // 5. Conversation Memory (Parallelizable with Cache Check if needed, but placed here to avoid DB calls on cache hit)
-    const conversationId = await conversationService.getOrCreateConversation(
-      ctx.organizationId || 'system-org',
-      matchId,
-      ctx.userId
-    );
-
-    if (userMessage) {
-      await conversationService.addMessage(conversationId, 'user', userMessage);
-    } else {
-      await conversationService.addMessage(
-        conversationId,
-        'user',
-        `Analyze the current state and provide ${feature}.`
-      );
-    }
-
     try {
+      if (onProgress) onProgress('Initializing AI Gateway...');
+
+      // Phase 1: Context Pipeline
+      const context = await this._buildContext(ctx, matchId, feature, onProgress);
+      const systemPrompt = await this._buildPrompt(
+        ctx,
+        feature,
+        context.rankedData,
+        context.memoryData
+      );
+
+      this._validateSecurity(systemPrompt, userMessage);
+
+      // Phase 2: Cache Check
+      const cached = await this._checkCache(
+        ctx,
+        matchId,
+        feature,
+        systemPrompt,
+        context.rankedData,
+        start,
+        onProgress
+      );
+      if (cached) return cached;
+
+      // Phase 3: Memory Updates
+      const conversationId = await this._updateMemory(ctx, matchId, feature, userMessage);
+
+      // Phase 4: Execution
       if (onProgress) onProgress('Decomposing query for multi-agent swarm...');
-      // 6. Multi-Agent Orchestration
-      const orchestratorResponse = await aiAgentOrchestratorService.orchestrate(
+      const rawResponse = await aiAgentOrchestratorService.orchestrate(
         userMessage || `Analyze the current state and provide ${feature}.`,
         feature,
-        contextData,
+        context.rankedData,
         onProgress
       );
 
       await conversationService.addMessage(
         conversationId,
         'assistant',
-        JSON.stringify(orchestratorResponse),
+        JSON.stringify(rawResponse),
         0
       );
 
-      // 7. Pipeline Post-Processing
-      let finalData = orchestratorResponse;
-      let internalMeta: any = {};
+      // Phase 5: Post-Processing
+      const finalData = this._postProcessResponse(rawResponse, context.rankedData);
 
-      if (finalData) {
-        // Extract internal backend metadata
-        if ((finalData as any)._internalMetadata) {
-          internalMeta = (finalData as any)._internalMetadata;
-          delete (finalData as any)._internalMetadata;
-        }
-
-        // Hallucination Guard
-        finalData = aiHallucinationGuardService.enforceGuardrails(finalData, contextData);
-
-        // Confidence Calibration
-        if (finalData.confidence !== undefined && Array.isArray(finalData.missingInformation)) {
-          finalData.confidence = aiConfidenceScoringService.adjustConfidence(
-            finalData.confidence,
-            finalData.missingInformation,
-            {
-              providerReliability: 95,
-              agentAgreementScore: internalMeta.consensusScore,
-              contextCompletenessScore: 80,
-            }
-          );
-        }
-
-        // Risk Validation
-        if (finalData.riskAnalysis) {
-          finalData.riskAnalysis = aiRiskEngineService.validateRiskAnalysis(finalData.riskAnalysis);
-        }
-
-        // Recommendation Validation & Ranking
-        if (Array.isArray(finalData.alternatives)) {
-          finalData.alternatives = aiRecommendationValidatorService.validateRecommendations(
-            finalData.alternatives,
-            contextData
-          );
-          finalData.alternatives = aiRecommendationRankingService.rankAlternatives(
-            finalData.alternatives
-          );
-        }
-      }
-
-      // 8. Cache the result if valid
       await aiResponseCacheService.set(
         ctx.organizationId,
         matchId,
         systemPrompt,
-        contextData,
+        context.rankedData,
         finalData
       );
-
-      // 9. Observability logging
-      await aiObservabilityService.logRequest({
-        organizationId: ctx.organizationId,
-        matchId,
-        userId: ctx.userId,
-        provider: 'multi-agent-swarm' as unknown as AIProviderType,
-        modelName: 'multi-agent-swarm',
-        featureName: feature,
-        promptVersion: 'v3.0.0-multi-agent',
-        latencyMs: Date.now() - start,
-        inputTokens: aiTokenBudgetService.estimateTokens(systemPrompt),
-        outputTokens: aiTokenBudgetService.estimateTokens(JSON.stringify(finalData)),
-        status: 'success',
-        cacheHit: false,
-        agentCount: internalMeta.agentCount,
-        consensusScore: internalMeta.consensusScore,
-        hallucinationDetected: finalData?.confidence === 0,
-        confidenceAdjustment:
-          finalData?.confidence !== undefined
-            ? finalData.confidence - (orchestratorResponse?.confidence || 0)
-            : 0,
-      });
+      await this._logTelemetry(ctx, matchId, feature, systemPrompt, finalData, rawResponse, start);
 
       return finalData;
     } catch (e: unknown) {
-      await aiObservabilityService.logRequest({
-        organizationId: ctx.organizationId,
-        matchId,
-        provider: 'multi-agent-swarm' as unknown as AIProviderType,
-        modelName: 'multi-agent-swarm',
-        latencyMs: Date.now() - start,
-        inputTokens: 0,
-        outputTokens: 0,
-        status: 'error',
-        errorMessage: e instanceof Error ? e.message : String(e),
-      });
+      await this._logError(ctx, matchId, start, e);
       throw e;
     }
   }
 
   async chat(ctx: BusinessContext, matchId: string, message: string, history: any[]): Promise<any> {
     const contextData = await aiCrossModuleCorrelationService.getUnifiedTelemetry(ctx, matchId);
-
-    // Trim history based on budget
     const trimmedHistory = aiTokenBudgetService.trimHistory(history, 8000);
 
     const systemPrompt = `You are the ArenaMind AI Principal Operations Assistant.
@@ -256,74 +121,257 @@ Answer the user's questions strictly based on this context. Be concise and preci
       );
 
       if ('status' in result && result.status === 'error') {
-        await aiObservabilityService.logRequest({
-          organizationId: ctx.organizationId,
-          matchId,
-          userId: ctx.userId,
-          provider: 'grok',
-          modelName: 'failover',
-          latencyMs: Date.now() - start,
-          inputTokens: 0,
-          outputTokens: 0,
-          status: 'error',
-          errorMessage: result.technicalMessage,
-        });
+        await this._logError(ctx, matchId, start, new Error(result.technicalMessage));
         return result;
       }
 
       const response = result as AIResponse;
-
-      // Cost tracking
-      aiCostManagerService.trackExecution(ctx, {
-        promptTokens: response.metadata.promptTokens,
-        completionTokens: response.metadata.outputTokens,
-        provider: response.metadata.provider,
-        latencyMs: response.metadata.latencyMs,
-        cacheHit: false,
-      });
-
-      await aiObservabilityService.logRequest({
-        organizationId: ctx.organizationId,
-        matchId,
-        userId: ctx.userId,
-        provider: response.metadata.provider,
-        modelName: response.metadata.model,
-        latencyMs: response.metadata.latencyMs,
-        inputTokens: response.metadata.promptTokens,
-        outputTokens: response.metadata.outputTokens,
-        status: 'success',
-        cacheHit: false,
-      });
+      this._trackCost(ctx, response);
+      await this._logChatTelemetry(ctx, matchId, response, start);
 
       return response.rawText;
     } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : String(e);
+      await this._logError(ctx, matchId, start, e);
+      return this._buildErrorResponse(e);
+    }
+  }
+
+  // --- Private Pipeline Methods ---
+
+  private async _buildContext(
+    ctx: BusinessContext,
+    matchId: string,
+    feature: AIFeature,
+    onProgress?: (msg: string) => void
+  ) {
+    const [rawContextData, memoryData] = await Promise.all([
+      aiCrossModuleCorrelationService.getUnifiedTelemetry(ctx, matchId),
+      aiOperationalMemoryService.getHistoricalContext(ctx.organizationId, feature),
+      promptRegistry.getPromptSchema(feature), // Kept for schema loading side-effects if any exist
+    ]);
+
+    if (onProgress) onProgress('Analyzing contextual telemetry...');
+    return { rankedData: aiContextRankingService.rankContext(rawContextData), memoryData };
+  }
+
+  private async _buildPrompt(
+    ctx: BusinessContext,
+    feature: AIFeature,
+    contextData: any,
+    memoryData: any
+  ) {
+    const basePrompt = await promptRegistry.getSystemPrompt(feature, {
+      organizationId: ctx.organizationId,
+      role: ctx.role,
+    });
+
+    let enhancedPrompt = aiExplainabilityService.enhancePrompt(basePrompt);
+    enhancedPrompt += `\n\n${aiDecisionEngineService.getStrategyDirectives('balanced')}`;
+    enhancedPrompt += `\n${aiDecisionEngineService.getPrioritizationDirectives()}`;
+    enhancedPrompt += `\n${aiRiskEngineService.getRiskDirectives()}`;
+    enhancedPrompt += `\n${aiRecommendationRankingService.getRankingDirectives()}`;
+    enhancedPrompt += `\n${aiScenarioSimulationService.getSimulationDirectives()}`;
+    enhancedPrompt += `\n${aiExecutiveSummaryService.getSummaryDirectives()}`;
+
+    return `${enhancedPrompt}\n\n=== TELEMETRY DATA ===\n${JSON.stringify(contextData)}\n\n=== OPERATIONAL MEMORY ===\n${memoryData}\n====================`;
+  }
+
+  private _validateSecurity(systemPrompt: string, userMessage?: string) {
+    if (
+      !aiSecurityService.validatePromptSafety(systemPrompt) ||
+      (userMessage && !aiSecurityService.validatePromptSafety(userMessage))
+    ) {
+      throw new Error('Prompt rejected due to security policy violation.');
+    }
+    aiHallucinationGuardService.detectPromptInjection(userMessage || '');
+  }
+
+  private async _checkCache(
+    ctx: BusinessContext,
+    matchId: string,
+    feature: AIFeature,
+    systemPrompt: string,
+    contextData: any,
+    start: number,
+    onProgress?: (msg: string) => void
+  ) {
+    const cachedResponse = await aiResponseCacheService.get(
+      ctx.organizationId,
+      matchId,
+      systemPrompt,
+      contextData
+    );
+    if (cachedResponse) {
+      if (onProgress) onProgress('Cache hit, retrieving response...');
       await aiObservabilityService.logRequest({
         organizationId: ctx.organizationId,
         matchId,
         userId: ctx.userId,
-        provider: 'grok',
-        modelName: 'failover',
+        provider: 'multi-agent-swarm' as unknown as AIProviderType,
+        modelName: 'multi-agent-swarm',
+        featureName: feature,
+        promptVersion: 'v3.0.0-multi-agent',
         latencyMs: Date.now() - start,
         inputTokens: 0,
         outputTokens: 0,
-        status: 'error',
-        errorMessage: errMsg,
+        status: 'success',
+        cacheHit: true,
       });
-
-      return {
-        status: 'error',
-        metadata: {
-          traceId: crypto.randomUUID(),
-        },
-        providerAttempted: 'grok',
-        providerFailed: 'all',
-        retryCount: 0,
-        operatorMessage: 'The AI service is temporarily unavailable.',
-        technicalMessage: errMsg,
-        recommendedAction: 'Check gateway connectivity.',
-      };
+      return cachedResponse;
     }
+    return null;
+  }
+
+  private async _updateMemory(
+    ctx: BusinessContext,
+    matchId: string,
+    feature: AIFeature,
+    userMessage?: string
+  ) {
+    const conversationId = await conversationService.getOrCreateConversation(
+      ctx.organizationId || 'system-org',
+      matchId,
+      ctx.userId
+    );
+    await conversationService.addMessage(
+      conversationId,
+      'user',
+      userMessage || `Analyze the current state and provide ${feature}.`
+    );
+    return conversationId;
+  }
+
+  private _postProcessResponse(rawResponse: any, contextData: any) {
+    if (!rawResponse) return rawResponse;
+
+    let finalData = rawResponse;
+    const internalMeta = finalData._internalMetadata || {};
+    delete finalData._internalMetadata;
+
+    finalData = aiHallucinationGuardService.enforceGuardrails(finalData, contextData);
+
+    if (finalData.confidence !== undefined && Array.isArray(finalData.missingInformation)) {
+      finalData.confidence = aiConfidenceScoringService.adjustConfidence(
+        finalData.confidence,
+        finalData.missingInformation,
+        {
+          providerReliability: 95,
+          agentAgreementScore: internalMeta.consensusScore,
+          contextCompletenessScore: 80,
+        }
+      );
+    }
+
+    if (finalData.riskAnalysis) {
+      finalData.riskAnalysis = aiRiskEngineService.validateRiskAnalysis(finalData.riskAnalysis);
+    }
+
+    if (Array.isArray(finalData.alternatives)) {
+      finalData.alternatives = aiRecommendationValidatorService.validateRecommendations(
+        finalData.alternatives,
+        contextData
+      );
+      finalData.alternatives = aiRecommendationRankingService.rankAlternatives(
+        finalData.alternatives
+      );
+    }
+
+    // re-attach internal meta for logging later
+    finalData._internalMetadata = internalMeta;
+    return finalData;
+  }
+
+  private async _logTelemetry(
+    ctx: BusinessContext,
+    matchId: string,
+    feature: AIFeature,
+    systemPrompt: string,
+    finalData: any,
+    rawResponse: any,
+    start: number
+  ) {
+    const internalMeta = finalData._internalMetadata || {};
+    delete finalData._internalMetadata;
+
+    await aiObservabilityService.logRequest({
+      organizationId: ctx.organizationId,
+      matchId,
+      userId: ctx.userId,
+      provider: 'multi-agent-swarm' as unknown as AIProviderType,
+      modelName: 'multi-agent-swarm',
+      featureName: feature,
+      promptVersion: 'v3.0.0-multi-agent',
+      latencyMs: Date.now() - start,
+      inputTokens: aiTokenBudgetService.estimateTokens(systemPrompt),
+      outputTokens: aiTokenBudgetService.estimateTokens(JSON.stringify(finalData)),
+      status: 'success',
+      cacheHit: false,
+      agentCount: internalMeta.agentCount,
+      consensusScore: internalMeta.consensusScore,
+      hallucinationDetected: finalData?.confidence === 0,
+      confidenceAdjustment:
+        finalData?.confidence !== undefined
+          ? finalData.confidence - (rawResponse?.confidence || 0)
+          : 0,
+    });
+  }
+
+  private async _logError(ctx: BusinessContext, matchId: string, start: number, e: unknown) {
+    await aiObservabilityService.logRequest({
+      organizationId: ctx.organizationId,
+      matchId,
+      userId: ctx.userId,
+      provider: 'grok', // or multi-agent-swarm based on context
+      modelName: 'failover',
+      latencyMs: Date.now() - start,
+      inputTokens: 0,
+      outputTokens: 0,
+      status: 'error',
+      errorMessage: e instanceof Error ? e.message : String(e),
+    });
+  }
+
+  private _trackCost(ctx: BusinessContext, response: AIResponse) {
+    aiCostManagerService.trackExecution(ctx, {
+      promptTokens: response.metadata.promptTokens,
+      completionTokens: response.metadata.outputTokens,
+      provider: response.metadata.provider,
+      latencyMs: response.metadata.latencyMs,
+      cacheHit: false,
+    });
+  }
+
+  private async _logChatTelemetry(
+    ctx: BusinessContext,
+    matchId: string,
+    response: AIResponse,
+    start: number
+  ) {
+    await aiObservabilityService.logRequest({
+      organizationId: ctx.organizationId,
+      matchId,
+      userId: ctx.userId,
+      provider: response.metadata.provider,
+      modelName: response.metadata.model,
+      latencyMs: response.metadata.latencyMs,
+      inputTokens: response.metadata.promptTokens,
+      outputTokens: response.metadata.outputTokens,
+      status: 'success',
+      cacheHit: false,
+    });
+  }
+
+  private _buildErrorResponse(e: unknown) {
+    return {
+      status: 'error',
+      metadata: { traceId: crypto.randomUUID() },
+      providerAttempted: 'grok',
+      providerFailed: 'all',
+      retryCount: 0,
+      operatorMessage: 'The AI service is temporarily unavailable.',
+      technicalMessage: e instanceof Error ? e.message : String(e),
+      recommendedAction: 'Check gateway connectivity.',
+    };
   }
 }
 

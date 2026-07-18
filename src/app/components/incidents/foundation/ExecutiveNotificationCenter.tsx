@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SystemNotification } from './IncidentTypes';
 
@@ -85,7 +86,7 @@ export function ExecutiveNotificationCenter({
                   {notif.type} ALERT
                 </span>
                 <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                  {new Date(notif.timestamp).toLocaleTimeString()}
+                  {DateFormatter.formatTime(notif.timestamp)}
                 </span>
               </div>
               <div style={{ fontSize: '13px', color: '#fff', fontWeight: 500 }}>

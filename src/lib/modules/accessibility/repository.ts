@@ -8,7 +8,7 @@ export class AccessibilityRequestRepository extends PrismaRepository<
   any
 > {
   constructor() {
-    super(prisma.accessibilityRequest as any);
+    super(prisma.accessibilityRequest, 'accessibilityRequest');
   }
 }
 

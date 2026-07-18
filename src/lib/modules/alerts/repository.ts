@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class AlertRepository extends PrismaRepository<Notification, any, any> {
   constructor() {
-    super(prisma.notification as any);
+    super(prisma.notification, 'notification');
   }
 }
 

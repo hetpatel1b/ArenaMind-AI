@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { parseQueryParams } from '@/lib/api/dto';
 import { reportService } from '@/lib/modules/reports/service';
@@ -15,7 +16,7 @@ export const GET = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );
 
@@ -30,5 +31,5 @@ export const POST = createRouteHandler(
     const report = await reportService.createReport(bizContext, matchId, payload);
     return successResponse(report, 201);
   },
-  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] as any }
+  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] }
 );

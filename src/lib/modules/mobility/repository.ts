@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class MobilityRepository extends PrismaRepository<MobilitySnapshot, any, any> {
   constructor() {
-    super(prisma.mobilitySnapshot as any);
+    super(prisma.mobilitySnapshot, 'mobilitySnapshot');
   }
 }
 

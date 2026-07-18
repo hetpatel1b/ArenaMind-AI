@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { GlobalErrorHandler } from '@/lib/platform/errors/GlobalErrorHandler';
 import { auth } from '@/server/auth/auth';
 import { aiGatewayService } from '@/lib/enterprise/ai/gateway.service';
 import { BusinessContext } from '@/lib/services/business.context';
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     const ctx: BusinessContext = {
       userId: session.user.id,
-      organizationId: (session.user as any).organizationId || 'default-org',
+      organizationId: session.user.organizationId || 'default-org',
       role: session.user.role || 'operator',
       correlationId: `copilot-${Date.now()}`,
       venueId: 'default-venue',
@@ -73,10 +74,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error('API Route Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return GlobalErrorHandler.handle(error);
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIncidentContext } from './IncidentContext';
 import { Incident } from './IncidentTypes';
@@ -273,7 +274,7 @@ function IncidentAIResponseBlock({ workspaceMode, activeIncident, isLatest, aiRe
                       />
                       <div style={{ flex: 1, fontSize: '13px', color: '#fff' }}>{log.message}</div>
                       <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-                        {new Date(log.timestamp).toLocaleTimeString()}
+                        {DateFormatter.formatTime(log.timestamp)}
                       </div>
                     </motion.div>
                   ))}

@@ -101,10 +101,13 @@ const CollaborationContext = createContext<{
 export function CollaborationProvider({ children }: { children: ReactNode }) {
   const [collabState, collabDispatch] = useReducer(collaborationReducer, initialState);
 
+  const contextValue = React.useMemo(
+    () => ({ collabState, collabDispatch }),
+    [collabState, collabDispatch]
+  );
+
   return (
-    <CollaborationContext.Provider value={{ collabState, collabDispatch }}>
-      {children}
-    </CollaborationContext.Provider>
+    <CollaborationContext.Provider value={contextValue}>{children}</CollaborationContext.Provider>
   );
 }
 

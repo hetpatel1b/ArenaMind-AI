@@ -28,7 +28,7 @@ export class ValidationService {
       if (!result.success) {
         return {
           errorResponse: NextResponse.json(
-            { error: 'Validation failed', details: (result.error as any).errors },
+            { error: 'Validation failed', details: result.error.issues },
             { status: 400 }
           ),
         };
@@ -47,6 +47,6 @@ export class ValidationService {
    * Helper to format Zod errors into a standard string array
    */
   static formatZodError(error: ZodError): string[] {
-    return (error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`);
+    return error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`);
   }
 }

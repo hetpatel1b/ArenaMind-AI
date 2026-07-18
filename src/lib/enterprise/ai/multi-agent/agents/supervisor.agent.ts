@@ -80,8 +80,10 @@ SCHEMA:
         throw new Error(`Supervisor execution failed: ${result.technicalMessage}`);
       }
 
-      const response = result as any;
-      const data = response.data as Partial<StructuredAIResponse> & { _internalMetadata?: any };
+      const response = result;
+      const data = (
+        'data' in response ? response.data : undefined
+      ) as Partial<StructuredAIResponse> & { _internalMetadata?: any };
 
       // Inject internal backend metadata for observability (Part 9 & Part 10)
       data._internalMetadata = {

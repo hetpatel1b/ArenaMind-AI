@@ -1,15 +1,24 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { DemoScenarioEngine, SCENARIOS } from '@/lib/demo/DemoScenarioEngine';
+import { DemoScenarioEngine } from '@/lib/demo/DemoScenarioEngine';
+import { SCENARIOS } from '@/lib/demo/ScenarioEventGenerator';
 
 export function ExecutiveDemoPanel() {
-  const [status, setStatus] = useState(DemoScenarioEngine.getStatus());
+  const [status, setStatus] = useState({
+    activeScenario: DemoScenarioEngine.activeScenario,
+    timeSeconds: DemoScenarioEngine.timeSeconds,
+    isPlaying: DemoScenarioEngine.isPlaying,
+  });
   const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
-    DemoScenarioEngine.setOnTick((time, scenario) => {
-      setStatus(DemoScenarioEngine.getStatus());
+    DemoScenarioEngine.setOnTickCallback((time: number, scenario: (typeof SCENARIOS)[0] | null) => {
+      setStatus({
+        activeScenario: DemoScenarioEngine.activeScenario,
+        timeSeconds: DemoScenarioEngine.timeSeconds,
+        isPlaying: DemoScenarioEngine.isPlaying,
+      });
     });
   }, []);
 
@@ -103,11 +112,15 @@ export function ExecutiveDemoPanel() {
             value={status.activeScenario?.id || ''}
             onChange={(e) => {
               if (e.target.value) {
-                DemoScenarioEngine.startScenario(e.target.value);
+                DemoScenarioEngine.loadScenario(e.target.value);
               } else {
                 DemoScenarioEngine.resetScenario();
               }
-              setStatus(DemoScenarioEngine.getStatus());
+              setStatus({
+                activeScenario: DemoScenarioEngine.activeScenario,
+                timeSeconds: DemoScenarioEngine.timeSeconds,
+                isPlaying: DemoScenarioEngine.isPlaying,
+              });
             }}
             style={{
               width: '100%',
@@ -160,7 +173,11 @@ export function ExecutiveDemoPanel() {
                 onClick={() => {
                   if (status.isPlaying) DemoScenarioEngine.pause();
                   else DemoScenarioEngine.play();
-                  setStatus(DemoScenarioEngine.getStatus());
+                  setStatus({
+                    activeScenario: DemoScenarioEngine.activeScenario,
+                    timeSeconds: DemoScenarioEngine.timeSeconds,
+                    isPlaying: DemoScenarioEngine.isPlaying,
+                  });
                 }}
                 style={{
                   flex: 1,
@@ -179,7 +196,11 @@ export function ExecutiveDemoPanel() {
               <button
                 onClick={() => {
                   DemoScenarioEngine.resetScenario();
-                  setStatus(DemoScenarioEngine.getStatus());
+                  setStatus({
+                    activeScenario: DemoScenarioEngine.activeScenario,
+                    timeSeconds: DemoScenarioEngine.timeSeconds,
+                    isPlaying: DemoScenarioEngine.isPlaying,
+                  });
                 }}
                 style={{
                   flex: 1,

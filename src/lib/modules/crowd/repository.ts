@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class CrowdSnapshotRepository extends PrismaRepository<CrowdSnapshot, any, any> {
   constructor() {
-    super(prisma.crowdSnapshot as any);
+    super(prisma.crowdSnapshot, 'crowdSnapshot');
   }
 }
 

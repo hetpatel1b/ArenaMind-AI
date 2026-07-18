@@ -9,7 +9,7 @@ export const GET = createRouteHandler(
     // since createRouteHandler typically returns 200 for successResponse
     return NextResponse.json(result, {
       status: result.status === 'down' ? 503 : 200,
-    }) as any;
+    });
   },
   { requireAuth: false, globalAccess: true }
 );

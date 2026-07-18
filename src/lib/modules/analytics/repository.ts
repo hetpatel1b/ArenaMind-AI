@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class KpiSnapshotRepository extends PrismaRepository<KpiSnapshot, any, any> {
   constructor() {
-    super(prisma.kpiSnapshot as any);
+    super(prisma.kpiSnapshot, 'kpiSnapshot');
   }
 }
 

@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { settingService } from '@/lib/modules/settings/service';
 import { successResponse } from '@/lib/api/response';
@@ -10,7 +11,7 @@ export const GET = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator', 'read_only'] as any,
+    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
   }
 );
 
@@ -22,5 +23,5 @@ export const PATCH = createRouteHandler(
     const setting = await settingService.updateSetting(bizContext, payload);
     return successResponse(setting);
   },
-  { requireAuth: true, allowedRoles: ['operations_manager'] as any } // Only highest roles can update settings
+  { requireAuth: true, allowedRoles: ['operations_manager'] } // Only highest roles can update settings
 );

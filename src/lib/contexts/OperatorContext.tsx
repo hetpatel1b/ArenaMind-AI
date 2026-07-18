@@ -48,23 +48,23 @@ export function OperatorProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state, hydrated]);
 
-  const setRole = (role: OperatorRole) => setState((s) => ({ ...s, role }));
+  const setRole = React.useCallback((role: OperatorRole) => setState((s) => ({ ...s, role })), []);
 
-  const togglePin = (id: string) => {
+  const togglePin = React.useCallback((id: string) => {
     setState((s) => ({
       ...s,
       pinnedItems: s.pinnedItems.includes(id)
         ? s.pinnedItems.filter((i) => i !== id)
         : [...s.pinnedItems, id],
     }));
-  };
+  }, []);
 
-  const addRecentSearch = (query: string) => {
+  const addRecentSearch = React.useCallback((query: string) => {
     setState((s) => {
       const filtered = s.recentSearches.filter((q) => q !== query);
       return { ...s, recentSearches: [query, ...filtered].slice(0, 5) };
     });
-  };
+  }, []);
 
   const value = React.useMemo(
     () => ({
@@ -73,7 +73,7 @@ export function OperatorProvider({ children }: { children: React.ReactNode }) {
       togglePin,
       addRecentSearch,
     }),
-    [state]
+    [state, setRole, togglePin, addRecentSearch]
   );
 
   return <OperatorContext.Provider value={value}>{children}</OperatorContext.Provider>;

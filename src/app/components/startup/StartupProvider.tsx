@@ -31,11 +31,15 @@ export function StartupProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(timer);
   }, [shouldReduceMotion]);
 
-  return (
-    <StartupContext.Provider value={{ isStartupComplete, reducedMotion: shouldReduceMotion }}>
-      {children}
-    </StartupContext.Provider>
+  const value = React.useMemo(
+    () => ({
+      isStartupComplete,
+      reducedMotion: shouldReduceMotion,
+    }),
+    [isStartupComplete, shouldReduceMotion]
   );
+
+  return <StartupContext.Provider value={value}>{children}</StartupContext.Provider>;
 }
 
 export function useStartup() {

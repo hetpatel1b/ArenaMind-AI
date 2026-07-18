@@ -12,5 +12,5 @@ export const GET = createRouteHandler(
     const { data, meta } = await analyticsService.listMatchAnalytics(bizContext, matchId, query);
     return paginatedResponse(data, meta);
   },
-  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] as any }
+  { requireAuth: true, allowedRoles: ['operations_manager', 'deputy_manager'] }
 );

@@ -1,9 +1,14 @@
 import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import { api } from './apiClient';
 
-export interface BaseMutationOptions<TData, TVariables, TContext> 
-  extends Omit<UseMutationOptions<TData, Error, TVariables, TContext>, 'mutationFn'> {
-  optimisticUpdate?: (queryClient: ReturnType<typeof useQueryClient>, variables: TVariables) => TContext | void | Promise<TContext | void>;
+export interface BaseMutationOptions<TData, TVariables, TContext> extends Omit<
+  UseMutationOptions<TData, Error, TVariables, TContext>,
+  'mutationFn'
+> {
+  optimisticUpdate?: (
+    queryClient: ReturnType<typeof useQueryClient>,
+    variables: TVariables
+  ) => TContext | void | Promise<TContext | void>;
   invalidateKeys?: readonly (readonly unknown[])[];
 }
 
@@ -23,12 +28,12 @@ export function useGenericMutation<TData = any, TVariables = any, TContext = any
             await queryClient.cancelQueries({ queryKey: key });
           }
         }
-        
+
         // Execute optimistic update
         const context = await options.optimisticUpdate(queryClient, variables);
         return context as TContext;
       }
-      return undefined as any;
+      return {} as TContext;
     },
     onError: (err, variables, context: any) => {
       // Rollback optimistic updates using context

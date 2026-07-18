@@ -39,10 +39,10 @@ export function parseQueryParams(searchParams: URLSearchParams): QueryParamsDTO 
   return {
     pagination:
       page || limit
-        ? ({
-            page: page ? parseInt(page, 10) : undefined,
-            limit: limit ? parseInt(limit, 10) : undefined,
-          } as any)
+        ? {
+            page: page ? parseInt(page, 10) : 1,
+            limit: limit ? parseInt(limit, 10) : 10,
+          }
         : undefined,
     sort: sortField
       ? [

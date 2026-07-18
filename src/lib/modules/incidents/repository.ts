@@ -8,7 +8,7 @@ export class IncidentRepository
   implements IIncidentRepository
 {
   constructor() {
-    super(prisma.incident as any);
+    super(prisma.incident, 'incident');
   }
 
   async createIncidentWithAction(

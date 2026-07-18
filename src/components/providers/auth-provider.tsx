@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
 
 import type { UserSessionContext } from '@/lib/auth/server-session';
@@ -76,24 +76,23 @@ export function AuthProvider({
     setIsLoading(false);
   }, [nextAuthSession, status]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     // Clear next auth session directly
     await nextAuthSignOut({ redirect: true, callbackUrl: '/login' });
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        userContext,
-        isLoading: isLoading || isContextLoading,
-        signOut,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      session,
+      userContext,
+      isLoading: isLoading || isContextLoading,
+      signOut,
+    }),
+    [user, session, userContext, isLoading, isContextLoading, signOut]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

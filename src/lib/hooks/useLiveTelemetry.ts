@@ -33,6 +33,16 @@ export function useLiveMetric(
     };
   }, []);
 
+  const minBoundRef = useRef(minBound);
+  const maxBoundRef = useRef(maxBound);
+  const stepMaxRef = useRef(stepMax);
+
+  useEffect(() => {
+    minBoundRef.current = minBound;
+    maxBoundRef.current = maxBound;
+    stepMaxRef.current = stepMax;
+  }, [minBound, maxBound, stepMax]);
+
   useEffect(() => {
     // Deterministic jitter based on interval
     const jitter = (intervalMs * 0.1) % 1000;
@@ -43,24 +53,24 @@ export function useLiveMetric(
     const intervalId = setInterval(() => {
       if (!isTabActive.current) return;
 
-      setValue(() => {
+      setValue((currentVal) => {
         elapsed += 1;
         // Deterministic sine wave oscillation around the initial value
         // The value will gently sway up and down by at most stepMax
-        const step = Math.sin(elapsed) * stepMax;
-        let nextValue = initialValue + step;
+        const step = Math.sin(elapsed) * stepMaxRef.current;
+        let nextValue = currentVal + step; // <-- Fixed to use currentVal
 
-        if (nextValue < minBound) nextValue = minBound;
-        if (nextValue > maxBound) nextValue = maxBound;
+        if (nextValue < minBoundRef.current) nextValue = minBoundRef.current;
+        if (nextValue > maxBoundRef.current) nextValue = maxBoundRef.current;
 
         // Optionally round to 2 decimal places if it's a small number, or floor if it's large
-        if (maxBound > 100) return Math.floor(nextValue);
+        if (maxBoundRef.current > 100) return Math.floor(nextValue);
         return Number(nextValue.toFixed(1));
       });
     }, intervalMs + jitter);
 
     return () => clearInterval(intervalId);
-  }, [minBound, maxBound, intervalMs, stepMax, initialValue]);
+  }, [intervalMs]);
 
   return value;
 }

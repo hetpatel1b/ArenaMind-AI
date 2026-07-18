@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class WorkforceRepository extends PrismaRepository<WorkforceUnit, any, any> {
   constructor() {
-    super(prisma.workforceUnit as any);
+    super(prisma.workforceUnit, 'workforceUnit');
   }
 }
 

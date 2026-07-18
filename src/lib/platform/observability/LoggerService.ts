@@ -69,8 +69,8 @@ export class LoggerService {
 
     // Clean up undefined fields
     Object.keys(logEntry).forEach((key) => {
-      if ((logEntry as any)[key] === undefined) {
-        delete (logEntry as any)[key];
+      if ((logEntry as Record<string, unknown>)[key] === undefined) {
+        delete (logEntry as Record<string, unknown>)[key];
       }
     });
 

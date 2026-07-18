@@ -37,20 +37,31 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
     };
   }, [session.locked, updateLastActive]);
 
+  // Use ref to track lastActive to avoid re-triggering the effect on every mouse movement
+  const lastActiveRef = React.useRef(session.lastActive);
+  useEffect(() => {
+    lastActiveRef.current = session.lastActive;
+  }, [session.lastActive]);
+
+  const lockedRef = React.useRef(session.locked);
+  useEffect(() => {
+    lockedRef.current = session.locked;
+  }, [session.locked]);
+
   // Idle Timer check
   useEffect(() => {
     const checkIdle = setInterval(() => {
-      if (!session.locked && Date.now() - session.lastActive > IDLE_TIMEOUT_MS) {
+      if (!lockedRef.current && Date.now() - lastActiveRef.current > IDLE_TIMEOUT_MS) {
         lockWorkspace();
       }
     }, 10000); // Check every 10s
     return () => clearInterval(checkIdle);
-  }, [session.locked, session.lastActive, lockWorkspace]);
+  }, [lockWorkspace]);
 
   // Heartbeat & Latency measurement
   useEffect(() => {
     const heartbeat = setInterval(async () => {
-      if (!session.locked) {
+      if (!lockedRef.current) {
         try {
           const start = performance.now();
           const res = await fetch('/api/v1/health');
@@ -58,15 +69,15 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
             const end = performance.now();
             setLatency(Math.round(end - start));
           } else {
-            setLatency(0); // 0 or a designated error state
+            console.error('Heartbeat failed');
           }
-        } catch (e) {
-          setLatency(0);
+        } catch (err) {
+          console.error('Heartbeat failed', err);
         }
       }
     }, HEARTBEAT_INTERVAL_MS);
     return () => clearInterval(heartbeat);
-  }, [session.locked]);
+  }, []);
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();

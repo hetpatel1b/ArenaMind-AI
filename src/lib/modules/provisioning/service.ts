@@ -60,7 +60,7 @@ export class ProvisioningService {
             name: `${template.venue.name} Org (Demo ${Math.floor(Math.random() * 10000)})`,
             country: template.venue.country,
             createdById: userId,
-          }
+          },
         });
 
         const venue = await tx.venue.create({
@@ -116,7 +116,8 @@ export class ProvisioningService {
             awayTeam: template.match.awayTeam,
             scheduledAt: new Date(),
             kickoffAt: new Date(Date.now() + template.match.kickoffOffsetMinutes * 60000),
-            currentPhase: template.match.currentPhase as any,
+            currentPhase: (template.match.currentPhase ||
+              'PRE_MATCH') as import('@prisma/client').MatchPhase,
             matchStatus: 'active',
             expectedAttendance: template.match.expectedAttendance,
             actualAttendance: template.match.actualAttendance,
@@ -156,7 +157,7 @@ export class ProvisioningService {
               title: incident.title,
               description: incident.description,
               severityTier: incident.severityTier,
-              status: incident.status as any,
+              status: (incident.status || 'OPEN') as import('@prisma/client').IncidentStatus,
               aiType: incident.aiType,
               aiTier: incident.aiTier,
               aiConfidence: incident.aiConfidence,
@@ -176,7 +177,7 @@ export class ProvisioningService {
             zoneId: dbZoneId,
             resourceTypeId: typeId,
             name: res.name,
-            status: res.status as any,
+            status: (res.status || 'AVAILABLE') as import('@prisma/client').ResourceStatus,
           };
         });
         if (resourcePayloads.length > 0) {
@@ -194,7 +195,7 @@ export class ProvisioningService {
             modelName: rec.modelName,
             promptVersion: rec.promptVersion,
             confidenceScore: rec.confidenceScore,
-            data: rec.data as any,
+            data: rec.data,
             expiresAt: new Date(Date.now() + rec.expiresInMinutes * 60000),
           };
         });

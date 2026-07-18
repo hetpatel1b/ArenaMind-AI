@@ -22,7 +22,7 @@ export class TransportService extends BaseService {
 
       this.enforceTenantIsolation(ctx, match.venueId);
 
-      const metadata = (match.metadata as any) || {};
+      const metadata = (match.metadata as Record<string, unknown[]>) || {};
       const transportData = metadata.transportation || [];
 
       // Map raw JSON to DTO
@@ -53,12 +53,13 @@ export class TransportService extends BaseService {
 
       await prisma.$transaction(async (tx) => {
         const m = await tx.match.findUnique({ where: { id: matchId } });
-        const meta = (m!.metadata as any) || {};
+        const meta = (m!.metadata as unknown as Record<string, Record<string, unknown>[]>) || {};
         meta.transportation = meta.transportation || [];
 
         let found = false;
         const hubIndex = meta.transportation.findIndex(
-          (t: any, idx: number) => t.id === hubId || `transport-${matchId}-${idx}` === hubId
+          (t: Record<string, unknown>, idx: number) =>
+            t.id === hubId || `transport-${matchId}-${idx}` === hubId
         );
         if (hubIndex >= 0) {
           meta.transportation[hubIndex] = { ...meta.transportation[hubIndex], ...payload };
@@ -67,7 +68,8 @@ export class TransportService extends BaseService {
           // Parking fallback
           meta.parking = meta.parking || [];
           const parkIndex = meta.parking.findIndex(
-            (p: any, idx: number) => p.id === hubId || `parking-${matchId}-${idx}` === hubId
+            (p: Record<string, unknown>, idx: number) =>
+              p.id === hubId || `parking-${matchId}-${idx}` === hubId
           );
           if (parkIndex >= 0) {
             meta.parking[parkIndex] = { ...meta.parking[parkIndex], ...payload };
@@ -79,7 +81,10 @@ export class TransportService extends BaseService {
           throw new NotFoundError('Transport/Parking hub not found');
         }
 
-        await tx.match.update({ where: { id: matchId }, data: { metadata: meta } });
+        await tx.match.update({
+          where: { id: matchId },
+          data: { metadata: meta as import('@prisma/client').Prisma.InputJsonValue },
+        });
         await tx.auditLog.create({
           data: { recordId: matchId, tableName: 'unknown', action: 'UPDATE_TRANSPORT_PARKING' },
         });

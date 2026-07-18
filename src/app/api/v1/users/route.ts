@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { GlobalErrorHandler } from '@/lib/platform/errors/GlobalErrorHandler';
 import { UserService } from '@/server/services/user.service';
 import { withRole, AuthenticatedRequest } from '@/server/middleware/rbac';
 import { UserRole } from '@prisma/client';
@@ -29,7 +30,7 @@ export const POST = withRole(
       const user = await UserService.inviteUser(body, inviterId, organizationId);
       return NextResponse.json(user, { status: 201 });
     } catch (error: any) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+      return GlobalErrorHandler.handle(error);
     }
   }
 );

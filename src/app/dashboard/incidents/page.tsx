@@ -80,7 +80,7 @@ export default async function IncidentCommandPage() {
 
   return (
     <IncidentCommandWorkspace
-      matchData={JSON.parse(JSON.stringify(match)) as any} // Typing appropriately in the client component
+      matchData={JSON.parse(JSON.stringify(match))} // Typing appropriately in the client component
     />
   );
 }

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/client';
 
 export class AuditRepository extends PrismaRepository<AuditLog, any, any> {
   constructor() {
-    super(prisma.auditLog as any);
+    super(prisma.auditLog, 'auditLog');
   }
 }
 
