@@ -38,6 +38,12 @@ declare global {
   var prismaClientGlobalInstance: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
-export const prisma = globalThis.prismaClientGlobalInstance ?? prismaClientSingleton();
+export let prisma: PrismaClient;
 
-if (process.env.NODE_ENV !== 'production') globalThis.prismaClientGlobalInstance = prisma;
+if (process.env.NEXT_PUBLIC_E2E_MODE === 'true') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  prisma = require('../../../tests/e2e/mocks/prisma.mock').prismaMock;
+} else {
+  prisma = globalThis.prismaClientGlobalInstance ?? (prismaClientSingleton() as any);
+  if (process.env.NODE_ENV !== 'production') globalThis.prismaClientGlobalInstance = prisma as any;
+}

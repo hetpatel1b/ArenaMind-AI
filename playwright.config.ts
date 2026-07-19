@@ -10,6 +10,10 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    colorScheme: 'dark',
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
   },
   projects: [
     {
@@ -21,5 +25,8 @@ export default defineConfig({
     command: 'pnpm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    env: {
+      NEXT_PUBLIC_E2E_MODE: 'true',
+    },
   },
 });

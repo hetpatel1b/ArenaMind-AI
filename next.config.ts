@@ -41,6 +41,17 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  webpack: (config, { isServer }) => {
+    if (process.env.NEXT_PUBLIC_E2E_MODE === 'true') {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = require('path');
+      config.resolve.alias['@/lib/db/client'] = path.resolve(
+        __dirname,
+        'tests/e2e/mocks/prisma.mock.ts'
+      );
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
