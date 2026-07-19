@@ -1,6 +1,13 @@
 import type { NextAuthConfig } from 'next-auth';
 import { UserRole } from '@prisma/client';
 
+// FINAL FIX FOR VERCEL HOST MISMATCH (UntrustedHost)
+// If NextAuth sees localhost:3000 in Vercel Env, it crashes. We override it dynamically here.
+if (process.env.VERCEL_URL) {
+  process.env.AUTH_URL = `https://${process.env.VERCEL_URL}`;
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
+
 export const authConfig = {
   secret:
     process.env.AUTH_SECRET ||
