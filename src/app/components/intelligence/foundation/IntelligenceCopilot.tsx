@@ -1,10 +1,10 @@
+'use client';
+
 import { CopilotReasoningTab } from './copilot/CopilotReasoningTab';
 import { CopilotScenariosTab } from './copilot/CopilotScenariosTab';
 import { CopilotMissionTab } from './copilot/CopilotMissionTab';
 import { CopilotMemoryTab } from './copilot/CopilotMemoryTab';
 import { CopilotOverviewTab } from './copilot/CopilotOverviewTab';
-('use client');
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIntelligenceWorkspace } from './IntelligenceWorkspaceContext';
