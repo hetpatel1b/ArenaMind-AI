@@ -8,6 +8,7 @@ test.describe('Intelligence Copilot End-to-End', () => {
     await page.fill('input[type="password"]', 'password123');
     await page.click('button[type="submit"]');
     await expect(page).toHaveURL(/.*\/dashboard/, { timeout: 15000 });
+    await page.goto('/dashboard/intelligence');
   });
 
   test('renders the executive decision brain and handles tabs', async ({ page }) => {

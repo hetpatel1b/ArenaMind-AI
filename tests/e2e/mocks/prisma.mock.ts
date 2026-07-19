@@ -78,6 +78,20 @@ const mockMatch = {
   resources: [],
 };
 
+const mockVenue = {
+  id: 'mock-venue-1',
+  organizationId: 'mock-org-id',
+  name: 'Lusail Stadium',
+  code: 'LUS-01',
+  capacity: 80000,
+  zones: [
+    {
+      id: 'mock-zone-1',
+      name: 'North Stand',
+    },
+  ],
+};
+
 const createRecursiveMock = (): any => {
   const handler: ProxyHandler<any> = {
     get(target, prop) {
@@ -119,6 +133,16 @@ const createRecursiveMock = (): any => {
           findMany: async () => [mockMatch],
           create: async ({ data }: any) => ({ id: 'mock-match-1', ...data }),
           update: async ({ data }: any) => ({ id: 'mock-match-1', ...data }),
+        };
+      }
+
+      if (prop === 'venue') {
+        return {
+          findFirst: async () => mockVenue,
+          findUnique: async () => mockVenue,
+          findMany: async () => [mockVenue],
+          create: async ({ data }: any) => ({ id: 'mock-venue-1', ...data }),
+          update: async ({ data }: any) => ({ id: 'mock-venue-1', ...data }),
         };
       }
 
