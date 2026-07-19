@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/db/client';
 
 export class AiMetricsService {
   public async getGovernanceDashboardMetrics(organizationId: string, timeWindowMs = 86400000) {

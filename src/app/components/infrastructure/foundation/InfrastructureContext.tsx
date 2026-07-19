@@ -138,9 +138,9 @@ export const InfrastructureContext = createContext<{
 export function InfrastructureProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(infrastructureReducer, initialState);
 
+  const contextValue = React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
   return (
-    <InfrastructureContext.Provider value={{ state, dispatch }}>
-      {children}
-    </InfrastructureContext.Provider>
+    <InfrastructureContext.Provider value={contextValue}>{children}</InfrastructureContext.Provider>
   );
 }

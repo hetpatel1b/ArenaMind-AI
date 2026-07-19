@@ -10,7 +10,11 @@ export const GET = createRouteHandler(async (req, { bizContext }) => {
   }
 
   const matches = await MatchService.getMatchesByOrganization(organizationId);
-  return NextResponse.json(matches);
+  return NextResponse.json(matches, {
+    headers: {
+      'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
+    },
+  });
 });
 
 export const POST = createRouteHandler(async (req, { bizContext }) => {

@@ -11,7 +11,11 @@ export const GET = createRouteHandler(
     }
 
     const users = await UserService.getUsersByOrganization(organizationId);
-    return NextResponse.json(users);
+    return NextResponse.json(users, {
+      headers: {
+        'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
+      },
+    });
   },
   {
     requireAuth: true,

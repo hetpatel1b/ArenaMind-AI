@@ -2,6 +2,7 @@ import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/db/client';
 import { redirect } from 'next/navigation';
 import { IncidentCommandWorkspace } from '@/app/components/incidents/IncidentCommandWorkspace';
+import { serializeToPlainObject } from '@/lib/utils/serialization';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,28 +13,12 @@ export default async function IncidentCommandPage() {
     redirect('/unauthorized');
   }
 
-  const organizationId = session.organizationId;
+  const organizationId = session.organizationId as string;
 
-  // Fetch the active match with deep relations for incidents and resources
-  const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM matches 
-    WHERE organization_id = ${organizationId}::uuid 
-    AND match_status::text = 'active'
-    LIMIT 1
-  `;
-
-  if (!activeMatchIds || activeMatchIds.length === 0 || !activeMatchIds[0]) {
-    return (
-      <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
-        <h1>No Active Match Found</h1>
-        <p>Please ensure your Demo Operator Workspace has been fully provisioned.</p>
-      </div>
-    );
-  }
-
-  const match = await prisma.match.findUnique({
+  const match = await prisma.match.findFirst({
     where: {
-      id: activeMatchIds[0]!.id,
+      organizationId,
+      matchStatus: 'active',
     },
     include: {
       venue: {
@@ -78,9 +63,5 @@ export default async function IncidentCommandPage() {
     );
   }
 
-  return (
-    <IncidentCommandWorkspace
-      matchData={JSON.parse(JSON.stringify(match))} // Typing appropriately in the client component
-    />
-  );
+  return <IncidentCommandWorkspace matchData={serializeToPlainObject(match)} />;
 }

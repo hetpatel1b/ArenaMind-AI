@@ -39,29 +39,29 @@ export function WorkforceSidebar() {
   const { state, dispatch } = useWorkforceWorkspace();
   const { units } = state;
 
-  // Group units by department
-  const depts = (units || []).reduce(
-    (acc, unit) => {
-      let dept = acc[unit.department];
-      if (!dept) {
-        dept = { units: [], totalPersonnel: 0, avgFatigue: 0 };
-        acc[unit.department] = dept;
+  // Group units by department and calculate averages
+  const depts = React.useMemo(() => {
+    if (!units || units.length === 0) return {};
+    const groups: Record<string, { units: any[]; totalPersonnel: number; avgFatigue: number }> = {};
+    for (const unit of units) {
+      if (!groups[unit.department]) {
+        groups[unit.department] = { units: [], totalPersonnel: 0, avgFatigue: 0 };
       }
-      dept.units.push(unit);
-      dept.totalPersonnel += unit.personnelCount;
-      return acc;
-    },
-    {} as Record<string, { units: any[]; totalPersonnel: number; avgFatigue: number }>
-  );
-
-  // Calculate averages
-  Object.keys(depts).forEach((dept) => {
-    const deptObj = depts[dept];
-    if (deptObj && deptObj.units.length > 0) {
-      const sum = deptObj.units.reduce((s, u) => s + u.fatigueRisk, 0);
-      deptObj.avgFatigue = sum / deptObj.units.length;
+      const dept = groups[unit.department];
+      if (dept) {
+        dept.units.push(unit);
+        dept.totalPersonnel += unit.personnelCount;
+        dept.avgFatigue += unit.fatigueRisk;
+      }
     }
-  });
+    for (const deptKey in groups) {
+      const dept = groups[deptKey];
+      if (dept && dept.units.length > 0) {
+        dept.avgFatigue = dept.avgFatigue / dept.units.length;
+      }
+    }
+    return groups;
+  }, [units]);
 
   return (
     <div

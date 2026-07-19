@@ -283,7 +283,7 @@ export const GovernanceContext = createContext<{
 export function GovernanceProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(governanceReducer, initialState);
 
-  return (
-    <GovernanceContext.Provider value={{ state, dispatch }}>{children}</GovernanceContext.Provider>
-  );
+  const contextValue = React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
+  return <GovernanceContext.Provider value={contextValue}>{children}</GovernanceContext.Provider>;
 }

@@ -46,11 +46,14 @@ const HealthRow = memo(function HealthRow({
     const height = 16;
     const step = width / (health.sparkline.length - 1);
 
-    return health.sparkline.reduce((path, val, idx) => {
+    let path = '';
+    for (let idx = 0; idx < health.sparkline.length; idx++) {
+      const val = health.sparkline[idx] || 0;
       const x = idx * step;
       const y = height - ((val - min) / (max - min)) * height;
-      return idx === 0 ? `M ${x} ${y}` : `${path} L ${x} ${y}`;
-    }, '');
+      path += idx === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
+    }
+    return path;
   }, [health.sparkline]);
 
   return (

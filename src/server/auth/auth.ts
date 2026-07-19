@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { prisma } from '../database/prisma';
+import { prisma } from '@/lib/db/client';
 import bcrypt from 'bcrypt';
 import { authConfig } from './auth.config';
 import { AuditService } from '../audit/audit.service';

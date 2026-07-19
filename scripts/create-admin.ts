@@ -1,4 +1,4 @@
-import { prisma } from '../src/server/database/prisma';
+import { prisma } from '../src/lib/db/client';
 import bcrypt from 'bcrypt';
 
 async function main() {

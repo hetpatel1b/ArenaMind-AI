@@ -7,19 +7,24 @@ export function WorkforceExecutiveReport() {
   const { state } = useWorkforceWorkspace();
   const { metrics, selectedDepartment, units } = state;
 
-  const filteredUnits = selectedDepartment
-    ? units.filter((u) => u.department === selectedDepartment)
-    : units;
-  const avgFatigue =
-    filteredUnits.length > 0
-      ? filteredUnits.reduce((acc, u) => acc + u.fatigueRisk, 0) / filteredUnits.length
-      : 0;
+  const { avgFatigue, operationalScore, fatigueEfficiency } = React.useMemo(() => {
+    let filteredCount = 0;
+    let totalFatigue = 0;
 
-  const operationalScore = Math.max(
-    0,
-    100 - avgFatigue - metrics.pendingShiftChanges * 0.5
-  ).toFixed(1);
-  const fatigueEfficiency = avgFatigue < 30 ? 'Optimal' : avgFatigue < 60 ? 'Warning' : 'Critical';
+    for (let i = 0; i < (units?.length || 0); i++) {
+      const u = units[i];
+      if (u && (!selectedDepartment || u.department === selectedDepartment)) {
+        filteredCount++;
+        totalFatigue += u.fatigueRisk;
+      }
+    }
+
+    const avg = filteredCount > 0 ? totalFatigue / filteredCount : 0;
+    const opScore = Math.max(0, 100 - avg - metrics.pendingShiftChanges * 0.5).toFixed(1);
+    const fatEff = avg < 30 ? 'Optimal' : avg < 60 ? 'Warning' : 'Critical';
+
+    return { avgFatigue: avg, operationalScore: opScore, fatigueEfficiency: fatEff };
+  }, [units, selectedDepartment, metrics.pendingShiftChanges]);
 
   return (
     <div

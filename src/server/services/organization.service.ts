@@ -1,4 +1,4 @@
-import { prisma } from '../database/prisma';
+import { prisma } from '@/lib/db/client';
 import { AuditService } from '../audit/audit.service';
 
 export class OrganizationService {

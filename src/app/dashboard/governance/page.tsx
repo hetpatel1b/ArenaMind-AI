@@ -12,29 +12,15 @@ export default async function GovernanceCommandPage() {
     redirect('/unauthorized');
   }
 
-  const organizationId = session.organizationId;
-
-  // Bypass Enum bug for match
-  const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM matches 
-    WHERE organization_id = ${organizationId}::uuid 
-    AND match_status::text = 'active'
-    LIMIT 1
-  `;
-
-  if (!activeMatchIds || activeMatchIds.length === 0 || !activeMatchIds[0]) {
-    return (
-      <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
-        <h1>System Uninitialized</h1>
-        <p>Please ensure your ArenaMind AI Demo Environment is fully provisioned.</p>
-      </div>
-    );
-  }
+  const organizationId = session.organizationId as string;
 
   // Fetch critical platform configuration and active state
   const [match, venue, users] = await Promise.all([
-    prisma.match.findUnique({
-      where: { id: activeMatchIds[0]!.id },
+    prisma.match.findFirst({
+      where: {
+        organizationId,
+        matchStatus: 'active',
+      },
       include: {
         aiRecommendations: {
           take: 5,

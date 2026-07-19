@@ -15,12 +15,25 @@ export class SearchService extends BaseService {
       const results: SearchResultDto[] = [];
       const tenantFilter = ctx.venueId !== 'GLOBAL' ? { venueId: ctx.venueId } : {};
 
-      // 1. Search Incidents
-      const incidents = await prisma.incident.findMany({
-        where: { ...tenantFilter, title: { contains: query, mode: 'insensitive' } },
-        take: 5,
-        select: { id: true, title: true, status: true },
-      });
+      // 1 & 2. Search Incidents and Matches Concurrently
+      const [incidents, matches] = await Promise.all([
+        prisma.incident.findMany({
+          where: { ...tenantFilter, title: { contains: query, mode: 'insensitive' } },
+          take: 5,
+          select: { id: true, title: true, status: true },
+        }),
+        prisma.match.findMany({
+          where: {
+            ...tenantFilter,
+            OR: [
+              { homeTeam: { contains: query, mode: 'insensitive' } },
+              { awayTeam: { contains: query, mode: 'insensitive' } },
+            ],
+          },
+          take: 5,
+          select: { id: true, homeTeam: true, awayTeam: true, matchStatus: true },
+        }),
+      ]);
 
       incidents.forEach((i) =>
         results.push({
@@ -30,19 +43,6 @@ export class SearchService extends BaseService {
           subtitle: `Status: ${i.status}`,
         })
       );
-
-      // 2. Search Matches
-      const matches = await prisma.match.findMany({
-        where: {
-          ...tenantFilter,
-          OR: [
-            { homeTeam: { contains: query, mode: 'insensitive' } },
-            { awayTeam: { contains: query, mode: 'insensitive' } },
-          ],
-        },
-        take: 5,
-        select: { id: true, homeTeam: true, awayTeam: true, matchStatus: true },
-      });
 
       matches.forEach((m) =>
         results.push({

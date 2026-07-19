@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import { useWorkforceWorkspace } from './useWorkforceWorkspace';
 
@@ -30,10 +30,19 @@ export function ExecutiveWorkforceBanner() {
   const { state } = useWorkforceWorkspace();
   const { metrics, units } = state;
 
-  const deployedCount = units?.filter((u) => u.status === 'DEPLOYED').length || 0;
-  const activePersonnel =
-    units?.filter((u) => u.status === 'DEPLOYED').reduce((acc, u) => acc + u.personnelCount, 0) ||
-    0;
+  const { deployedCount, activePersonnel } = useMemo(() => {
+    let dCount = 0;
+    let aPers = 0;
+    if (units) {
+      for (const u of units) {
+        if (u.status === 'DEPLOYED') {
+          dCount++;
+          aPers += u.personnelCount;
+        }
+      }
+    }
+    return { deployedCount: dCount, activePersonnel: aPers };
+  }, [units]);
 
   return (
     <div

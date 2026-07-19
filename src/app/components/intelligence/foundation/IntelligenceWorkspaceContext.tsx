@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import { IntelligenceState, IntelligenceAction } from './IntelligenceTypes';
 import { useIntelligenceWorkspaceManager } from './useIntelligenceWorkspace';
 
@@ -14,8 +14,10 @@ const IntelligenceWorkspaceContext = createContext<IntelligenceContextProps | un
 export function IntelligenceWorkspaceProvider({ children }: { children: ReactNode }) {
   const { state, dispatch } = useIntelligenceWorkspaceManager();
 
+  const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
   return (
-    <IntelligenceWorkspaceContext.Provider value={{ state, dispatch }}>
+    <IntelligenceWorkspaceContext.Provider value={contextValue}>
       {children}
     </IntelligenceWorkspaceContext.Provider>
   );

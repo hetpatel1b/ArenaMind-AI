@@ -6,7 +6,11 @@ import { UserRole } from '@prisma/client';
 export const GET = createRouteHandler(
   async (req) => {
     const organizations = await OrganizationService.getOrganizations();
-    return NextResponse.json(organizations);
+    return NextResponse.json(organizations, {
+      headers: {
+        'Cache-Control': 'private, max-age=15, stale-while-revalidate=30',
+      },
+    });
   },
   { requireAuth: true, allowedRoles: [UserRole.super_admin, UserRole.organization_admin] }
 );

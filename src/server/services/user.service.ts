@@ -1,4 +1,4 @@
-import { prisma } from '../database/prisma';
+import { prisma } from '@/lib/db/client';
 import { AuditService } from '../audit/audit.service';
 import bcrypt from 'bcrypt';
 import { UserRole } from '@prisma/client';
@@ -23,7 +23,7 @@ export class UserService {
 
   static async inviteUser(data: any, inviterId: string, organizationId: string) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    
+
     const user = await prisma.user.create({
       data: {
         email: data.email,

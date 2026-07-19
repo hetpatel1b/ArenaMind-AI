@@ -1,4 +1,4 @@
-import { prisma } from '../database/prisma';
+import { prisma } from '@/lib/db/client';
 import { AuditService } from '../audit/audit.service';
 import { createMatchSchema, updateMatchSchema } from '../validators/match.schema';
 import { z } from 'zod';
@@ -42,7 +42,12 @@ export class MatchService {
     return match;
   }
 
-  static async updateMatch(id: string, organizationId: string, data: z.infer<typeof updateMatchSchema>, userId: string) {
+  static async updateMatch(
+    id: string,
+    organizationId: string,
+    data: z.infer<typeof updateMatchSchema>,
+    userId: string
+  ) {
     const oldMatch = await prisma.match.findFirst({ where: { id, organizationId } });
     if (!oldMatch) throw new Error('Match not found');
 

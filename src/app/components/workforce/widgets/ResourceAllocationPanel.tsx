@@ -10,24 +10,28 @@ interface ResourceAllocationPanelProps {
 export function ResourceAllocationPanel({ resources }: ResourceAllocationPanelProps) {
   const shouldReduceMotion = useReducedMotion();
 
-  const metrics = [
-    {
-      label: 'Deployed',
-      value: resources.filter((r) => r.status === 'deployed' || r.status === 'incident_assigned')
-        .length,
-      color: 'var(--status-warning)',
-    },
-    {
-      label: 'Standby',
-      value: resources.filter((r) => r.status === 'available').length,
-      color: 'var(--status-success)',
-    },
-    {
-      label: 'Off-Duty',
-      value: resources.filter((r) => r.status === 'off_duty' || r.status === 'unavailable').length,
-      color: 'var(--text-tertiary)',
-    },
-  ];
+  const metrics = React.useMemo(() => {
+    let deployed = 0;
+    let standby = 0;
+    let offDuty = 0;
+
+    for (let i = 0; i < resources.length; i++) {
+      const s = resources[i].status;
+      if (s === 'deployed' || s === 'incident_assigned') {
+        deployed++;
+      } else if (s === 'available') {
+        standby++;
+      } else if (s === 'off_duty' || s === 'unavailable') {
+        offDuty++;
+      }
+    }
+
+    return [
+      { label: 'Deployed', value: deployed, color: 'var(--status-warning)' },
+      { label: 'Standby', value: standby, color: 'var(--status-success)' },
+      { label: 'Off-Duty', value: offDuty, color: 'var(--text-tertiary)' },
+    ];
+  }, [resources]);
 
   const total = resources.length || 1;
 
@@ -81,29 +85,34 @@ export function ResourceAllocationPanel({ resources }: ResourceAllocationPanelPr
           viewBox="0 0 100 100"
           style={{ width: '140px', height: '140px', transform: 'rotate(-90deg)' }}
         >
-          {metrics.map((metric, idx) => {
-            const previousTotal = metrics.slice(0, idx).reduce((acc, curr) => acc + curr.value, 0);
-            const offset = (previousTotal / total) * 100;
-            const percentage = (metric.value / total) * 100;
-            const dashArray = `${percentage} ${100 - percentage}`;
+          {(() => {
+            let runningTotal = 0;
+            return metrics.map((metric, idx) => {
+              const previousTotal = runningTotal;
+              runningTotal += metric.value;
 
-            return (
-              <motion.circle
-                key={metric.label}
-                cx="50"
-                cy="50"
-                r="40"
-                fill="transparent"
-                stroke={metric.color}
-                strokeWidth="12"
-                strokeDasharray={shouldReduceMotion ? dashArray : '0 100'}
-                animate={!shouldReduceMotion ? { strokeDasharray: dashArray } : undefined}
-                transition={{ duration: 1, delay: idx * 0.2, ease: 'easeOut' }}
-                strokeDashoffset={-offset}
-                style={{ strokeLinecap: 'butt' }}
-              />
-            );
-          })}
+              const offset = (previousTotal / total) * 100;
+              const percentage = (metric.value / total) * 100;
+              const dashArray = `${percentage} ${100 - percentage}`;
+
+              return (
+                <motion.circle
+                  key={metric.label}
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="transparent"
+                  stroke={metric.color}
+                  strokeWidth="12"
+                  strokeDasharray={shouldReduceMotion ? dashArray : '0 100'}
+                  animate={!shouldReduceMotion ? { strokeDasharray: dashArray } : undefined}
+                  transition={{ duration: 1, delay: idx * 0.2, ease: 'easeOut' }}
+                  strokeDashoffset={-offset}
+                  style={{ strokeLinecap: 'butt' }}
+                />
+              );
+            });
+          })()}
         </svg>
         <div
           style={{

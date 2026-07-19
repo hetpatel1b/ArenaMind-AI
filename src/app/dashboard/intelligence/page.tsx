@@ -12,28 +12,13 @@ export default async function IntelligenceCommandPage() {
     redirect('/unauthorized');
   }
 
-  const organizationId = session.organizationId;
+  const organizationId = session.organizationId as string;
 
   // Fetch match with extensive historical includes
-  const activeMatchIds = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id FROM matches 
-    WHERE organization_id = ${organizationId}::uuid 
-    AND match_status::text = 'active'
-    LIMIT 1
-  `;
-
-  if (!activeMatchIds || activeMatchIds.length === 0 || !activeMatchIds[0]) {
-    return (
-      <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>
-        <h1>No Active Match Found</h1>
-        <p>Please ensure your Demo Operator Workspace has been fully provisioned.</p>
-      </div>
-    );
-  }
-
-  const match = await prisma.match.findUnique({
+  const match = await prisma.match.findFirst({
     where: {
-      id: activeMatchIds[0]!.id,
+      organizationId,
+      matchStatus: 'active',
     },
     include: {
       venue: true,

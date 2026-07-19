@@ -1,7 +1,8 @@
 import { auth } from '@/server/auth/auth';
-import { prisma } from '@/server/database/prisma';
+import { prisma } from '@/lib/db/client';
 import { redirect } from 'next/navigation';
 import { DashboardClient } from './DashboardClient';
+import { serializeToPlainObject } from '@/lib/utils/serialization';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,35 +77,8 @@ export default async function DashboardPage() {
       </div>
     );
   }
-  // Recursive function to convert all Dates to ISO strings and Decimals to numbers
-  const serializeData = <T,>(obj: T): any => {
-    if (obj === null || obj === undefined) return obj;
-    if (obj instanceof Date) return obj.toISOString();
 
-    // Check for Prisma Decimal
-    if (
-      typeof obj === 'object' &&
-      'toNumber' in obj &&
-      typeof (obj as { toNumber?: unknown }).toNumber === 'function' &&
-      'd' in obj &&
-      'e' in obj &&
-      's' in obj
-    ) {
-      return (obj as { toNumber: () => number }).toNumber();
-    }
-    if (Array.isArray(obj)) return obj.map((item) => serializeData(item));
-    if (typeof obj === 'object') {
-      const res: any = {};
-      for (const key of Object.keys(obj)) {
-        res[key] = serializeData((obj as Record<string, unknown>)[key]);
-      }
-      return res;
-    }
-    return obj;
-    return obj;
-  };
-
-  const serializedMatch = serializeData(match);
+  const serializedMatch = serializeToPlainObject(match);
 
   return <DashboardClient initialMatchData={serializedMatch} organizationId={organizationId} />;
 }

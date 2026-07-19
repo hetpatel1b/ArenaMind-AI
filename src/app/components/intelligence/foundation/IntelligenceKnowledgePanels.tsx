@@ -7,67 +7,70 @@ export function IntelligenceKnowledgePanels() {
   const { state } = useIntelligenceWorkspace();
   const m = state.engineMetrics;
 
-  const panels = [
-    {
-      id: 'strategic_risks',
-      title: 'Strategic Risks',
-      status: state.threatLevel,
-      color: state.threatLevel === 'NOMINAL' ? '#4ADE80' : '#F87171',
-      count: 2,
-    },
-    {
-      id: 'ai_consensus',
-      title: 'AI Consensus',
-      status: `${state.collaborationChain.reduce((acc, c) => acc + c.agreement, 0) / (state.collaborationChain.length || 1)}%`,
-      color: '#38BDF8',
-      count: state.collaborationChain.length,
-    },
-    {
-      id: 'decision_queue',
-      title: 'Decision Queue',
-      status: state.approvalStatus || 'Idle',
-      color: state.approvalStatus === 'PENDING' ? '#FBBF24' : '#4ADE80',
-      count: state.scenarios.length,
-    },
-    {
-      id: 'confidence',
-      title: 'Confidence Dist.',
-      status: state.overallConfidence,
-      color: '#38BDF8',
-      count: 0,
-    },
-    {
-      id: 'resource_impact',
-      title: 'Resource Impact',
-      status: 'Optimal',
-      color: '#4ADE80',
-      count: 3,
-    },
-    {
-      id: 'mission_status',
-      title: 'Mission Status',
-      status:
-        state.activeMission.filter((m) => m.status === 'completed').length > 0
-          ? 'Active'
-          : 'Pending',
-      color: '#A855F7',
-      count: state.activeMission.length,
-    },
-    {
-      id: 'prediction',
-      title: 'Prediction Queue',
-      status: `Running (${m.predictions})`,
-      color: '#38BDF8',
-      count: 4,
-    },
-    {
-      id: 'quality',
-      title: 'Correlation Quality',
-      status: m.correlationStrength > 90 ? 'Optimal' : 'Stable',
-      color: m.correlationStrength > 90 ? '#4ADE80' : '#38BDF8',
-      count: 0,
-    },
-  ];
+  const panels = React.useMemo(
+    () => [
+      {
+        id: 'strategic_risks',
+        title: 'Strategic Risks',
+        status: state.threatLevel,
+        color: state.threatLevel === 'NOMINAL' ? '#4ADE80' : '#F87171',
+        count: 2,
+      },
+      {
+        id: 'ai_consensus',
+        title: 'AI Consensus',
+        status: `${state.collaborationChain.reduce((acc, c) => acc + c.agreement, 0) / (state.collaborationChain.length || 1)}%`,
+        color: '#38BDF8',
+        count: state.collaborationChain.length,
+      },
+      {
+        id: 'decision_queue',
+        title: 'Decision Queue',
+        status: state.approvalStatus || 'Idle',
+        color: state.approvalStatus === 'PENDING' ? '#FBBF24' : '#4ADE80',
+        count: state.scenarios.length,
+      },
+      {
+        id: 'confidence',
+        title: 'Confidence Dist.',
+        status: state.overallConfidence,
+        color: '#38BDF8',
+        count: 0,
+      },
+      {
+        id: 'resource_impact',
+        title: 'Resource Impact',
+        status: 'Optimal',
+        color: '#4ADE80',
+        count: 3,
+      },
+      {
+        id: 'mission_status',
+        title: 'Mission Status',
+        status:
+          state.activeMission.filter((m) => m.status === 'completed').length > 0
+            ? 'Active'
+            : 'Pending',
+        color: '#A855F7',
+        count: state.activeMission.length,
+      },
+      {
+        id: 'prediction',
+        title: 'Prediction Queue',
+        status: `Running (${m.predictions})`,
+        color: '#38BDF8',
+        count: 4,
+      },
+      {
+        id: 'quality',
+        title: 'Correlation Quality',
+        status: m.correlationStrength > 90 ? 'Optimal' : 'Stable',
+        color: m.correlationStrength > 90 ? '#4ADE80' : '#38BDF8',
+        count: 0,
+      },
+    ],
+    [state, m]
+  );
 
   return (
     <div

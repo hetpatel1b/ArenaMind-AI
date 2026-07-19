@@ -73,5 +73,5 @@ export function useIncidentWorkspace(initialContext?: Partial<WorkspaceState>) {
     []
   );
 
-  return { state, actions };
+  return useMemo(() => ({ state, actions }), [state, actions]);
 }

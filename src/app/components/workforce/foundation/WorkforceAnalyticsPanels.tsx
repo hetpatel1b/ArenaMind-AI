@@ -16,10 +16,14 @@ export function WorkforceAnalyticsPanels() {
   const { state } = useWorkforceWorkspace();
   const { metrics, units } = state;
 
-  const avgReadiness =
-    units && units.length > 0
-      ? units.reduce((acc, u) => acc + (100 - u.fatigueRisk), 0) / units.length
-      : 100;
+  const avgReadiness = React.useMemo(() => {
+    if (!units || units.length === 0) return 100;
+    let total = 0;
+    for (const u of units) {
+      total += 100 - u.fatigueRisk;
+    }
+    return total / units.length;
+  }, [units]);
 
   return (
     <div
