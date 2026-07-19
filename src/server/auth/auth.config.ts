@@ -6,6 +6,7 @@ export const authConfig = {
     process.env.AUTH_SECRET ||
     process.env.NEXTAUTH_SECRET ||
     'super-secret-key-arena-mind-production-grade',
+  trustHost: true,
   pages: {
     signIn: '/login',
   },
