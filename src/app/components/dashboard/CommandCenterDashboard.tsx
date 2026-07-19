@@ -92,7 +92,7 @@ function InnerDashboardGrid({
         : 'rgba(10,132,255,0.03)';
 
   return (
-    <main
+    <div
       className="dashboard-grid"
       style={{
         display: 'flex',
@@ -312,6 +312,6 @@ function InnerDashboardGrid({
           )}
         </motion.div>
       )}
-    </main>
+    </div>
   );
 }

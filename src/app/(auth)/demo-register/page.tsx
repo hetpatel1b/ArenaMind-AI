@@ -6,6 +6,12 @@ import { registerOperator } from './actions';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
+import {
+  useAccessibleId,
+  buildErrorAttributes,
+  buildLabelAttributes,
+  buildDescriptionAttributes,
+} from '@/lib/accessibility';
 
 export default function DemoRegisterPage() {
   const router = useRouter();
@@ -23,6 +29,16 @@ export default function DemoRegisterPage() {
 
   // Caps lock detection
   const [capsLockActive, setCapsLockActive] = useState(false);
+
+  const nameId = useAccessibleId('name');
+  const orgId = useAccessibleId('org');
+  const emailId = useAccessibleId('email');
+  const roleId = useAccessibleId('role');
+  const passwordId = useAccessibleId('password');
+  const confirmPasswordId = useAccessibleId('confirm-password');
+  const errorId = useAccessibleId('error');
+  const capsLockId = useAccessibleId('caps-lock');
+  const strengthId = useAccessibleId('strength');
 
   const checkPasswordStrength = (pass: string) => {
     let strength = 0;
@@ -100,6 +116,8 @@ export default function DemoRegisterPage() {
 
           {error && (
             <div
+              id={errorId}
+              role="alert"
               style={{
                 padding: 'var(--space-3)',
                 backgroundColor: 'var(--status-critical-bg)',
@@ -116,14 +134,16 @@ export default function DemoRegisterPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <label
-                htmlFor="name"
+                {...buildLabelAttributes(nameId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Full Name
               </label>
               <input
-                id="name"
+                {...buildLabelAttributes(nameId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type="text"
+                autoComplete="name"
                 required
                 disabled={isLoading}
                 value={name}
@@ -143,14 +163,16 @@ export default function DemoRegisterPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <label
-                htmlFor="org"
+                {...buildLabelAttributes(orgId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Organization (optional)
               </label>
               <input
-                id="org"
+                {...buildLabelAttributes(orgId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type="text"
+                autoComplete="organization"
                 disabled={isLoading}
                 value={organization}
                 onChange={(e) => setOrganization(e.target.value)}
@@ -171,14 +193,17 @@ export default function DemoRegisterPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label
-              htmlFor="email"
+              {...buildLabelAttributes(emailId).labelProps}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
             >
               Email
             </label>
             <input
-              id="email"
+              {...buildLabelAttributes(emailId).inputProps}
+              {...buildErrorAttributes(!!error, errorId)}
               type="email"
+              inputMode="email"
+              autoComplete="email"
               required
               disabled={isLoading}
               value={email}
@@ -199,13 +224,13 @@ export default function DemoRegisterPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label
-              htmlFor="role"
+              {...buildLabelAttributes(roleId).labelProps}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
             >
               Role
             </label>
             <input
-              id="role"
+              {...buildLabelAttributes(roleId).inputProps}
               type="text"
               disabled
               value="Operations Manager (Demo)"
@@ -231,15 +256,20 @@ export default function DemoRegisterPage() {
               }}
             >
               <label
-                htmlFor="password"
+                {...buildLabelAttributes(passwordId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Password
               </label>
               <div style={{ position: 'relative' }}>
                 <input
-                  id="password"
+                  {...buildLabelAttributes(passwordId).inputProps}
+                  {...buildErrorAttributes(!!error, errorId)}
+                  {...buildDescriptionAttributes(
+                    capsLockActive ? capsLockId : password ? strengthId : undefined
+                  )}
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
                   required
                   disabled={isLoading}
                   value={password}
@@ -259,6 +289,8 @@ export default function DemoRegisterPage() {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute',
@@ -277,6 +309,7 @@ export default function DemoRegisterPage() {
               </div>
               {password && (
                 <div
+                  id={strengthId}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -284,7 +317,7 @@ export default function DemoRegisterPage() {
                     marginTop: '4px',
                   }}
                 >
-                  <div style={{ display: 'flex', flex: 1, gap: '2px' }}>
+                  <div style={{ display: 'flex', flex: 1, gap: '2px' }} aria-hidden="true">
                     {[1, 2, 3, 4].map((level) => (
                       <div
                         key={level}
@@ -308,14 +341,16 @@ export default function DemoRegisterPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <label
-                htmlFor="confirmPassword"
+                {...buildLabelAttributes(confirmPasswordId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Confirm Password
               </label>
               <input
-                id="confirmPassword"
+                {...buildLabelAttributes(confirmPasswordId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 disabled={isLoading}
                 value={confirmPassword}
@@ -337,6 +372,8 @@ export default function DemoRegisterPage() {
 
           {capsLockActive && (
             <div
+              id={capsLockId}
+              role="alert"
               style={{
                 color: 'var(--status-warning)',
                 fontSize: 'var(--text-xs)',
@@ -346,6 +383,7 @@ export default function DemoRegisterPage() {
               }}
             >
               <svg
+                aria-hidden="true"
                 width="12"
                 height="12"
                 viewBox="0 0 24 24"
@@ -377,6 +415,7 @@ export default function DemoRegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading}
+                aria-busy={isLoading}
                 className="btn btn-primary"
                 style={{
                   flex: 2,
@@ -389,6 +428,8 @@ export default function DemoRegisterPage() {
                 {isLoading ? (
                   <div
                     className="animate-pulse"
+                    role="status"
+                    aria-live="polite"
                     style={{
                       display: 'flex',
                       gap: '4px',

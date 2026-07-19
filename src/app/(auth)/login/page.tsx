@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
+import { useAccessibleId, buildErrorAttributes, buildLabelAttributes } from '@/lib/accessibility';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,6 +20,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const emailId = useAccessibleId('email');
+  const passwordId = useAccessibleId('password');
+  const rememberId = useAccessibleId('remember');
+  const errorId = useAccessibleId('error');
 
   useEffect(() => {
     if (searchParams.get('reason') === 'expired') {
@@ -75,6 +81,8 @@ export default function LoginPage() {
         >
           {error && (
             <div
+              id={errorId}
+              role="alert"
               style={{
                 padding: 'var(--space-3)',
                 backgroundColor: 'var(--status-critical-bg)',
@@ -90,14 +98,17 @@ export default function LoginPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             <label
-              htmlFor="email"
+              {...buildLabelAttributes(emailId).labelProps}
               style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
             >
               Operator ID (Email)
             </label>
             <input
-              id="email"
+              {...buildLabelAttributes(emailId).inputProps}
+              {...buildErrorAttributes(!!error, errorId)}
               type="email"
+              inputMode="email"
+              autoComplete="email"
               required
               disabled={isLoading || isTransitioning}
               value={email}
@@ -120,7 +131,7 @@ export default function LoginPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <label
-                htmlFor="password"
+                {...buildLabelAttributes(passwordId).labelProps}
                 style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
               >
                 Security Clearance (Password)
@@ -142,8 +153,10 @@ export default function LoginPage() {
             </div>
             <div style={{ position: 'relative' }}>
               <input
-                id="password"
+                {...buildLabelAttributes(passwordId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
                 required
                 disabled={isLoading || isTransitioning}
                 value={password}
@@ -163,6 +176,8 @@ export default function LoginPage() {
               />
               <button
                 type="button"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
                   position: 'absolute',
@@ -182,14 +197,14 @@ export default function LoginPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <input
+              {...buildLabelAttributes(rememberId).inputProps}
               type="checkbox"
-              id="remember"
               checked={rememberDevice}
               onChange={(e) => setRememberDevice(e.target.checked)}
               style={{ accentColor: 'var(--ai-accent)' }}
             />
             <label
-              htmlFor="remember"
+              {...buildLabelAttributes(rememberId).labelProps}
               style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
             >
               Remember this device for 30 days
@@ -200,6 +215,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || isTransitioning}
+              aria-busy={isLoading || isTransitioning}
               className="btn btn-primary"
               style={{
                 width: '100%',
@@ -213,7 +229,12 @@ export default function LoginPage() {
               }}
             >
               {isLoading ? (
-                <div className="animate-pulse" style={{ display: 'flex', gap: '4px' }}>
+                <div
+                  className="animate-pulse"
+                  role="status"
+                  aria-live="polite"
+                  style={{ display: 'flex', gap: '4px' }}
+                >
                   <div
                     style={{
                       width: 8,

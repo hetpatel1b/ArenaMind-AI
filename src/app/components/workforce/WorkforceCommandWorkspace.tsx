@@ -32,7 +32,7 @@ export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceM
     matchData.aiRecommendations.length > 0 ? matchData.aiRecommendations[0] : null;
 
   return (
-    <main
+    <div
       className="dashboard-grid"
       style={{
         display: 'grid',
@@ -128,6 +128,6 @@ export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceM
 
       {/* Section 9: Persistent Copilot */}
       <WorkforcePersistentCopilot />
-    </main>
+    </div>
   );
 }

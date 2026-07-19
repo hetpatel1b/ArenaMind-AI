@@ -10,7 +10,7 @@ import { WorkforceAnalyticsPanels } from './WorkforceAnalyticsPanels';
 export function WorkforceWorkspace() {
   return (
     <WorkforceWorkspaceProvider>
-      <main
+      <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -30,7 +30,7 @@ export function WorkforceWorkspace() {
 
         {/* Bottom Modules */}
         <WorkforceAnalyticsPanels />
-      </main>
+      </div>
     </WorkforceWorkspaceProvider>
   );
 }

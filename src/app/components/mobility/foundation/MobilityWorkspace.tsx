@@ -19,7 +19,7 @@ function WorkspaceLayout() {
   const engine = useMobilityEngine();
 
   return (
-    <main
+    <div
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -83,7 +83,7 @@ function WorkspaceLayout() {
       <MobilityTimeline isExpanded={state.timelineExpanded} onToggle={actions.toggleTimeline} />
 
       <MobilityPersistentCopilot />
-    </main>
+    </div>
   );
 }
 

@@ -27,7 +27,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <DashboardProviders>
           <DashboardBootstrapper>
             <ShellComponentReveal>
-              <TopCommandBar />
+              <header role="banner">
+                <TopCommandBar />
+              </header>
             </ShellComponentReveal>
 
             <div
@@ -40,7 +42,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <ShellComponentReveal
                 style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
               >
-                <EnterpriseSidebar />
+                <nav
+                  role="navigation"
+                  style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+                >
+                  <EnterpriseSidebar />
+                </nav>
               </ShellComponentReveal>
 
               <ShellComponentReveal
@@ -54,22 +61,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   flexDirection: 'column',
                 }}
               >
-                <div
+                <main
+                  id="main-content"
+                  role="main"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
                     width: '100%',
                   }}
+                  tabIndex={-1}
                 >
                   <DynamicBreadcrumb />
                   <RouteTransition>{children}</RouteTransition>
-                </div>
+                </main>
               </ShellComponentReveal>
             </div>
 
             <ShellComponentReveal>
-              <StatusBar />
+              <footer role="contentinfo">
+                <StatusBar />
+              </footer>
             </ShellComponentReveal>
           </DashboardBootstrapper>
         </DashboardProviders>

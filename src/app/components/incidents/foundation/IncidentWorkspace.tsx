@@ -26,7 +26,7 @@ function WorkspaceLayout({ initialMetrics, initialIncidents }: IncidentWorkspace
   const [isQueueExpanded, setIsQueueExpanded] = React.useState(false);
 
   return (
-    <main
+    <div
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -150,7 +150,7 @@ function WorkspaceLayout({ initialMetrics, initialIncidents }: IncidentWorkspace
           <IncidentTimeline incidents={incidents} />
         </div>
       </motion.div>
-    </main>
+    </div>
   );
 }
 

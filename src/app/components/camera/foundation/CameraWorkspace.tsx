@@ -10,7 +10,7 @@ import { CameraAnalyticsPanels } from './CameraAnalyticsPanels';
 export function CameraWorkspace() {
   return (
     <CameraWorkspaceProvider>
-      <main
+      <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -30,7 +30,7 @@ export function CameraWorkspace() {
 
         {/* Bottom Analytics Dock */}
         <CameraAnalyticsPanels />
-      </main>
+      </div>
     </CameraWorkspaceProvider>
   );
 }

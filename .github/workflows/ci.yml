@@ -49,6 +49,9 @@ jobs:
     - name: Coverage
       run: pnpm run test:coverage
 
+    - name: E2E Tests
+      run: pnpm run test:e2e
+
     - name: Production Build
       run: pnpm run build
       env:

@@ -6,6 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
+import { useAccessibleId, buildErrorAttributes, buildLabelAttributes } from '@/lib/accessibility';
 
 export default function RequestAccessPage() {
   const router = useRouter();
@@ -17,6 +18,13 @@ export default function RequestAccessPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const nameId = useAccessibleId('name');
+  const orgId = useAccessibleId('org');
+  const emailId = useAccessibleId('email');
+  const roleId = useAccessibleId('role');
+  const passwordId = useAccessibleId('password');
+  const errorId = useAccessibleId('error');
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -71,6 +79,8 @@ export default function RequestAccessPage() {
 
           {error && (
             <div
+              id={errorId}
+              role="alert"
               style={{
                 padding: 'var(--space-3)',
                 backgroundColor: 'var(--status-critical-bg)',
@@ -87,14 +97,16 @@ export default function RequestAccessPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <label
-                htmlFor="name"
+                {...buildLabelAttributes(nameId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Full Name
               </label>
               <input
-                id="name"
+                {...buildLabelAttributes(nameId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type="text"
+                autoComplete="name"
                 required
                 disabled={isLoading}
                 value={name}
@@ -113,14 +125,16 @@ export default function RequestAccessPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <label
-                htmlFor="org"
+                {...buildLabelAttributes(orgId).labelProps}
                 style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
               >
                 Organization
               </label>
               <input
-                id="org"
+                {...buildLabelAttributes(orgId).inputProps}
+                {...buildErrorAttributes(!!error, errorId)}
                 type="text"
+                autoComplete="organization"
                 required
                 disabled={isLoading}
                 value={organization}
@@ -141,14 +155,17 @@ export default function RequestAccessPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label
-              htmlFor="email"
+              {...buildLabelAttributes(emailId).labelProps}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
             >
               Work Email
             </label>
             <input
-              id="email"
+              {...buildLabelAttributes(emailId).inputProps}
+              {...buildErrorAttributes(!!error, errorId)}
               type="email"
+              inputMode="email"
+              autoComplete="email"
               required
               disabled={isLoading}
               value={email}
@@ -168,13 +185,13 @@ export default function RequestAccessPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label
-              htmlFor="role"
+              {...buildLabelAttributes(roleId).labelProps}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
             >
               Demo Role
             </label>
             <select
-              id="role"
+              {...buildLabelAttributes(roleId).inputProps}
               disabled={isLoading}
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -196,14 +213,16 @@ export default function RequestAccessPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <label
-              htmlFor="password"
+              {...buildLabelAttributes(passwordId).labelProps}
               style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
             >
               Demo Password
             </label>
             <input
-              id="password"
+              {...buildLabelAttributes(passwordId).inputProps}
+              {...buildErrorAttributes(!!error, errorId)}
               type="password"
+              autoComplete="new-password"
               required
               disabled={isLoading}
               value={password}
@@ -235,6 +254,7 @@ export default function RequestAccessPage() {
               <button
                 type="submit"
                 disabled={isLoading}
+                aria-busy={isLoading}
                 className="btn btn-primary"
                 style={{ flex: 2, padding: 'var(--space-2)' }}
               >

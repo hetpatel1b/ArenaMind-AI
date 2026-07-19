@@ -43,6 +43,37 @@ button {
 }
 
 /* ==========================================================================
+   FOCUS VISIBILITY (Sprint E1.3)
+   ========================================================================== */
+*:focus-visible {
+  outline: 2px solid var(--brand-primary, #3b82f6) !important;
+  outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   SKIP LINK
+   ========================================================================== */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 8px;
+  background: var(--brand-primary, #3b82f6);
+  color: white;
+  display: block;
+  z-index: 99999;
+}
+
+/* ==========================================================================
    SCROLLBAR REFINEMENT (macOS style)
    ========================================================================== */
 ::-webkit-scrollbar {
@@ -61,4 +92,18 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================================================
+   RESPONSIVE ACCESSIBILITY (Sprint E1.4)
+   ========================================================================== */
+@media (max-width: 768px) {
+  button,
+  a,
+  .btn,
+  input[type='submit'],
+  input[type='button'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

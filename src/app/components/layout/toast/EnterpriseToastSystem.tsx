@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAnnouncement } from '@/lib/accessibility';
 
 export type ToastType = 'success' | 'info' | 'warning' | 'critical' | 'loading';
 
@@ -135,6 +136,8 @@ const getIconForType = (type: ToastType) => {
 
 export function EnterpriseToastSystem() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const announcer = useAnnouncement();
+  const prevToastsRef = React.useRef<ToastMessage[]>([]);
 
   useEffect(() => {
     const unsubscribe = toast.subscribe(setToasts);
@@ -142,6 +145,21 @@ export function EnterpriseToastSystem() {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const newToasts = toasts.filter((t) => !prevToastsRef.current.some((pt) => pt.id === t.id));
+    newToasts.forEach((t) => {
+      const msg = t.description ? `${t.title}: ${t.description}` : t.title;
+      if (t.type === 'critical' || t.type === 'warning') {
+        announcer.announceError(msg);
+      } else if (t.type === 'success') {
+        announcer.announceSuccess(msg);
+      } else {
+        announcer.announceStatus(msg);
+      }
+    });
+    prevToastsRef.current = toasts;
+  }, [toasts, announcer]);
 
   return (
     <div

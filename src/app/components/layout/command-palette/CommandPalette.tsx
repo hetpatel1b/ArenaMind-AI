@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCommandPalette } from './useCommandPalette';
 import { useHeaderState } from '@/app/hooks/useHeaderState';
 import { useRouter } from 'next/navigation';
+import { FocusTrap } from '@/lib/accessibility/focus';
+import { isArrowKey, isEnterSpace, isEscape, isHomeEnd } from '@/lib/accessibility/keyboard';
+import { useAccessibleId } from '@/lib/accessibility/ids';
 
 type CommandItem = {
   id: string;
@@ -79,6 +82,7 @@ export function CommandPalette() {
     useCommandPalette();
   const { addRecentSearch, state } = useHeaderState();
   const router = useRouter();
+  const listboxId = useAccessibleId();
 
   const filteredCommands = useMemo<CommandItem[]>(() => {
     if (!query) {
@@ -106,13 +110,23 @@ export function CommandPalette() {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev < filteredCommands.length - 1 ? prev + 1 : 0));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredCommands.length - 1));
-      } else if (e.key === 'Enter') {
+      if (isArrowKey(e)) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev < filteredCommands.length - 1 ? prev + 1 : 0));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredCommands.length - 1));
+        }
+      } else if (isHomeEnd(e)) {
+        if (e.key === 'Home') {
+          e.preventDefault();
+          setSelectedIndex(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          setSelectedIndex(filteredCommands.length - 1);
+        }
+      } else if (isEnterSpace(e)) {
         e.preventDefault();
         const selected = filteredCommands[selectedIndex];
         if (selected) {
@@ -148,154 +162,168 @@ export function CommandPalette() {
             if (e.target === e.currentTarget) close();
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            style={{
-              width: '100%',
-              maxWidth: '600px',
-              backgroundColor: 'var(--bg-surface-elevated)',
-              border: '1px solid var(--border-strong)',
-              borderRadius: 'var(--radius-xl)',
-              overflow: 'hidden',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-            role="dialog"
-            aria-modal="true"
-          >
-            <div
+          <FocusTrap active={isOpen} onEscape={close}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               style={{
+                width: '100%',
+                maxWidth: '600px',
+                backgroundColor: 'var(--bg-surface-elevated)',
+                border: '1px solid var(--border-strong)',
+                borderRadius: 'var(--radius-xl)',
+                overflow: 'hidden',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                 display: 'flex',
-                alignItems: 'center',
-                padding: 'var(--space-4)',
-                borderBottom: '1px solid var(--border-subtle)',
+                flexDirection: 'column',
               }}
+              role="dialog"
+              aria-modal="true"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--text-tertiary)"
-                strokeWidth="2"
-                style={{ marginRight: 'var(--space-3)' }}
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search pages, commands, users..."
+              <search
+                role="search"
                 style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: 'var(--text-primary)',
-                  fontSize: 'var(--text-lg)',
-                }}
-              />
-              <kbd
-                style={{
-                  padding: '4px 8px',
-                  background: 'var(--bg-surface)',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-subtle)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 'var(--space-4)',
+                  borderBottom: '1px solid var(--border-subtle)',
                 }}
               >
-                ESC
-              </kbd>
-            </div>
-
-            <div
-              style={{
-                maxHeight: '400px',
-                overflowY: 'auto',
-                padding: 'var(--space-2)',
-              }}
-              role="listbox"
-            >
-              {filteredCommands.length === 0 ? (
-                <div
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--text-tertiary)"
+                  strokeWidth="2"
+                  style={{ marginRight: 'var(--space-3)' }}
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search pages, commands, users..."
+                  role="combobox"
+                  aria-expanded={isOpen}
+                  aria-controls={listboxId}
+                  aria-autocomplete="list"
+                  aria-activedescendant={
+                    filteredCommands.length > 0 && filteredCommands[selectedIndex]
+                      ? `cmd-opt-${filteredCommands[selectedIndex].id}`
+                      : undefined
+                  }
                   style={{
-                    padding: 'var(--space-8)',
-                    textAlign: 'center',
-                    color: 'var(--text-tertiary)',
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: 'var(--text-primary)',
+                    fontSize: 'var(--text-lg)',
+                  }}
+                />
+                <kbd
+                  style={{
+                    padding: '4px 8px',
+                    background: 'var(--bg-surface)',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-subtle)',
                   }}
                 >
-                  No results found for &quot;{query}&quot;
-                </div>
-              ) : (
-                filteredCommands.map((item, idx) => {
-                  const isSelected = idx === selectedIndex;
-                  const showGroup = idx === 0 || filteredCommands[idx - 1]?.group !== item.group;
-                  return (
-                    <React.Fragment key={item.id}>
-                      {showGroup && (
-                        <div
-                          style={{
-                            fontSize: '11px',
-                            fontWeight: 'bold',
-                            color: 'var(--text-tertiary)',
-                            padding: 'var(--space-3) var(--space-3) var(--space-1)',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          {item.group}
-                        </div>
-                      )}
-                      <div
-                        role="option"
-                        aria-selected={isSelected}
-                        onClick={() => {
-                          addRecentSearch(item.label);
-                          if (item.href) router.push(item.href);
-                          close();
-                        }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-3)',
-                          padding: 'var(--space-3)',
-                          margin: '0 var(--space-1)',
-                          borderRadius: 'var(--radius-md)',
-                          backgroundColor: isSelected ? 'rgba(255,255,255,0.05)' : 'transparent',
-                          color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                          cursor: 'pointer',
-                        }}
-                        onMouseEnter={() => setSelectedIndex(idx)}
-                      >
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d={item.icon} />
-                        </svg>
-                        <span style={{ flex: 1, fontSize: 'var(--text-sm)' }}>{item.label}</span>
-                        {isSelected && (
-                          <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                            Jump to
-                          </span>
+                  ESC
+                </kbd>
+              </search>
+
+              <div
+                id={listboxId}
+                style={{
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  padding: 'var(--space-2)',
+                }}
+                role="listbox"
+              >
+                {filteredCommands.length === 0 ? (
+                  <div
+                    style={{
+                      padding: 'var(--space-8)',
+                      textAlign: 'center',
+                      color: 'var(--text-tertiary)',
+                    }}
+                  >
+                    No results found for &quot;{query}&quot;
+                  </div>
+                ) : (
+                  filteredCommands.map((item, idx) => {
+                    const isSelected = idx === selectedIndex;
+                    const showGroup = idx === 0 || filteredCommands[idx - 1]?.group !== item.group;
+                    return (
+                      <React.Fragment key={item.id}>
+                        {showGroup && (
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 'bold',
+                              color: 'var(--text-tertiary)',
+                              padding: 'var(--space-3) var(--space-3) var(--space-1)',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {item.group}
+                          </div>
                         )}
-                      </div>
-                    </React.Fragment>
-                  );
-                })
-              )}
-            </div>
-          </motion.div>
+                        <div
+                          id={`cmd-opt-${item.id}`}
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            addRecentSearch(item.label);
+                            if (item.href) router.push(item.href);
+                            close();
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-3)',
+                            padding: 'var(--space-3)',
+                            margin: '0 var(--space-1)',
+                            borderRadius: 'var(--radius-md)',
+                            backgroundColor: isSelected ? 'rgba(255,255,255,0.05)' : 'transparent',
+                            color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                            cursor: 'pointer',
+                          }}
+                          onMouseEnter={() => setSelectedIndex(idx)}
+                        >
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d={item.icon} />
+                          </svg>
+                          <span style={{ flex: 1, fontSize: 'var(--text-sm)' }}>{item.label}</span>
+                          {isSelected && (
+                            <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
+                              Jump to
+                            </span>
+                          )}
+                        </div>
+                      </React.Fragment>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </FocusTrap>
         </div>
       )}
     </AnimatePresence>

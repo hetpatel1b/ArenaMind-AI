@@ -6,6 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
 import { CinematicTransition } from '@/app/components/motion/CinematicTransition';
+import { useAccessibleId, buildErrorAttributes, buildLabelAttributes } from '@/lib/accessibility';
 
 export default function AcceptInvitePage() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function AcceptInvitePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const passwordId = useAccessibleId('password');
+  const errorId = useAccessibleId('error');
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -72,6 +76,8 @@ export default function AcceptInvitePage() {
 
           {error && (
             <div
+              id={errorId}
+              role="alert"
               style={{
                 padding: 'var(--space-3)',
                 backgroundColor: 'var(--status-critical-bg)',
@@ -94,14 +100,16 @@ export default function AcceptInvitePage() {
             }}
           >
             <label
-              htmlFor="password"
+              {...buildLabelAttributes(passwordId).labelProps}
               style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
             >
               Security Clearance (Password)
             </label>
             <input
-              id="password"
+              {...buildLabelAttributes(passwordId).inputProps}
+              {...buildErrorAttributes(!!error, errorId)}
               type="password"
+              autoComplete="new-password"
               required
               disabled={isLoading || isTransitioning}
               value={password}
@@ -143,6 +151,7 @@ export default function AcceptInvitePage() {
             <button
               type="submit"
               disabled={isLoading || isTransitioning || password.length < 6}
+              aria-busy={isLoading || isTransitioning}
               className="btn btn-primary"
               style={{
                 width: '100%',

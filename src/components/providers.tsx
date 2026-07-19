@@ -7,6 +7,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { AuthProvider } from './providers/auth-provider';
 import { ExecutiveDemoPanel } from '@/app/components/demo/ExecutiveDemoPanel';
+import { AccessibilityProvider } from '@/lib/accessibility';
+import { MotionConfig } from 'framer-motion';
 
 // Suppress transient "Failed to fetch" errors from third-party auth libraries
 // (Supabase token refresh, next-auth session polling) that surface as unhandled
@@ -59,8 +61,12 @@ export function Providers({ children }: { children: ReactNode }) {
     <SessionProvider refetchOnWindowFocus={false} refetchInterval={300}>
       <AuthProvider initialSession={null}>
         <QueryClientProvider client={queryClient}>
-          {children}
-          {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && <ExecutiveDemoPanel />}
+          <AccessibilityProvider>
+            <MotionConfig reducedMotion="user">
+              {children}
+              {process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && <ExecutiveDemoPanel />}
+            </MotionConfig>
+          </AccessibilityProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </AuthProvider>

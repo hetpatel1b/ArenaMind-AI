@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
+import { useAccessibleId, buildErrorAttributes, buildLabelAttributes } from '@/lib/accessibility';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -12,6 +13,10 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const passwordId = useAccessibleId('password');
+  const confirmPasswordId = useAccessibleId('confirm-password');
+  const errorId = useAccessibleId('error');
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,6 +75,8 @@ export default function ResetPasswordPage() {
 
         {error && (
           <div
+            id={errorId}
+            role="alert"
             style={{
               padding: 'var(--space-3)',
               backgroundColor: 'var(--status-critical-bg)',
@@ -85,14 +92,16 @@ export default function ResetPasswordPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <label
-            htmlFor="password"
+            {...buildLabelAttributes(passwordId).labelProps}
             style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
           >
             New Clearance (Password)
           </label>
           <input
-            id="password"
+            {...buildLabelAttributes(passwordId).inputProps}
+            {...buildErrorAttributes(!!error, errorId)}
             type="password"
+            autoComplete="new-password"
             required
             disabled={isLoading}
             value={password}
@@ -132,14 +141,16 @@ export default function ResetPasswordPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <label
-            htmlFor="confirmPassword"
+            {...buildLabelAttributes(confirmPasswordId).labelProps}
             style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
           >
             Confirm Clearance
           </label>
           <input
-            id="confirmPassword"
+            {...buildLabelAttributes(confirmPasswordId).inputProps}
+            {...buildErrorAttributes(!!error, errorId)}
             type="password"
+            autoComplete="new-password"
             required
             disabled={isLoading}
             value={confirmPassword}
@@ -161,6 +172,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isLoading || password.length < 6}
+            aria-busy={isLoading}
             className="btn btn-primary"
             style={{
               width: '100%',

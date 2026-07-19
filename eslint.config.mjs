@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -15,10 +16,27 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
+      ...jsxA11y.flatConfigs.recommended.rules,
+      "jsx-a11y/click-events-have-key-events": "off",
+      "jsx-a11y/no-static-element-interactions": "off",
+      "jsx-a11y/no-autofocus": "off",
+      "jsx-a11y/mouse-events-have-key-events": "off",
+      "jsx-a11y/label-has-associated-control": "off",
+      "jsx-a11y/no-noninteractive-element-interactions": "off",
+      "jsx-a11y/aria-role": "off",
+      "jsx-a11y/interactive-supports-focus": "off",
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "react-hooks/exhaustive-deps": "error",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off"
+    }
+  },
+  {
+    files: ["scripts/**/*.js", "scripts/**/*.ts", "load-tests/**/*.js", "prisma/**/*.ts", "*.js"],
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "import/no-anonymous-default-export": "off"
     }
   },
   {

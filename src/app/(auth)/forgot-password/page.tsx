@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { PressFeedback } from '@/app/components/motion/MicroInteractions';
 import { WarningShake } from '@/app/components/motion/AttentionMotion';
+import { useAccessibleId, buildErrorAttributes, buildLabelAttributes } from '@/lib/accessibility';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -12,6 +13,9 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const emailId = useAccessibleId('email');
+  const errorId = useAccessibleId('error');
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -98,6 +102,8 @@ export default function ForgotPasswordPage() {
 
         {error && (
           <div
+            id={errorId}
+            role="alert"
             style={{
               padding: 'var(--space-3)',
               backgroundColor: 'var(--status-critical-bg)',
@@ -113,14 +119,17 @@ export default function ForgotPasswordPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
           <label
-            htmlFor="email"
+            {...buildLabelAttributes(emailId).labelProps}
             style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}
           >
             Operator ID (Email)
           </label>
           <input
-            id="email"
+            {...buildLabelAttributes(emailId).inputProps}
+            {...buildErrorAttributes(!!error, errorId)}
             type="email"
+            inputMode="email"
+            autoComplete="email"
             required
             disabled={isLoading}
             value={email}
@@ -154,6 +163,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
+              aria-busy={isLoading}
               className="btn btn-primary"
               style={{
                 flex: 1,

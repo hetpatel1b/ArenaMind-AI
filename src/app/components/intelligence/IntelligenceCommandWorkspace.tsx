@@ -56,7 +56,7 @@ export function IntelligenceCommandWorkspace({
     matchData.aiRecommendations.length > 0 ? matchData.aiRecommendations[0] : null;
 
   return (
-    <main
+    <div
       className="dashboard-grid"
       style={{
         display: 'grid',
@@ -148,6 +148,6 @@ export function IntelligenceCommandWorkspace({
 
       {/* Section 8: Persistent Copilot */}
       <IntelligencePersistentCopilot matchId={matchData.id} />
-    </main>
+    </div>
   );
 }

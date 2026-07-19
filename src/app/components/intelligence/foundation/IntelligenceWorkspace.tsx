@@ -11,7 +11,7 @@ import { IntelligenceNotificationCenter } from './IntelligenceNotificationCenter
 export function IntelligenceWorkspace() {
   return (
     <IntelligenceWorkspaceProvider>
-      <main
+      <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -31,7 +31,7 @@ export function IntelligenceWorkspace() {
 
         {/* Bottom Modules */}
         <IntelligenceKnowledgePanels />
-      </main>
+      </div>
     </IntelligenceWorkspaceProvider>
   );
 }

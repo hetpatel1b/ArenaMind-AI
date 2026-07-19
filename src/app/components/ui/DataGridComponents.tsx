@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { EmptyState } from './FeedbackComponents';
+import { handleEnterSpace } from '@/lib/accessibility/keyboard';
 
 export interface Column<T> {
   key: string;
@@ -13,10 +14,12 @@ export function EnterpriseTable<T>({
   columns,
   data,
   onRowClick,
+  caption,
 }: {
   columns: Column<T>[];
   data: T[];
   onRowClick?: (row: T) => void;
+  caption?: string;
 }) {
   if (!data || data.length === 0) {
     return (
@@ -38,6 +41,19 @@ export function EnterpriseTable<T>({
       }}
     >
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        {caption && (
+          <caption
+            style={{
+              padding: 'var(--space-3)',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--text-secondary)',
+              textAlign: 'left',
+              fontWeight: 'var(--font-weight-medium)',
+            }}
+          >
+            {caption}
+          </caption>
+        )}
         <thead>
           <tr
             style={{
@@ -48,6 +64,7 @@ export function EnterpriseTable<T>({
             {columns.map((col) => (
               <th
                 key={col.key}
+                scope="col"
                 style={{
                   padding: 'var(--space-3) var(--space-4)',
                   fontSize: 'var(--text-xs)',
@@ -67,6 +84,8 @@ export function EnterpriseTable<T>({
             <tr
               key={i}
               onClick={() => onRowClick?.(row)}
+              onKeyDown={onRowClick ? handleEnterSpace(() => onRowClick(row)) : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
               style={{
                 borderBottom: '1px solid var(--border-subtle)',
                 cursor: onRowClick ? 'pointer' : 'default',

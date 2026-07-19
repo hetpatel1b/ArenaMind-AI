@@ -47,7 +47,7 @@ export function GovernanceCommandWorkspace({
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <main
+    <div
       className="dashboard-grid"
       style={{
         display: 'grid',
@@ -142,6 +142,6 @@ export function GovernanceCommandWorkspace({
 
       {/* Section 10: Persistent Copilot */}
       <GovernancePersistentCopilot />
-    </main>
+    </div>
   );
 }

@@ -153,6 +153,8 @@ export function TopCommandBar() {
             color: focusMode ? 'var(--ai-accent)' : 'var(--text-secondary)',
           }}
           title="Toggle Focus Mode (Cmd+K)"
+          aria-label="Toggle Focus Mode"
+          aria-pressed={focusMode}
         >
           <svg
             width="20"
@@ -176,6 +178,9 @@ export function TopCommandBar() {
         <button
           className="btn btn-ghost"
           aria-label="Notifications"
+          aria-expanded={isNotifOpen}
+          aria-haspopup="dialog"
+          aria-controls="notification-center"
           style={{ padding: 'var(--space-2)', position: 'relative' }}
           onClick={() => {
             setUnreadCount(0);

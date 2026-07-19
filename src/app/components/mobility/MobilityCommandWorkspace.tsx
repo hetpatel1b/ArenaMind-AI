@@ -48,7 +48,7 @@ export function MobilityCommandWorkspace({
     matchData.aiRecommendations?.length > 0 ? matchData.aiRecommendations[0] : null;
 
   return (
-    <main
+    <div
       className="dashboard-grid"
       style={{
         display: 'grid',
@@ -153,6 +153,6 @@ export function MobilityCommandWorkspace({
 
       {/* Section 9: Persistent Copilot */}
       <MobilityPersistentCopilot />
-    </main>
+    </div>
   );
 }
