@@ -22,7 +22,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm run dev',
+    command: process.env.CI ? 'pnpm run start' : 'pnpm run dev',
     port: 3000,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

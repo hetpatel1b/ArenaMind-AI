@@ -59,12 +59,11 @@ jobs:
     - name: Coverage
       run: pnpm run test:coverage
 
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
-
-    - name: E2E Tests
-      run: pnpm run test:e2e
+    - name: Production Build
+      run: pnpm run build
       env:
+        NEXT_TELEMETRY_DISABLED: 1
+        NODE_ENV: production
         DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
         NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
@@ -72,11 +71,12 @@ jobs:
         GEMINI_API_KEY: "dummy"
         REDIS_URL: "redis://localhost:6379"
 
-    - name: Production Build
-      run: pnpm run build
+    - name: Install Playwright Browsers
+      run: pnpm exec playwright install --with-deps
+
+    - name: E2E Tests
+      run: pnpm run test:e2e
       env:
-        NEXT_TELEMETRY_DISABLED: 1
-        NODE_ENV: production
         DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
         NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
