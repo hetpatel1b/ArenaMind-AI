@@ -3,13 +3,14 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { successResponse } from '@/lib/api/response';
 import { prisma } from '@/lib/db/client';
+import { UserRole } from '@prisma/client';
 
 export const GET = createRouteHandler(async (req: NextRequest, { bizContext }) => {
   const totalUsers = await prisma.user.count();
-  const totalRoles = await prisma.role.count();
+  const totalRoles = Object.keys(UserRole).length;
   // We don't have AuditLog yet in the exact schema, just use users count as dummy active sessions
   const activeSessions = Math.min(totalUsers, 1520);
-  
+
   const metrics = {
     usersOnline: activeSessions || 1520,
     activeSessions: activeSessions || 1450,
@@ -25,9 +26,27 @@ export const GET = createRouteHandler(async (req: NextRequest, { bizContext }) =
   };
 
   const policies = [
-    { id: 'pol-1', name: 'MFA Enforcement', status: 'Enforced', compliance: 100, lastUpdated: '2h ago' },
-    { id: 'pol-2', name: 'Data Retention', status: 'Enforced', compliance: 98, lastUpdated: '1d ago' },
-    { id: 'pol-3', name: 'Device Trust', status: 'Audit Mode', compliance: 45, lastUpdated: '5d ago' },
+    {
+      id: 'pol-1',
+      name: 'MFA Enforcement',
+      status: 'Enforced',
+      compliance: 100,
+      lastUpdated: '2h ago',
+    },
+    {
+      id: 'pol-2',
+      name: 'Data Retention',
+      status: 'Enforced',
+      compliance: 98,
+      lastUpdated: '1d ago',
+    },
+    {
+      id: 'pol-3',
+      name: 'Device Trust',
+      status: 'Audit Mode',
+      compliance: 45,
+      lastUpdated: '5d ago',
+    },
   ];
 
   return successResponse({
