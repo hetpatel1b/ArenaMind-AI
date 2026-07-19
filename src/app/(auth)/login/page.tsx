@@ -50,6 +50,10 @@ export default function LoginPage() {
       }
 
       setIsTransitioning(true);
+      setTimeout(() => {
+        router.push('/dashboard');
+        router.refresh();
+      }, 1200);
     } catch (err: SafeAny) {
       setError(err.message || 'Invalid credentials');
     } finally {
