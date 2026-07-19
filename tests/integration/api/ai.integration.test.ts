@@ -58,7 +58,7 @@ describe('AI Intelligence API Integration', () => {
 });
 
   it('supports nodeLimit and edgeLimit query params', async () => {
-    const req = createMockRequest({ userId: 'u', organizationId: 'o', role: 'ADMIN' });
+    const req = createMockRequest({ userId: 'u', organizationId: 'o', role: "organization_admin" as any });
     Object.defineProperty(req, 'url', { value: 'http://localhost?limit=10&edgeLimit=5' });
     const res = await GET(req, { params: {} });
     expect(res.status).toBe(200);

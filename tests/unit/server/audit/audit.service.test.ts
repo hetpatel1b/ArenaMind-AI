@@ -11,6 +11,6 @@ describe.skip('AuditService', () => {
     prisma.auditLog.create.mockRejectedValueOnce(new Error('DB Error'));
     
     // Should not throw
-    await expect(AuditService.log({ action: 'TEST', tableName: 't', recordId: '1', userId: 'u' })).resolves.toBeUndefined();
+    await expect(AuditService.log({ action: "ACCESS", tableName: 't', recordId: '1', userId: 'u' })).resolves.toBeUndefined();
   });
 });
