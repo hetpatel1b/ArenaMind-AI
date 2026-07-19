@@ -56,6 +56,20 @@ describe('Matches API Integration', () => {
   });
 
   describe('POST /api/v1/matches', () => {
+    it('returns 400 if organizationId is missing', async () => {
+      const req = createMockRequest({
+        method: 'POST',
+        userId: 'admin-1',
+        role: UserRole.organization_admin,
+        organizationId: undefined, // missing
+        body: {},
+      });
+      const res = await POST(req, { params: {} });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe('No organization linked');
+    });
+
     it('validates DTO and returns 201 on success', async () => {
       const mockCreatedMatch = { id: 'new-match', name: 'Finals' };
       prismaMock.match.create.mockResolvedValueOnce(mockCreatedMatch);

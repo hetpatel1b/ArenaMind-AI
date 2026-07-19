@@ -111,3 +111,17 @@ describe('Match Incidents API Integration', () => {
     });
   });
 });
+
+  describe('Incident Route Edge Cases', () => {
+    it('returns 400 if org id is missing on GET /matches/[id]/incidents', async () => {
+      const req = createMockRequest({ userId: 'user-1', organizationId: undefined, role: UserRole.organization_admin });
+      const res = await GET(req, { params: { id: 'm1' } } as any);
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 400 if org id is missing on POST /matches/[id]/incidents', async () => {
+      const req = createMockRequest({ method: 'POST', userId: 'user-1', organizationId: undefined, role: UserRole.organization_admin, body: {} });
+      const res = await POST(req, { params: { id: 'm1' } } as any);
+      expect(res.status).toBe(403);
+    });
+  });

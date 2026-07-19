@@ -39,6 +39,30 @@ describe('Users API Integration', () => {
       expect(res.status).toBe(403);
     });
 
+    it('returns 400 if organizationId is missing', async () => {
+      const req = createMockRequest({
+        userId: 'user-1',
+        role: UserRole.organization_admin,
+        organizationId: undefined, // missing
+      });
+      const res = await GET(req, { params: {} });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe('No organization linked');
+    });
+
+    it('returns 400 if organizationId is missing', async () => {
+      const req = createMockRequest({
+        userId: 'user-1',
+        role: UserRole.organization_admin,
+        organizationId: undefined, // missing
+      });
+      const res = await GET(req, { params: {} });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe('No organization linked');
+    });
+
     it('returns 200 with users array for authorized roles', async () => {
       const mockUsers = [{ id: 'user-2', name: 'John Doe', email: 'john@example.com' }];
       prismaMock.user.findMany.mockResolvedValueOnce(mockUsers);
@@ -63,6 +87,20 @@ describe('Users API Integration', () => {
   });
 
   describe('POST /api/v1/users', () => {
+    it('returns 400 if organizationId or inviterId is missing', async () => {
+      const req = createMockRequest({
+        method: 'POST',
+        role: UserRole.organization_admin,
+        organizationId: undefined, // missing
+        userId: 'user-1', // Set this so we pass requireAuth middleware
+        body: {},
+      });
+      const res = await POST(req, { params: {} });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe('No organization linked');
+    });
+
     it('returns 201 and creates user successfully', async () => {
       vi.spyOn(bcrypt, 'hash').mockResolvedValue('hashed_pw' as never);
       const mockCreatedUser = { id: 'new-user', email: 'new@test.com', role: UserRole.coordinator };

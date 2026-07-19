@@ -56,3 +56,10 @@ describe('AI Intelligence API Integration', () => {
     expect((prismaMock as any).workforceUnit.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+  it('supports nodeLimit and edgeLimit query params', async () => {
+    const req = createMockRequest({ userId: 'u', organizationId: 'o', role: 'ADMIN' });
+    Object.defineProperty(req, 'url', { value: 'http://localhost?limit=10&edgeLimit=5' });
+    const res = await GET(req, { params: {} });
+    expect(res.status).toBe(200);
+  });
