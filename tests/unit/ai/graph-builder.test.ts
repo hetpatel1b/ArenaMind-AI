@@ -5,36 +5,36 @@ import {
   GraphSerializer,
 } from '../../../src/app/api/v1/intelligence/graph-builder';
 
-describe.skip('GraphLimiter', () => {
-  it.skip('respects default limits from INTELLIGENCE_CONFIG', () => {
+describe('GraphLimiter', () => {
+  it('respects default limits from INTELLIGENCE_CONFIG', () => {
     // Assuming defaults are high, we test fallback behavior or passed in values
     const limiter = new GraphLimiter();
     expect(limiter.nodeLimit).toBeGreaterThan(0);
     expect(limiter.edgeLimit).toBeGreaterThan(0);
   });
 
-  it.skip('respects custom limits provided via constructor', () => {
+  it('respects custom limits provided via constructor', () => {
     const limiter = new GraphLimiter({ nodeLimit: 5, edgeLimit: 2 });
     expect(limiter.nodeLimit).toBe(5);
     expect(limiter.edgeLimit).toBe(2);
   });
 
-  it.skip('canAddNode returns true when currentCount is below nodeLimit', () => {
+  it('canAddNode returns true when currentCount is below nodeLimit', () => {
     const limiter = new GraphLimiter({ nodeLimit: 2 });
     expect(limiter.canAddNode(0)).toBe(true);
     expect(limiter.canAddNode(1)).toBe(true);
     expect(limiter.canAddNode(2)).toBe(false);
   });
 
-  it.skip('canAddEdge returns true when currentCount is below edgeLimit', () => {
+  it('canAddEdge returns true when currentCount is below edgeLimit', () => {
     const limiter = new GraphLimiter({ edgeLimit: 1 });
     expect(limiter.canAddEdge(0)).toBe(true);
     expect(limiter.canAddEdge(1)).toBe(false);
   });
 });
 
-describe.skip('GraphSerializer', () => {
-  it.skip('serializes nodes and edges to expected payload format', () => {
+describe('GraphSerializer', () => {
+  it('serializes nodes and edges to expected payload format', () => {
     const nodes = new Map();
     nodes.set('node1', {
       id: 'node1',
@@ -63,8 +63,8 @@ describe.skip('GraphSerializer', () => {
   });
 });
 
-describe.skip('GraphBuilder', () => {
-  it.skip('builds an empty graph when provided empty datasets', () => {
+describe('GraphBuilder', () => {
+  it('builds an empty graph when provided empty datasets', () => {
     const limiter = new GraphLimiter();
     const builder = new GraphBuilder(limiter);
     const payload = builder.build([], [], []);
@@ -73,7 +73,7 @@ describe.skip('GraphBuilder', () => {
     expect(payload.edges).toHaveLength(0);
   });
 
-  it.skip('builds a graph with nodes and correctly categorizes status and confidence', () => {
+  it('builds a graph with nodes and correctly categorizes status and confidence', () => {
     const limiter = new GraphLimiter({ nodeLimit: 100, edgeLimit: 100 });
     const builder = new GraphBuilder(limiter);
 
@@ -106,7 +106,7 @@ describe.skip('GraphBuilder', () => {
     expect(edgeCam?.targetId).toBe('inc-1'); // Should link to highest severity incident
   });
 
-  it.skip('respects GraphLimiter node constraints', () => {
+  it('respects GraphLimiter node constraints', () => {
     const limiter = new GraphLimiter({ nodeLimit: 2, edgeLimit: 100 });
     const builder = new GraphBuilder(limiter);
 
@@ -128,7 +128,7 @@ describe.skip('GraphBuilder', () => {
     expect(payload.edges).toHaveLength(0);
   });
 
-  it.skip('respects GraphLimiter edge constraints', () => {
+  it('respects GraphLimiter edge constraints', () => {
     const limiter = new GraphLimiter({ nodeLimit: 100, edgeLimit: 1 });
     const builder = new GraphBuilder(limiter);
 
@@ -145,7 +145,7 @@ describe.skip('GraphBuilder', () => {
     expect(payload.edges[0]!.sourceId).toBe('cam-cam1'); // First one wins
   });
 
-  it.skip('handles missing target node gracefully', () => {
+  it('handles missing target node gracefully', () => {
     const limiter = new GraphLimiter({ nodeLimit: 1, edgeLimit: 100 });
     const builder = new GraphBuilder(limiter);
 
@@ -161,7 +161,7 @@ describe.skip('GraphBuilder', () => {
     expect(payload.edges).toHaveLength(0); // no incident to link to
   });
 
-  it.skip('skips adding edges if target node was omitted due to limits', () => {
+  it('skips adding edges if target node was omitted due to limits', () => {
     const limiter = new GraphLimiter({ nodeLimit: 2, edgeLimit: 100 });
     const builder = new GraphBuilder(limiter);
 
@@ -180,13 +180,13 @@ describe.skip('GraphBuilder', () => {
     expect(payload.edges).toHaveLength(0);
   });
 
-  it.skip('skips adding edge for unit if edgeLimit is reached', () => {
+  it('skips adding edge for unit if edgeLimit is reached', () => {
     const limiter = new GraphLimiter({ nodeLimit: 100, edgeLimit: 0 });
     const builder = new GraphBuilder(limiter);
     const incidents = [{ id: '1', title: 'Incident', severityTier: 4 }];
     const cameras = [{ id: 'cam1', name: 'Gate Camera' }];
     const units = [{ id: 'unit1', name: 'Unit' }];
-    
+
     const payload = builder.build(incidents, cameras, units);
     expect(payload.edges).toHaveLength(0);
   });

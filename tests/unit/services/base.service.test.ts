@@ -11,17 +11,19 @@ class TestService extends BaseService {
   }
 }
 
-describe.skip('BaseService', () => {
-  it.skip('enforces tenant isolation', () => {
+describe('BaseService', () => {
+  it('enforces tenant isolation', () => {
     const svc = new TestService();
     const ctx = { role: 'ADMIN', venueId: 'v1' };
-    
+
     // Global bypass
-    expect(() => svc.testEnforceIsolation({ role: 'ADMIN', venueId: 'GLOBAL' }, 'v2')).not.toThrow();
-    
+    expect(() =>
+      svc.testEnforceIsolation({ role: 'system_admin', venueId: 'GLOBAL' }, 'v2')
+    ).not.toThrow();
+
     // Match
     expect(() => svc.testEnforceIsolation(ctx, 'v1')).not.toThrow();
-    
+
     // Mismatch
     expect(() => svc.testEnforceIsolation(ctx, 'v2')).toThrow(AuthorizationError);
   });

@@ -24,8 +24,8 @@ export class GraphLimiter {
   public edgeLimit: number;
 
   constructor(options?: { nodeLimit?: number; edgeLimit?: number }) {
-    this.nodeLimit = options?.nodeLimit || INTELLIGENCE_CONFIG.MAX_GRAPH_NODES;
-    this.edgeLimit = options?.edgeLimit || INTELLIGENCE_CONFIG.MAX_GRAPH_EDGES;
+    this.nodeLimit = options?.nodeLimit ?? INTELLIGENCE_CONFIG.MAX_GRAPH_NODES;
+    this.edgeLimit = options?.edgeLimit ?? INTELLIGENCE_CONFIG.MAX_GRAPH_EDGES;
   }
 
   canAddNode(currentCount: number): boolean {

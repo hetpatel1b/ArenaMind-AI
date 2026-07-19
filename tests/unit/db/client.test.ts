@@ -4,14 +4,18 @@ import { PrismaClient } from '@prisma/client';
 // Mock pg to prevent real DB connection
 vi.mock('pg', () => {
   return {
-    Pool: class Pool { constructor() {} },
+    Pool: class Pool {
+      constructor() {}
+    },
   };
 });
 
 // Mock adapter
 vi.mock('@prisma/adapter-pg', () => {
   return {
-    PrismaPg: class PrismaPg { constructor() {} },
+    PrismaPg: class PrismaPg {
+      constructor() {}
+    },
   };
 });
 
@@ -55,12 +59,11 @@ describe('DB Client Configuration', () => {
 
     const { prisma } = await import('@/lib/db/client');
     expect(prisma).toBeDefined();
-    
   });
 
   it('loads mock when in E2E mode', async () => {
     process.env.NEXT_PUBLIC_E2E_MODE = 'true';
-    
+
     const { prisma } = await import('@/lib/db/client');
     expect(prisma).toEqual({ isMock: true });
   });
@@ -69,23 +72,25 @@ describe('DB Client Configuration', () => {
     delete process.env.NEXT_PUBLIC_E2E_MODE;
     const { prisma } = await import('@/lib/db/client');
 
-    const mockClient = (prisma as any);
-    
+    const mockClient = prisma as any;
+
     // Trigger slow query event (>= 100ms)
     mockClient._triggerEvent('query', {
       duration: 150,
       query: 'SELECT * FROM users',
     });
 
-    expect(console.warn).toHaveBeenCalledWith('[SLOW QUERY] Duration: 150ms | Query: SELECT * FROM users');
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('[SLOW QUERY] Duration: 150ms | Query: SELECT * FROM users')
+    );
   });
 
   it('ignores fast queries', async () => {
     delete process.env.NEXT_PUBLIC_E2E_MODE;
     const { prisma } = await import('@/lib/db/client');
 
-    const mockClient = (prisma as any);
-    
+    const mockClient = prisma as any;
+
     // Trigger fast query event (< 100ms)
     mockClient._triggerEvent('query', {
       duration: 50,

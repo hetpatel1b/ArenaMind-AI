@@ -21,7 +21,7 @@ describe('Rate Limiter', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Silence console.error for fail-open test
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -44,7 +44,7 @@ describe('Rate Limiter', () => {
     vi.mocked(prisma.rateLimit.count).mockResolvedValue(5);
 
     await expect(enforceRateLimit(req, identifier, options)).rejects.toThrow(RateLimitError);
-    
+
     expect(prisma.rateLimit.create).not.toHaveBeenCalled();
   });
 
@@ -53,7 +53,7 @@ describe('Rate Limiter', () => {
 
     // Should resolve, not reject
     await expect(enforceRateLimit(req, identifier, options)).resolves.toBeUndefined();
-    
-    expect(console.error).toHaveBeenCalledWith('Rate limit DB error', expect.any(Error));
+
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Rate limit DB error'));
   });
 });

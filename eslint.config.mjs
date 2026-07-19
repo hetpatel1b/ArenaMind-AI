@@ -40,6 +40,16 @@ const eslintConfig = defineConfig([
     }
   },
   {
+    files: ["tests/**/*.ts", "tests/**/*.tsx"],
+    rules: {
+      "no-console": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off",
+      "prefer-const": "off",
+      "@typescript-eslint/ban-ts-comment": "off"
+    }
+  },
+  {
     files: ["src/lib/domain/**/*.ts"],
     rules: {
       "no-restricted-imports": ["error", {

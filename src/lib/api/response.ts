@@ -13,7 +13,12 @@ function generateBaseResponse() {
   };
 }
 
-export function successResponse<T>(data: T, status = 200, meta?: Record<string, SafeAny>) {
+export function successResponse<T>(
+  data: T,
+  status = 200,
+  meta?: Record<string, SafeAny>,
+  headers?: HeadersInit
+) {
   return NextResponse.json(
     {
       success: true,
@@ -22,7 +27,7 @@ export function successResponse<T>(data: T, status = 200, meta?: Record<string, 
       ...(meta ? { meta } : {}),
       ...generateBaseResponse(),
     },
-    { status }
+    { status, headers }
   );
 }
 

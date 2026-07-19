@@ -38,3 +38,16 @@ export class PercentageFormatter {
     return `${value.toFixed(decimals)}%`;
   }
 }
+
+export function formatCurrency(value: string | null | undefined): string {
+  if (!value) return '$0.00';
+  const num = parseFloat(value);
+  if (isNaN(num)) return '$0.00';
+  return `$${num.toFixed(2)}`;
+}
+
+export function truncateText(text: string, maxLength: number): string {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+}
