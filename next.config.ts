@@ -52,6 +52,14 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  turbopack: {
+    resolveAlias:
+      process.env.NEXT_PUBLIC_E2E_MODE === 'true'
+        ? {
+            '@/lib/db/client': './tests/e2e/mocks/prisma.mock.ts',
+          }
+        : undefined,
+  },
 };
 
 export default nextConfig;
