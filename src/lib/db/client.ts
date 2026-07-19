@@ -7,10 +7,10 @@ import { config } from '@/lib/platform/config/ConfigurationService';
 
 const prismaClientSingleton = () => {
   const pool = new Pool({
-    connectionString: process.env.DIRECT_URL || config.databaseUrl,
-    max: 20, // Connection pooling limit
+    connectionString: process.env.DATABASE_URL || config.databaseUrl,
+    max: 10, // Lowered per-instance pool limit to prevent Vercel from exhausting global Supabase connections
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000, // Increased to prevent false connection drops on cold starts
   });
 
   const adapter = new PrismaPg(pool);

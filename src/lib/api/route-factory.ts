@@ -82,6 +82,7 @@ export function createRouteHandler(
           correlationId,
           userId: user.id,
           role: user.role,
+          organizationId: user.organizationId as string,
           venueId: user.organizationId as string,
         };
       } else {
