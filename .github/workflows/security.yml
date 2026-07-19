@@ -47,6 +47,7 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
+        extra_args: --only-verified
 
     - name: License Validation
       run: pnpm dlx license-checker --summary --failOn "GPL-3.0"
