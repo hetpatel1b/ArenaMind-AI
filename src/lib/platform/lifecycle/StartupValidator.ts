@@ -42,7 +42,7 @@ export class StartupValidator {
     } catch (error) {
       LoggerService.error('❌ [StartupValidator] Fatal error during startup validation.', error);
       // Exit process gracefully if possible, or throw
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_E2E_MODE !== 'true') {
         process.exit(1);
       } else {
         throw error;

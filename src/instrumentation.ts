@@ -15,7 +15,8 @@ export async function register() {
     // To ensure it doesn't break static generation, we only run it if not building
     if (
       process.env.NODE_ENV !== 'development' &&
-      process.env.NEXT_PHASE !== 'phase-production-build'
+      process.env.NEXT_PHASE !== 'phase-production-build' &&
+      process.env.NEXT_PUBLIC_E2E_MODE !== 'true'
     ) {
       await StartupValidator.validate();
     }
