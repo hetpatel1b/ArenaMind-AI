@@ -37,7 +37,7 @@ test.describe('Intelligence Copilot End-to-End', () => {
     }
 
     // Find chat input
-    const input = page.getByPlaceholder(/Ask ArenaMind/i);
+    const input = page.getByPlaceholder(/Ask Copilot|Ask ArenaMind/i);
     await expect(input).toBeVisible();
 
     // Type a boundary condition prompt (very long string)
