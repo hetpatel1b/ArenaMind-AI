@@ -12,7 +12,7 @@ export interface BaseMutationOptions<TData, TVariables, TContext> extends Omit<
   invalidateKeys?: readonly (readonly unknown[])[];
 }
 
-export function useGenericMutation<TData = any, TVariables = any, TContext = any>(
+export function useGenericMutation<TData = unknown, TVariables = unknown, TContext = unknown>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   options?: BaseMutationOptions<TData, TVariables, TContext>
 ) {
@@ -35,7 +35,7 @@ export function useGenericMutation<TData = any, TVariables = any, TContext = any
       }
       return {} as TContext;
     },
-    onError: (err, variables, context: any) => {
+    onError: (err, variables, context: SafeAny) => {
       // Rollback optimistic updates using context
       if (context?.previousData) {
         Object.entries(context.previousData).forEach(([key, value]) => {

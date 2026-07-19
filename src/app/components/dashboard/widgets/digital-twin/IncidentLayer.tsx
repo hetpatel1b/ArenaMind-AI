@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface IncidentLayerProps {
-  layout: any;
-  incidents: any[];
+  layout: SafeAny;
+  incidents: SafeAny[];
 }
 
 export function IncidentLayer({ layout, incidents }: IncidentLayerProps) {

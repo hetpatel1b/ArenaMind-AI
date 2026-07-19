@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface CrowdActivityTimelineProps {
-  incidents: any[];
+  incidents: SafeAny[];
 }
 
 export function CrowdActivityTimeline({ incidents }: CrowdActivityTimelineProps) {

@@ -152,7 +152,7 @@ export function cameraReducer(state: CameraState, action: CameraAction): CameraS
         ptzActive: true,
         cameras: state.cameras.map((c) =>
           c.id === state.selectedCameraId
-            ? { ...c, ptz: { ...c.ptz, ...action.payload } as any }
+            ? { ...c, ptz: { ...c.ptz, ...action.payload } as SafeAny }
             : c
         ),
       };

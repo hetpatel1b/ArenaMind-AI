@@ -16,9 +16,9 @@ import { AiSignalPropagationLayer } from './AiSignalPropagationLayer';
 import { AnalyticsLayer } from './AnalyticsLayer';
 
 interface DigitalTwinMapProps {
-  zones: any[];
-  incidents: any[];
-  resources: any[];
+  zones: SafeAny[];
+  incidents: SafeAny[];
+  resources: SafeAny[];
 }
 
 // 1000x1000 coordinate system
@@ -47,7 +47,7 @@ export function DigitalTwinMap({ zones, incidents, resources }: DigitalTwinMapPr
       const mission = activeMissions.find((m) => m.id === focusedMissionId);
       if (mission) {
         // Zoom into the zone
-        const zoneConfig = (STADIUM_LAYOUT as any)[mission.zoneId];
+        const zoneConfig = (STADIUM_LAYOUT as SafeAny)[mission.zoneId];
         if (zoneConfig) {
           setZoom(1.8);
           setPan({ x: 500 - zoneConfig.cx, y: 500 - zoneConfig.cy });
@@ -141,11 +141,11 @@ export function DigitalTwinMap({ zones, incidents, resources }: DigitalTwinMapPr
             { id: 'AI_SIGNALS', label: 'AI Signals' },
             { id: 'ANALYTICS', label: 'Analytics' },
           ].map((filter) => {
-            const isActive = twin.activeFilters.has(filter.id as any);
+            const isActive = twin.activeFilters.has(filter.id as SafeAny);
             return (
               <button
                 key={filter.id}
-                onClick={() => twin.toggleFilter(filter.id as any)}
+                onClick={() => twin.toggleFilter(filter.id as SafeAny)}
                 style={{
                   background: 'none',
                   border: 'none',

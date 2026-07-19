@@ -58,7 +58,7 @@ export async function registerOperator(data: {
     });
 
     return { success: true };
-  } catch (err: any) {
+  } catch (err: SafeAny) {
     return { error: err.message || 'An unexpected error occurred during registration.' };
   }
 }

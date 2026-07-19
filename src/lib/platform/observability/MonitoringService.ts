@@ -24,7 +24,7 @@ export class MonitoringService {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { PerformanceObserver, performance } = require('perf_hooks');
-      const obs = new PerformanceObserver((list: any) => {
+      const obs = new PerformanceObserver((list: { getEntries(): Array<{ duration: number }> }) => {
         const entries = list.getEntries();
         for (const entry of entries) {
           this.gcCollections++;

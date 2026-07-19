@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { BaseService } from '@/lib/services/base.service';
 import { BusinessContext } from '@/lib/services/business.context';
 import { settingRepository } from './repository';
@@ -33,14 +34,14 @@ export class SettingService extends BaseService {
         if (setting) {
           setting = await tx.systemSetting.update({
             where: { id: setting.id },
-            data: { value: payload.value },
+            data: { value: payload.value as Prisma.InputJsonValue },
           });
         } else {
           setting = await tx.systemSetting.create({
             data: {
               venueId: ctx.venueId,
               key: payload.key,
-              value: payload.value,
+              value: payload.value as Prisma.InputJsonValue,
             },
           });
         }

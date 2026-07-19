@@ -9,17 +9,27 @@ export class DatabaseMonitor {
 
     try {
       // Postgres specific connection count
-      const result = await prisma.$queryRaw<any[]>`SELECT count(*) as count FROM pg_stat_activity`;
-      if (result && result.length > 0) {
-        activeConnections = Number(result[0].count);
+      interface PgStatActivityCount {
+        count: bigint | number;
+      }
+      const result = await prisma.$queryRaw<
+        PgStatActivityCount[]
+      >`SELECT count(*) as count FROM pg_stat_activity`;
+      const firstResult = result[0];
+      if (result && result.length > 0 && firstResult) {
+        activeConnections = Number(firstResult.count);
       }
 
       // Try to get DB size
+      interface PgDatabaseSize {
+        size: bigint | number;
+      }
       const sizeResult = await prisma.$queryRaw<
-        any[]
+        PgDatabaseSize[]
       >`SELECT pg_database_size(current_database()) as size`;
-      if (sizeResult && sizeResult.length > 0) {
-        dbSize = Number(sizeResult[0].size);
+      const firstSize = sizeResult[0];
+      if (sizeResult && sizeResult.length > 0 && firstSize) {
+        dbSize = Number(firstSize.size);
       }
     } catch (e) {
       // graceful fallback

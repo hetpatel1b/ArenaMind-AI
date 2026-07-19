@@ -3,6 +3,7 @@ import { ProviderManager } from '../../provider-manager';
 import { StructuredAIResponse } from '../../types';
 import { aiConflictResolutionService, AgentOutput } from '../planning/conflict-resolution.service';
 import { aiConsensusEngineService } from '../planning/consensus-engine.service';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class SupervisorAgent extends BaseAgent {
   public agentId = 'supervisor';
@@ -20,10 +21,10 @@ You must eliminate duplicates, prioritize life-safety over cost, and produce the
    * Overrides the base execute method to handle the aggregation of multiple agent outputs.
    */
   async executeSupervisor(
-    contextData: any,
+    contextData: SafeAny,
     userPrompt: string,
     agentOutputs: AgentOutput[]
-  ): Promise<Partial<StructuredAIResponse> & { _internalMetadata?: any }> {
+  ): Promise<Partial<StructuredAIResponse> & { _internalMetadata?: SafeAny }> {
     const conflictDirectives = aiConflictResolutionService.resolveConflicts(agentOutputs);
     const consensusResult = aiConsensusEngineService.calculateConsensus(agentOutputs);
 
@@ -83,7 +84,7 @@ SCHEMA:
       const response = result;
       const data = (
         'data' in response ? response.data : undefined
-      ) as Partial<StructuredAIResponse> & { _internalMetadata?: any };
+      ) as Partial<StructuredAIResponse> & { _internalMetadata?: SafeAny };
 
       // Inject internal backend metadata for observability (Part 9 & Part 10)
       data._internalMetadata = {
@@ -103,8 +104,8 @@ SCHEMA:
       };
 
       return data;
-    } catch (error: unknown) {
-      console.error('[Agent:supervisor] Execution failed:', error);
+    } catch (error: SafeAny) {
+      LoggerService.error('[Agent:supervisor] Execution failed:', error);
       return {
         confidence: 0,
         observation: 'Supervisor agent failed to aggregate responses.',

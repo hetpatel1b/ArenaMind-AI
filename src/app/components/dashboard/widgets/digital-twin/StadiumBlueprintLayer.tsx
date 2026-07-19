@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface StadiumBlueprintLayerProps {
-  layout: any;
+  layout: SafeAny;
 }
 
 export function StadiumBlueprintLayer({ layout }: StadiumBlueprintLayerProps) {

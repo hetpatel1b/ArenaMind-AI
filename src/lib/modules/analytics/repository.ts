@@ -2,7 +2,7 @@ import { PrismaRepository } from '@/lib/repositories/prisma.repository';
 import { KpiSnapshot } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class KpiSnapshotRepository extends PrismaRepository<KpiSnapshot, any, any> {
+export class KpiSnapshotRepository extends PrismaRepository<KpiSnapshot, SafeAny, SafeAny> {
   constructor() {
     super(prisma.kpiSnapshot, 'kpiSnapshot');
   }

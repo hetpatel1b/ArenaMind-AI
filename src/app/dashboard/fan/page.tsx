@@ -12,7 +12,7 @@ import { multilingualService } from '../../../lib/fan/localization/multilingual.
 export default function FanModePage() {
   const [activeRoute, setActiveRoute] = React.useState<NavigationRoute | null>(null);
   const [lang, setLang] = React.useState(fanContextService.getContext().language);
-  const [recommendations, setRecommendations] = React.useState<any[]>([]);
+  const [recommendations, setRecommendations] = React.useState<SafeAny[]>([]);
 
   React.useEffect(() => {
     const handleLangChange = () => setLang(fanContextService.getContext().language);

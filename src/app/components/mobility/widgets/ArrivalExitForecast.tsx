@@ -12,7 +12,7 @@ export function ArrivalExitForecast({ mobilityState }: ArrivalExitForecastProps)
   const shouldReduceMotion = useReducedMotion();
 
   const predictionsObj = mobilityState.predictions || {};
-  const predictionValues = Object.values(predictionsObj) as any[];
+  const predictionValues = Object.values(predictionsObj) as SafeAny[];
 
   // Safe Fallback: If no backend predictions exist, show empty baseline
   const forecast =

@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { MobilityMatchPayload } from '../MobilityCommandWorkspace';
 
 interface AiRouteOptimizationProps {
-  recommendations: any[];
+  recommendations: SafeAny[];
 }
 
 export function AiRouteOptimization({ recommendations }: AiRouteOptimizationProps) {

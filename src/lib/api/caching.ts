@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * Generates an ETag hash for caching payloads.
  */
-export function generateETag(data: unknown): string {
+export function generateETag(data: SafeAny): string {
   const str = typeof data === 'string' ? data : JSON.stringify(data);
   return createHash('md5').update(str).digest('hex');
 }

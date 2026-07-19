@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface MobilityTimelineProps {
-  phaseTransitions: any[];
+  phaseTransitions: SafeAny[];
 }
 
 export function MobilityTimeline({ phaseTransitions }: MobilityTimelineProps) {

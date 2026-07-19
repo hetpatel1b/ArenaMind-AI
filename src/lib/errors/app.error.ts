@@ -10,7 +10,7 @@ export class ApplicationError extends Error {
     public readonly message: string,
     public readonly statusCode: number = 500,
     public readonly code: string = 'INTERNAL_ERROR',
-    public readonly details?: Record<string, unknown>,
+    public readonly details?: Record<string, SafeAny>,
     isOperational = true
   ) {
     super(message);

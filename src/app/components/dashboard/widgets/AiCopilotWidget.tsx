@@ -10,7 +10,7 @@ interface AiCopilotWidgetProps {
     healthScore: number;
     activeIncidentCount: number;
   };
-  recommendations?: any[];
+  recommendations?: SafeAny[];
 }
 
 export function AiCopilotWidget({ scenarioContext, recommendations = [] }: AiCopilotWidgetProps) {

@@ -35,7 +35,7 @@ export default function GovernanceAnalyticsPanels() {
             else if (p.title === 'Storage Cap.' || p.title === 'Backup Success')
               targetSection = 'BACKUPS';
 
-            dispatch({ type: 'SET_SECTION', payload: targetSection as any });
+            dispatch({ type: 'SET_SECTION', payload: targetSection as SafeAny });
           }}
           style={{
             padding: '1rem',

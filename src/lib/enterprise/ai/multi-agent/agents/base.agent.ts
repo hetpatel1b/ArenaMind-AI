@@ -1,6 +1,7 @@
 import { AIRequest, AIResponse, StructuredAIResponse, AIProviderType } from '../../types';
 import { ProviderManager } from '../../provider-manager';
 import { aiSecurityService } from '../../security.service';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export abstract class BaseAgent {
   public abstract agentId: string;
@@ -13,7 +14,7 @@ export abstract class BaseAgent {
   /**
    * Executes the agent's core task against the LLM provider.
    */
-  async execute(contextData: any, userPrompt: string): Promise<Partial<StructuredAIResponse>> {
+  async execute(contextData: SafeAny, userPrompt: string): Promise<Partial<StructuredAIResponse>> {
     const systemPrompt = `
 ${this.getAgentSystemPrompt()}
 
@@ -51,7 +52,7 @@ CRITICAL INSTRUCTION: You MUST return a JSON object matching this schema. Fill i
       const response = result as AIResponse;
       return response.data as Partial<StructuredAIResponse>;
     } catch (error) {
-      console.error(`[Agent:${this.agentId}] Execution failed:`, error);
+      LoggerService.error(`[Agent:${this.agentId}] Execution failed:`, error);
       return {
         confidence: 0,
         observation: `Agent ${this.agentId} failed to respond.`,

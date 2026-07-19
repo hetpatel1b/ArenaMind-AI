@@ -4,9 +4,9 @@ import React, { useMemo, useState } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 
 interface InteractiveStadiumMapProps {
-  zones: any[];
-  incidents: any[];
-  resources: any[];
+  zones: SafeAny[];
+  incidents: SafeAny[];
+  resources: SafeAny[];
 }
 
 export function InteractiveStadiumMap({ zones, incidents, resources }: InteractiveStadiumMapProps) {
@@ -277,7 +277,8 @@ export function InteractiveStadiumMap({ zones, incidents, resources }: Interacti
                         {zone.name}
                       </div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                        Capacity: {crowdSnapshots?.fanCount || 0} / {zone.capacity} ({density.toFixed(1)}
+                        Capacity: {crowdSnapshots?.fanCount || 0} / {zone.capacity} (
+                        {density.toFixed(1)}
                         %)
                       </div>
                     </motion.div>

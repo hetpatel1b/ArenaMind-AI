@@ -138,7 +138,7 @@ export default function GovernanceCenter() {
   );
 }
 
-function renderWorkspaceContent(section: WorkspaceSection, state: any, dispatch: any) {
+function renderWorkspaceContent(section: WorkspaceSection, state: SafeAny, dispatch: SafeAny) {
   if (section === WorkspaceSection.USERS) {
     return (
       <div

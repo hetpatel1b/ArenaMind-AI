@@ -22,7 +22,7 @@ import { ExecutiveCollaboration } from './foundation/components/ExecutiveCollabo
 import { useCrowdBehaviorEngine } from './foundation/hooks/useCrowdBehaviorEngine';
 
 // We map mock data here but eventually use matchData to bootstrap the engine.
-export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
+export function CrowdIntelligenceWorkspace({ matchData }: { matchData: SafeAny }) {
   const [rightPanelMode, setRightPanelMode] = useState<RightPanelMode>('NONE');
 
   // The new connected state engine
@@ -49,7 +49,7 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
       status: 'warning',
     },
     movementDirection: 'Unknown',
-  } as any;
+  } as SafeAny;
 
   const highestRiskZoneName = state.global.highestRiskZoneId
     ? state.zones.find((z) => z.id === state.global.highestRiskZoneId)?.name || 'Unknown'
@@ -159,7 +159,7 @@ export function CrowdIntelligenceWorkspace({ matchData }: { matchData: any }) {
               <ResourceCoordination resources={state.resources} />
             </div>
             <div style={{ flex: '1 1 300px', minWidth: '300px' }}>
-              <FlowAnalytics flow={state.flow as any} />
+              <FlowAnalytics flow={state.flow as SafeAny} />
             </div>
             <div style={{ flex: '1 1 300px', minWidth: '300px' }}>
               <BehaviorIntelligence behavior={behaviorMetrics} />

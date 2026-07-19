@@ -4,6 +4,7 @@ import { userRepository } from './repository';
 import { toProfileDto } from './mapper';
 import { ProfileDto, UpdateUserDto } from './dto';
 import { prisma } from '@/lib/db/client';
+import { Prisma } from '@prisma/client';
 import { NotFoundError, AuthenticationError } from '@/lib/errors/http.errors';
 
 export class UserService extends BaseService {
@@ -30,7 +31,8 @@ export class UserService extends BaseService {
         const user = await tx.user.update({
           where: { id: ctx.userId },
           data: {
-            ...payload,
+            phoneNumber: payload.phoneNumber,
+            preferences: payload.preferences as Prisma.InputJsonValue | undefined,
           },
         });
 

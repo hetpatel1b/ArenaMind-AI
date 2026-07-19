@@ -1,7 +1,7 @@
 import React from 'react';
 import { AiModel } from '../GovernanceTypes';
 
-export const ModelRow = React.memo(({ m, dispatch }: { m: AiModel; dispatch: any }) => (
+export const ModelRow = React.memo(({ m, dispatch }: { m: AiModel; dispatch: SafeAny }) => (
   <div
     className="gov-grid-row"
     style={{

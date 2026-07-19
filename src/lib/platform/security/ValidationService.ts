@@ -47,6 +47,6 @@ export class ValidationService {
    * Helper to format Zod errors into a standard string array
    */
   static formatZodError(error: ZodError): string[] {
-    return error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`);
+    return error.issues.map((e) => `${e.path.join('.')}: ${e.message}`);
   }
 }

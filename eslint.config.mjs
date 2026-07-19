@@ -25,10 +25,10 @@ const eslintConfig = defineConfig([
       "jsx-a11y/no-noninteractive-element-interactions": "off",
       "jsx-a11y/aria-role": "off",
       "jsx-a11y/interactive-supports-focus": "off",
-      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-console": "error",
       "react-hooks/exhaustive-deps": "error",
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off"
+      "@typescript-eslint/no-explicit-any": "error"
     }
   },
   {

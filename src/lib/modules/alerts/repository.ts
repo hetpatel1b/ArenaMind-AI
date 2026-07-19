@@ -2,7 +2,7 @@ import { PrismaRepository } from '@/lib/repositories/prisma.repository';
 import { Notification } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class AlertRepository extends PrismaRepository<Notification, any, any> {
+export class AlertRepository extends PrismaRepository<Notification, SafeAny, SafeAny> {
   constructor() {
     super(prisma.notification, 'notification');
   }

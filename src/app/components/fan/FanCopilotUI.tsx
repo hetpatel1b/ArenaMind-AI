@@ -5,6 +5,7 @@ import { fanCopilotService, CopilotResponse } from '../../../lib/fan/copilot/fan
 import { fanContextService } from '../../../lib/fan/context/fan-context.service';
 import { multilingualService } from '../../../lib/fan/localization/multilingual.service';
 import { NavigationRoute } from '../../../lib/fan/types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 interface Message {
   id: string;
@@ -61,7 +62,7 @@ export default function FanCopilotUI({ onRouteReceived }: Props) {
         onRouteReceived(response.action.data as NavigationRoute);
       }
     } catch (error) {
-      console.error(error);
+      LoggerService.error('Error in FanCopilotUI:', error);
     }
   };
 

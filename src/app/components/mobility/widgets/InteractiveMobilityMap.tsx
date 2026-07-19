@@ -5,7 +5,7 @@ import React from 'react';
 import { MobilityState } from '../MobilityCommandWorkspace';
 
 interface InteractiveMobilityMapProps {
-  zones: any[];
+  zones: SafeAny[];
   mobilityState?: MobilityState;
 }
 

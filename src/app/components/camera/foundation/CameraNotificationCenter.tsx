@@ -83,7 +83,7 @@ export function CameraNotificationCenter() {
             </p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
               <button
-                onClick={() => dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'GRID' as any })}
+                onClick={() => dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'GRID' as SafeAny })}
                 style={{
                   background: 'rgba(255,255,255,0.1)',
                   border: 'none',
@@ -97,7 +97,9 @@ export function CameraNotificationCenter() {
                 Open Camera
               </button>
               <button
-                onClick={() => dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'EVIDENCE' as any })}
+                onClick={() =>
+                  dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'EVIDENCE' as SafeAny })
+                }
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: 'none',

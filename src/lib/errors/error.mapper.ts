@@ -8,8 +8,8 @@ import { errorResponse } from '../api/response';
  * Ensures internal details are sanitized before sending to clients.
  */
 export function mapErrorToResponse(
-  error: unknown,
-  reqContext?: Record<string, unknown>
+  error: SafeAny,
+  reqContext?: Record<string, SafeAny>
 ): NextResponse {
   // If it's a known operational error
   if (error instanceof ApplicationError) {

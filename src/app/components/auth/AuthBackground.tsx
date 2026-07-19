@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 export function AuthBackground() {
   const shouldReduceMotion = useReducedMotion();
-  const [particles, setParticles] = useState<any[]>([]);
+  const [particles, setParticles] = useState<SafeAny[]>([]);
 
   useEffect(() => {
     // Generate particles only on the client to avoid SSR hydration mismatches

@@ -25,7 +25,7 @@ export interface ScenarioZone {
   shortCode: string;
   capacity: number;
   safeCapacity: number;
-  metadata: any;
+  metadata: SafeAny;
   crowd: {
     fanCount: number;
     densityPct: number;

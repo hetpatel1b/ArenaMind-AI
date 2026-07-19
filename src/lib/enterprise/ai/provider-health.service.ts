@@ -1,4 +1,5 @@
 import { AIProviderType } from './types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export interface ProviderHealth {
   status: 'healthy' | 'degraded' | 'down';
@@ -49,8 +50,7 @@ export class ProviderHealthService {
 
     // Auto-recover
     if (state.status === 'down' || state.status === 'degraded') {
-      // eslint-disable-next-line no-console
-      console.log(`[ProviderHealth] ${provider} recovered and is now healthy.`);
+      LoggerService.info(`[ProviderHealth] ${provider} recovered and is now healthy.`);
       state.status = 'healthy';
     }
 
@@ -68,7 +68,9 @@ export class ProviderHealthService {
 
     if (state.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
       if (state.status !== 'down') {
-        console.warn(`[ProviderHealth] Circuit breaker tripped for ${provider}. Marking as down.`);
+        LoggerService.warn(
+          `[ProviderHealth] Circuit breaker tripped for ${provider}. Marking as down.`
+        );
         state.status = 'down';
       }
     } else if (state.consecutiveFailures >= 2) {
@@ -85,8 +87,7 @@ export class ProviderHealthService {
       // Check for recovery timeout
       if (state.lastFailure && Date.now() - state.lastFailure > this.RECOVERY_TIMEOUT_MS) {
         // Half-open state
-        // eslint-disable-next-line no-console
-        console.log(`[ProviderHealth] Testing recovery for ${provider}...`);
+        LoggerService.info(`[ProviderHealth] Testing recovery for ${provider}...`);
         return true;
       }
       return false;

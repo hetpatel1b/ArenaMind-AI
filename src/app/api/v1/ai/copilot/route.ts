@@ -1,5 +1,6 @@
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { aiGatewayService } from '@/lib/enterprise/ai/gateway.service';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export const POST = createRouteHandler(async (req, { bizContext: ctx }) => {
   const body = await req.json();
@@ -16,7 +17,7 @@ export const POST = createRouteHandler(async (req, { bizContext: ctx }) => {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const sendEvent = (event: string, data: any) => {
+      const sendEvent = (event: string, data: SafeAny) => {
         controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
       };
 
@@ -36,8 +37,8 @@ export const POST = createRouteHandler(async (req, { bizContext: ctx }) => {
         // Send final response
         sendEvent('complete', { result });
         controller.close();
-      } catch (error: any) {
-        console.error('Copilot API Error:', error);
+      } catch (error: SafeAny) {
+        LoggerService.error('Copilot API Error:', error);
         sendEvent('error', {
           message: error.message || 'An error occurred during AI processing.',
         });

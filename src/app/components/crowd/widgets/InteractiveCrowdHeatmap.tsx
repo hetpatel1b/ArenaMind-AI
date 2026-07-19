@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 
 interface InteractiveCrowdHeatmapProps {
-  zones: any[];
+  zones: SafeAny[];
 }
 
 export function InteractiveCrowdHeatmap({ zones }: InteractiveCrowdHeatmapProps) {

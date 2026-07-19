@@ -9,8 +9,8 @@ type ToolItem = {
   label: string;
   icon: string;
   shortcut?: string;
-  action: (dispatch: any) => void;
-  isActive: (state: any) => boolean;
+  action: (dispatch: SafeAny) => void;
+  isActive: (state: SafeAny) => boolean;
 };
 
 export function LeftToolRail() {

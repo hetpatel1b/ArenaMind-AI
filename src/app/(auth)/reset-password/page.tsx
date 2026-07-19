@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       router.push('/login');
-    } catch (err: any) {
+    } catch (err: SafeAny) {
       setError(err.message || 'Failed to update clearance');
     } finally {
       setIsLoading(false);

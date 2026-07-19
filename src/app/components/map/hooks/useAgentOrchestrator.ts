@@ -54,11 +54,11 @@ export function useAgentOrchestrator() {
     const metrics = data?.data?.engineMetrics;
     if (!metrics) {
       return {
-        healthIndex: null as any,
-        safetyScore: null as any,
-        crowdStability: null as any,
-        transportStability: null as any,
-        medicalReadiness: null as any,
+        healthIndex: null as SafeAny,
+        safetyScore: null as SafeAny,
+        crowdStability: null as SafeAny,
+        transportStability: null as SafeAny,
+        medicalReadiness: null as SafeAny,
       };
     }
     return metrics;
@@ -81,7 +81,7 @@ export function useAgentOrchestrator() {
       ];
     }
 
-    return reasoningStream.map((stream: any, index: number) => ({
+    return reasoningStream.map((stream: SafeAny, index: number) => ({
       id: `expl-${incidentId}-${index}`,
       agent: 'Intelligence Agent',
       evidence: stream.content || 'I do not have sufficient verified operational evidence.',

@@ -8,7 +8,7 @@ export class ConversationService {
     userId?: string
   ): Promise<string> {
     const validMatchId = matchId === 'system-default-match' ? undefined : matchId;
-    const whereClause: any = { organizationId };
+    const whereClause: SafeAny = { organizationId };
     if (validMatchId) whereClause.matchId = validMatchId;
     if (userId) whereClause.userId = userId;
 
@@ -62,7 +62,7 @@ export class ConversationService {
     });
 
     // Reverse to chronological order
-    return messages.reverse().map((m: any) => ({
+    return messages.reverse().map((m: SafeAny) => ({
       role: m.role as 'system' | 'user' | 'assistant',
       content: m.content,
     }));

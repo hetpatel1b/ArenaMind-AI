@@ -5,7 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { matchApi } from '@/lib/api-client/features/match';
 import { CommandCenterDashboard } from '@/app/components/dashboard/CommandCenterDashboard';
 
-export function DashboardClient({ initialMatchData, organizationId }: { initialMatchData: any; organizationId: string }) {
+export function DashboardClient({
+  initialMatchData,
+  organizationId,
+}: {
+  initialMatchData: SafeAny;
+  organizationId: string;
+}) {
   const { data } = useQuery({
     queryKey: ['match', 'active', organizationId],
     queryFn: () => matchApi.getMatches(),
@@ -13,7 +19,9 @@ export function DashboardClient({ initialMatchData, organizationId }: { initialM
     staleTime: Infinity,
   });
 
-  const matchData = Array.isArray(data) ? data.find((m: any) => m.matchStatus === 'active') || data[0] : data;
+  const matchData = Array.isArray(data)
+    ? data.find((m: SafeAny) => m.matchStatus === 'active') || data[0]
+    : data;
 
   if (!matchData) {
     return (

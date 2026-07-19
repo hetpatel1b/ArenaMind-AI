@@ -13,6 +13,8 @@ import { PredictionCard } from '@/app/components/dashboard/shell/copilot/Predict
 import { ApprovalCard } from '@/app/components/dashboard/shell/copilot/ApprovalCard';
 import { DecisionHistory } from '@/app/components/dashboard/shell/copilot/DecisionHistory';
 import { AiHealthFooter } from '@/app/components/dashboard/shell/copilot/AiHealthFooter';
+import { workspaceVariants, WORKSPACE_LABELS } from './UnifiedWorkspace.constants';
+import { WorkspaceHeader } from './WorkspaceHeader';
 import { OperationLifecycle } from './OperationLifecycle';
 
 export function UnifiedWorkspace() {
@@ -23,55 +25,25 @@ export function UnifiedWorkspace() {
     dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'COPILOT' } });
   };
 
-  const workspaceVariants = {
-    initial: { opacity: 0, x: 12 },
-    animate: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, x: -12, transition: { duration: 0.3 } },
-  };
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: 'rgba(5, 5, 5, 0.5)',
-        boxShadow: '-20px 0 60px rgba(0,0,0,0.3)',
-        borderRadius: 'var(--radius-xl)',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          backgroundColor: 'rgba(255,255,255,0.02)',
-        }}
-      >
+    <div className="flex flex-col h-full bg-black/50 shadow-2xl rounded-2xl overflow-hidden relative">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/5">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {workspaceMode === 'COPILOT' && (
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>
-              Operations Copilot
-            </span>
+            <span className="text-[13px] font-bold text-white">Operations Copilot</span>
           )}
           {workspaceMode === 'MISSION_DETAILS' && (
             <>
-              <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>Mission</span>
-              <span style={{ color: 'var(--text-tertiary)' }}>/</span>
-              <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>Details</span>
+              <span className="text-[11px] text-gray-500">Mission</span>
+              <span className="text-gray-500">/</span>
+              <span className="text-[13px] font-bold text-white">Details</span>
             </>
           )}
           {workspaceMode === 'INSPECTOR' && (
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>Inspector</span>
+            <span className="text-[13px] font-bold text-white">Inspector</span>
           )}
           {workspaceMode === 'ANALYTICS' && (
-            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>
-              Executive Analytics
-            </span>
+            <span className="text-[13px] font-bold text-white">Executive Analytics</span>
           )}
         </div>
 
@@ -81,15 +53,7 @@ export function UnifiedWorkspace() {
               onClick={() =>
                 dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'ANALYTICS' } })
               }
-              style={{
-                fontSize: '11px',
-                color: 'var(--ai-accent)',
-                background: 'rgba(10,132,255,0.1)',
-                border: '1px solid var(--ai-accent)',
-                borderRadius: '4px',
-                padding: '4px 8px',
-                cursor: 'pointer',
-              }}
+              className="text-[11px] text-blue-500 bg-blue-500/10 border border-blue-500 rounded px-2 py-1 cursor-pointer"
             >
               Analytics
             </button>
@@ -143,7 +107,7 @@ export function UnifiedWorkspace() {
         </div>
       </div>
 
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <div className="flex-1 relative overflow-hidden">
         <AnimatePresence mode="wait">
           {workspaceMode === 'COPILOT' && (
             <motion.div
@@ -243,7 +207,7 @@ export function UnifiedWorkspace() {
                   >
                     AWAITING TELEMETRY
                   </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
+                  <span className="text-[11px] text-gray-500">
                     Select an entity on the map to begin inspection
                   </span>
                 </div>

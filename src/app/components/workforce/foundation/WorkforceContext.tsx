@@ -119,7 +119,7 @@ export function workforceReducer(state: WorkforceState, action: WorkforceAction)
         },
         units: state.units.map((u) => ({
           ...u,
-          fatigueRisk: Math.min(100, (u as any).fatigueRisk + 15),
+          fatigueRisk: Math.min(100, (u as SafeAny).fatigueRisk + 15),
         })),
       };
 

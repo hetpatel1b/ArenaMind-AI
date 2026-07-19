@@ -7,7 +7,7 @@ export class ApiOptimizer {
    */
   static applyCacheHeaders(
     request: Request,
-    responseBody: any,
+    responseBody: SafeAny,
     options: { maxAgeSeconds?: number; sMaxAgeSeconds?: number } = {}
   ): NextResponse {
     const { maxAgeSeconds = 0, sMaxAgeSeconds = 0 } = options;

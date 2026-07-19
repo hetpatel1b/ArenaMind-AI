@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CameraLayerProps {
-  layout: any;
+  layout: SafeAny;
 }
 
 export function CameraLayer({ layout }: CameraLayerProps) {
   const [hoveredCam, setHoveredCam] = useState<string | null>(null);
 
-  const cameras: any[] = [];
+  const cameras: SafeAny[] = [];
 
   return (
     <div

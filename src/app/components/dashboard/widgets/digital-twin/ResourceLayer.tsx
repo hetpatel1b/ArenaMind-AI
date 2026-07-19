@@ -4,8 +4,8 @@ import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ResourceLayerProps {
-  layout: any;
-  resources: any[];
+  layout: SafeAny;
+  resources: SafeAny[];
 }
 
 export function ResourceLayer({ layout, resources }: ResourceLayerProps) {

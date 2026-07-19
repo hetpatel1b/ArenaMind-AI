@@ -9,11 +9,11 @@ export interface IncidentMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  venue: { name: string; capacity: number; zones: any[] };
-  incidents: any[];
-  resources: any[];
-  aiRecommendations: any[];
-  phaseTransitions: any[];
+  venue: { name: string; capacity: number; zones: SafeAny[] };
+  incidents: SafeAny[];
+  resources: SafeAny[];
+  aiRecommendations: SafeAny[];
+  phaseTransitions: SafeAny[];
 }
 
 export function IncidentCommandWorkspace({ matchData }: { matchData: IncidentMatchPayload }) {

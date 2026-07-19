@@ -6,9 +6,9 @@ import { motion, useReducedMotion } from 'framer-motion';
 interface AiCrowdBriefingProps {
   stadiumName: string;
   currentPhase: string;
-  highestRiskZone: any;
+  highestRiskZone: SafeAny;
   maxDensity: number;
-  primaryRecommendation: any | null;
+  primaryRecommendation: SafeAny | null;
 }
 
 export function AiCrowdBriefing({

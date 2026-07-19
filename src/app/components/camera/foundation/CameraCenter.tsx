@@ -241,7 +241,7 @@ const CameraGridCell = React.memo(function CameraGridCell({
   );
 });
 
-const TabButton = React.memo(function TabButton({ mode, current, label, dispatch }: any) {
+const TabButton = React.memo(function TabButton({ mode, current, label, dispatch }: SafeAny) {
   const isActive = current === mode;
   return (
     <button

@@ -7,12 +7,12 @@ import { calculatePaginationMeta, getOffset } from '@/lib/utils/pagination';
  * Minimal interface representing a Prisma model delegate.
  */
 export interface PrismaDelegate {
-  findUnique(args: unknown): Promise<unknown>;
-  findMany(args: unknown): Promise<unknown[]>;
-  create(args: unknown): Promise<unknown>;
-  update(args: unknown): Promise<unknown>;
-  delete(args: unknown): Promise<unknown>;
-  count(args?: unknown): Promise<number>;
+  findUnique(args: SafeAny): Promise<SafeAny>;
+  findMany(args: SafeAny): Promise<SafeAny[]>;
+  create(args: SafeAny): Promise<SafeAny>;
+  update(args: SafeAny): Promise<SafeAny>;
+  delete(args: SafeAny): Promise<SafeAny>;
+  count(args?: SafeAny): Promise<number>;
 }
 
 /**
@@ -47,21 +47,21 @@ export abstract class PrismaRepository<
   }
 
   public async findAll(options?: {
-    filter?: Record<string, unknown>;
+    filter?: Record<string, SafeAny>;
     pagination?: PaginationOptions;
     sort?: SortOptions[];
     includeDeleted?: boolean;
   }): Promise<PaginatedResult<TEntity>> {
     const { filter, pagination, sort, includeDeleted } = options || {};
 
-    const where: Record<string, unknown> = { ...(filter || {}) };
+    const where: Record<string, SafeAny> = { ...(filter || {}) };
 
     // Default to excluding soft-deleted records unless explicitly requested
     if (!includeDeleted && where.deletedAt === undefined) {
       where.deletedAt = null;
     }
 
-    const queryArgs: Record<string, unknown> = { where };
+    const queryArgs: Record<string, SafeAny> = { where };
 
     if (sort && sort.length > 0) {
       queryArgs.orderBy = sort.map((s) => ({ [String(s.field)]: s.order }));
@@ -116,8 +116,8 @@ export abstract class PrismaRepository<
     return true;
   }
 
-  public async count(filter?: Record<string, unknown>, includeDeleted = false): Promise<number> {
-    const where: Record<string, unknown> = { ...(filter || {}) };
+  public async count(filter?: Record<string, SafeAny>, includeDeleted = false): Promise<number> {
+    const where: Record<string, SafeAny> = { ...(filter || {}) };
 
     if (!includeDeleted && where.deletedAt === undefined) {
       where.deletedAt = null;

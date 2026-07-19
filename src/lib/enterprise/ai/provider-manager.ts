@@ -2,12 +2,13 @@ import { ProviderFactory } from './provider-factory';
 import { ProviderRegistry } from './provider-registry';
 import { EnterpriseError } from './provider-types';
 import { AIRequest, AIResponse, AIProviderType } from './types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class ProviderManager {
-  private static isRetryable(error: unknown): boolean {
+  private static isRetryable(error: SafeAny): boolean {
     if (!error || typeof error !== 'object') return false;
 
-    const err = error as Record<string, unknown>;
+    const err = error as Record<string, SafeAny>;
     const status = err.status || err.statusCode;
     if (status === 401 || status === 403) return false;
 
@@ -50,17 +51,19 @@ export class ProviderManager {
       return await this.tryProvider(primary, request, 2, [1000, 2000], (retries) => {
         totalRetries += retries;
       });
-    } catch (primaryError: unknown) {
+    } catch (primaryError: SafeAny) {
       const pErr = primaryError instanceof Error ? primaryError.message : String(primaryError);
-      console.warn(`[ProviderManager] Primary provider (${primary}) failed:`, pErr);
+      LoggerService.warn(`[ProviderManager] Primary provider (${primary}) failed:`, {
+        error: pErr,
+      });
 
       try {
         return await this.tryProvider(fallback, request, 1, [1000], (retries) => {
           totalRetries += retries;
         });
-      } catch (fallbackError: unknown) {
+      } catch (fallbackError: SafeAny) {
         const fErr = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-        console.error(`[ProviderManager] Fallback provider (${fallback}) failed:`, fErr);
+        LoggerService.error(`[ProviderManager] Fallback provider (${fallback}) failed:`, fErr);
 
         const isNodeCrypto = typeof crypto !== 'undefined' && crypto.randomUUID;
 
@@ -94,10 +97,10 @@ export class ProviderManager {
         const response = await provider.generateResponse(request);
         onRetryCountUpdate(attempts);
         return response;
-      } catch (error: unknown) {
+      } catch (error: SafeAny) {
         if (attempts < maxRetries && this.isRetryable(error)) {
           const delay = delays[attempts] || delays[delays.length - 1] || 1000;
-          console.warn(
+          LoggerService.warn(
             `[ProviderManager] ${providerType} failed (retry ${attempts + 1}/${maxRetries}). Retrying in ${delay}ms...`
           );
           await this.sleep(delay);

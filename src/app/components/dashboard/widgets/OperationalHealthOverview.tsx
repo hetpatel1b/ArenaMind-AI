@@ -9,7 +9,7 @@ interface OperationalHealthOverviewProps {
   incidentScore: number;
   crowdScore: number;
   resourceScore: number;
-  kpiSnapshot: any; // Using any for brevity, maps to KpiSnapshot
+  kpiSnapshot: SafeAny; // Using any for brevity, maps to KpiSnapshot
 }
 
 function SnapshotCard({

@@ -195,7 +195,7 @@ export function IncidentCopilot({ incidents }: { incidents: Incident[] }) {
   );
 }
 
-function IncidentAIResponseBlock({ workspaceMode, activeIncident, isLatest, aiResponse }: any) {
+function IncidentAIResponseBlock({ workspaceMode, activeIncident, isLatest, aiResponse }: SafeAny) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -246,7 +246,7 @@ function IncidentAIResponseBlock({ workspaceMode, activeIncident, isLatest, aiRe
             ) : (
               activeIncident && (
                 <AnimatePresence initial={false}>
-                  {activeIncident.reasoningLog.map((log: any) => (
+                  {activeIncident.reasoningLog.map((log: SafeAny) => (
                     <motion.div
                       key={log.id}
                       initial={{ opacity: 0, height: 0, scale: 0.9 }}

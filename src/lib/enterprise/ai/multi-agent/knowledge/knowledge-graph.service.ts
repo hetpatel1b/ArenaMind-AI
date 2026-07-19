@@ -1,7 +1,7 @@
 export interface KGNode {
   id: string;
   label: string; // e.g. 'Person', 'Incident', 'Zone'
-  properties: Record<string, any>;
+  properties: Record<string, SafeAny>;
   confidence: number;
   lastUpdated?: number;
 }
@@ -11,7 +11,7 @@ export interface KGEdge {
   sourceId: string;
   targetId: string;
   type: string; // e.g. 'LOCATED_IN', 'CAUSED_BY'
-  properties: Record<string, any>;
+  properties: Record<string, SafeAny>;
   confidence: number;
   weight: number;
   isHistorical?: boolean;

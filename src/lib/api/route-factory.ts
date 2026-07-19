@@ -19,7 +19,7 @@ export interface RouteConfig {
 
 export type RouteHandler = (
   req: NextRequest,
-  context: { params?: any; bizContext: BusinessContext }
+  context: { params?: SafeAny; bizContext: BusinessContext }
 ) => Promise<NextResponse | Response>;
 
 function getUserFromHeaders(req: Request) {
@@ -49,7 +49,7 @@ export function createRouteHandler(
 ) {
   return async (
     req: NextRequest,
-    context?: { params?: any | Promise<any> }
+    context?: { params?: SafeAny | Promise<SafeAny> }
   ): Promise<NextResponse | Response> => {
     const params =
       context?.params instanceof Promise ? await context.params : await context?.params;

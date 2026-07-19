@@ -10,6 +10,9 @@ export function toProfileDto(user: User): ProfileDto {
     phoneNumber: user.phoneNumber,
     employeeId: user.employeeId,
     isActive: user.isActive,
-    preferences: user.preferences,
+    preferences:
+      user.preferences && typeof user.preferences === 'object' && !Array.isArray(user.preferences)
+        ? (user.preferences as Record<string, SafeAny>)
+        : {},
   };
 }

@@ -26,11 +26,11 @@ export function useMobilityEngine() {
   const snapshots = data?.data || [];
 
   // Safely map paginated DB snapshots to the composite object the UI expects.
-  const metroSnapshot = snapshots.find((s: any) => s.transitMode === 'metro');
-  const busSnapshot = snapshots.find((s: any) => s.transitMode === 'bus');
-  const carSnapshot = snapshots.find((s: any) => s.transitMode === 'car');
+  const metroSnapshot = snapshots.find((s: SafeAny) => s.transitMode === 'metro');
+  const busSnapshot = snapshots.find((s: SafeAny) => s.transitMode === 'bus');
+  const carSnapshot = snapshots.find((s: SafeAny) => s.transitMode === 'car');
 
-  const createSidebarEntry = (snapshot: any) => ({
+  const createSidebarEntry = (snapshot: SafeAny) => ({
     status: (snapshot?.status || 'OFFLINE') as TrafficStatus,
     progress: snapshot ? 100 : 0,
     trend: 'neutral' as 'up' | 'down' | 'neutral',

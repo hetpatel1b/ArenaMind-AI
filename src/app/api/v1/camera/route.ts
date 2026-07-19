@@ -25,7 +25,7 @@ export const GET = createRouteHandler(async (req: NextRequest, { bizContext }) =
 
   const feeds = await prisma.camera.findMany({ take: 6 });
   const mappedFeeds = feeds.map((feed) => {
-    const meta = (feed.metadata as Record<string, unknown>) || {};
+    const meta = (feed.metadata as Record<string, SafeAny>) || {};
     return {
       id: feed.id,
       name: feed.name,

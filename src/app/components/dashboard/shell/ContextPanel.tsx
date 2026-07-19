@@ -18,7 +18,7 @@ export function ContextPanel() {
           { event: 'INSERT', schema: 'public', table: 'incidents' },
           (payload) => {
             setIsOpen(true);
-            setLastIncidentEvent(`New Incident: ${(payload.new as any).title}`);
+            setLastIncidentEvent(`New Incident: ${(payload.new as SafeAny).title}`);
           }
         )
         .subscribe(() => {

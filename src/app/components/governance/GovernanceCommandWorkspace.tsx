@@ -32,9 +32,9 @@ export interface GovernancePayload {
 }
 
 interface GovernanceCommandWorkspaceProps {
-  matchData: any;
-  stadiumData: any;
-  users: any[];
+  matchData: SafeAny;
+  stadiumData: SafeAny;
+  users: SafeAny[];
   governancePayload: GovernancePayload;
 }
 

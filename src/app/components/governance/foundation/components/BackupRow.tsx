@@ -2,7 +2,7 @@ import React from 'react';
 import { StorageBackup } from '../GovernanceTypes';
 import { NumberFormatter, DateFormatter } from '@/lib/utils/formatters';
 
-export const BackupRow = React.memo(({ b, dispatch }: { b: StorageBackup; dispatch: any }) => (
+export const BackupRow = React.memo(({ b, dispatch }: { b: StorageBackup; dispatch: SafeAny }) => (
   <div
     className="gov-grid-row"
     style={{

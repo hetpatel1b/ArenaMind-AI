@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface DensityAnalyticsProps {
-  kpiSnapshots: any[];
+  kpiSnapshots: SafeAny[];
 }
 
 export function DensityAnalytics({ kpiSnapshots }: DensityAnalyticsProps) {

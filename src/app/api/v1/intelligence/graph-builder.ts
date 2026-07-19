@@ -57,7 +57,7 @@ export class GraphBuilder {
     this.limiter = limiter;
   }
 
-  build(incidents: any[], cameras: any[], units: any[]) {
+  build(incidents: SafeAny[], cameras: SafeAny[], units: SafeAny[]) {
     // Smart Prioritization: Critical Incidents > High Severity Incidents
     const sortedIncidents = [...incidents].sort((a, b) => b.severityTier - a.severityTier);
 

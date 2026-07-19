@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export function AnalyticsLayer({ layout }: { layout: any }) {
+export function AnalyticsLayer({ layout }: { layout: SafeAny }) {
   // Sample analytics lines (e.g., flow direction or predicted movement)
   const paths = [
     {

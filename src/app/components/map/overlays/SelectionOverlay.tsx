@@ -11,7 +11,7 @@ export function SelectionOverlay() {
   const { collabState } = useCollaboration();
   const [selectedResources, setSelectedResources] = useState<OperationalResource[]>([]);
   const [sharedSelectedResources, setSharedSelectedResources] = useState<
-    { res: OperationalResource; op: any }[]
+    { res: OperationalResource; op: SafeAny }[]
   >([]);
 
   // Poll position of selected resources if moving
@@ -37,7 +37,7 @@ export function SelectionOverlay() {
           const op = collabState.operators.find((o) => o.selection === r.id);
           return op ? { res: { ...r }, op } : null;
         })
-        .filter(Boolean) as { res: OperationalResource; op: any }[];
+        .filter(Boolean) as { res: OperationalResource; op: SafeAny }[];
 
       setSharedSelectedResources((prev) => {
         if (

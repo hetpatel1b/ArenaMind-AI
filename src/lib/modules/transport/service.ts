@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { BaseService } from '@/lib/services/base.service';
 import { BusinessContext } from '@/lib/services/business.context';
 import { TransportDto, UpdateTransportDto } from './dto';
@@ -22,11 +23,11 @@ export class TransportService extends BaseService {
 
       this.enforceTenantIsolation(ctx, match.venueId);
 
-      const metadata = (match.metadata as Record<string, unknown[]>) || {};
-      const transportData = metadata.transportation || [];
+      const metadata = (match.metadata as Record<string, SafeAny>) || {};
+      const transportData = (metadata.transportation || []) as Array<Record<string, SafeAny>>;
 
       // Map raw JSON to DTO
-      return transportData.map((t: any, index: number) => ({
+      return transportData.map((t, index: number) => ({
         id: `transport-${match.id}-${index}`,
         matchId: match.id,
         venueId: match.venueId,
@@ -53,12 +54,12 @@ export class TransportService extends BaseService {
 
       await prisma.$transaction(async (tx) => {
         const m = await tx.match.findUnique({ where: { id: matchId } });
-        const meta = (m!.metadata as unknown as Record<string, Record<string, unknown>[]>) || {};
+        const meta = (m!.metadata as unknown as Record<string, Record<string, SafeAny>[]>) || {};
         meta.transportation = meta.transportation || [];
 
         let found = false;
         const hubIndex = meta.transportation.findIndex(
-          (t: Record<string, unknown>, idx: number) =>
+          (t: Record<string, SafeAny>, idx: number) =>
             t.id === hubId || `transport-${matchId}-${idx}` === hubId
         );
         if (hubIndex >= 0) {
@@ -68,7 +69,7 @@ export class TransportService extends BaseService {
           // Parking fallback
           meta.parking = meta.parking || [];
           const parkIndex = meta.parking.findIndex(
-            (p: Record<string, unknown>, idx: number) =>
+            (p: Record<string, SafeAny>, idx: number) =>
               p.id === hubId || `parking-${matchId}-${idx}` === hubId
           );
           if (parkIndex >= 0) {

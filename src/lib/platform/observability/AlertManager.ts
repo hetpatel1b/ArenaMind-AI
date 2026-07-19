@@ -10,14 +10,19 @@ export interface AlertEvent {
   name: string;
   severity: AlertSeverity;
   message: string;
-  context?: any;
+  context?: Record<string, SafeAny>;
   timestamp: string;
 }
 
 export class AlertManager {
   private static alerts: AlertEvent[] = [];
 
-  static triggerAlert(name: string, severity: AlertSeverity, message: string, context?: any) {
+  static triggerAlert(
+    name: string,
+    severity: AlertSeverity,
+    message: string,
+    context?: Record<string, SafeAny>
+  ) {
     const alert: AlertEvent = {
       name,
       severity,

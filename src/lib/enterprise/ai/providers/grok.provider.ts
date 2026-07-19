@@ -1,5 +1,6 @@
 import { BaseAIProvider } from './base.provider';
 import { AIRequest, AIResponse, AIProviderOptions } from '../types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class GrokProvider extends BaseAIProvider {
   private apiKey: string;
@@ -72,14 +73,14 @@ export class GrokProvider extends BaseAIProvider {
       ) as Error & { status?: number; details?: string };
       error.status = res.status;
       error.details = errorText;
-      console.error('[GrokProvider] API Error payload:', errorText);
+      LoggerService.error('[GrokProvider] API Error payload:', errorText);
       throw error;
     }
 
     const json = await res.json();
     const messageContent = json.choices[0]?.message?.content || '';
 
-    let parsedData: Record<string, unknown> = {};
+    let parsedData: Record<string, SafeAny> = {};
     try {
       if (request.responseSchema || request.zodSchema) {
         const sanitizedText = messageContent
@@ -95,12 +96,14 @@ export class GrokProvider extends BaseAIProvider {
         }
 
         if (request.zodSchema) {
-          parsedData = request.zodSchema.parse(parsedData);
+          parsedData = (request.zodSchema as { parse: (val: SafeAny) => unknown }).parse(
+            parsedData
+          ) as Record<string, SafeAny>;
         }
       }
     } catch (e) {
-      console.warn('[GrokProvider] Failed to parse Grok output as JSON', e);
-      console.warn('[GrokProvider] Raw Output:', messageContent);
+      LoggerService.error('[GrokProvider] Failed to parse Grok output as JSON', e);
+      LoggerService.warn('[GrokProvider] Raw Output:', { content: messageContent });
     }
 
     return {

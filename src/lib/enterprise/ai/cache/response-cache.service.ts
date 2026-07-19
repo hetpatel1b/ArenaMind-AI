@@ -1,6 +1,7 @@
 import { createHash } from 'crypto';
 
 import Redis from 'ioredis';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 // Check if REDIS_URL exists, if not we gracefully fallback or fail,
 // but for enterprise audit we initialize the real client.
@@ -9,7 +10,7 @@ const redisClient = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : n
 export class ResponseCacheService {
   private readonly defaultTTL = 60 * 60; // 1 hour in seconds
 
-  private generateFingerprint(prompt: string, contextData: any): string {
+  private generateFingerprint(prompt: string, contextData: SafeAny): string {
     const dataString =
       typeof contextData === 'string' ? contextData : JSON.stringify(contextData || {});
     const combined = `${prompt}|${dataString}`;
@@ -20,13 +21,13 @@ export class ResponseCacheService {
     return `ai-cache:${orgId || 'global'}:${matchId || 'global'}:${fingerprint}`;
   }
 
-  async get(
+  async get<T = unknown>(
     orgId: string | undefined,
     matchId: string,
     prompt: string,
-    contextData: any,
+    contextData: SafeAny,
     ttlMs: number = this.defaultTTL * 1000
-  ): Promise<any | null> {
+  ): Promise<T | null> {
     const fingerprint = this.generateFingerprint(prompt, contextData);
     const key = this.buildCacheKey(orgId || 'global', matchId, fingerprint);
 
@@ -34,10 +35,10 @@ export class ResponseCacheService {
       try {
         const cached = await redisClient.get(key);
         if (cached) {
-          return JSON.parse(cached);
+          return JSON.parse(cached) as T;
         }
       } catch (err) {
-        console.error('[RedisCache] Error retrieving cache:', err);
+        LoggerService.error('[RedisCache] Error retrieving cache:', err);
       }
     }
 
@@ -48,8 +49,8 @@ export class ResponseCacheService {
     orgId: string | undefined,
     matchId: string,
     prompt: string,
-    contextData: any,
-    data: any
+    contextData: SafeAny,
+    data: SafeAny
   ): Promise<void> {
     // Requirements: Never cache low-confidence answers.
     if (
@@ -68,7 +69,7 @@ export class ResponseCacheService {
       try {
         await redisClient.setex(key, this.defaultTTL, JSON.stringify(data));
       } catch (err) {
-        console.error('[RedisCache] Error setting cache:', err);
+        LoggerService.error('[RedisCache] Error setting cache:', err);
       }
     }
   }
@@ -81,7 +82,7 @@ export class ResponseCacheService {
         await redisClient.del(...keys);
       }
     } catch (err) {
-      console.error('[RedisCache] Error invalidating org cache:', err);
+      LoggerService.error('[RedisCache] Error invalidating org cache:', err);
     }
   }
 
@@ -93,7 +94,7 @@ export class ResponseCacheService {
         await redisClient.del(...keys);
       }
     } catch (err) {
-      console.error('[RedisCache] Error invalidating match cache:', err);
+      LoggerService.error('[RedisCache] Error invalidating match cache:', err);
     }
   }
 }

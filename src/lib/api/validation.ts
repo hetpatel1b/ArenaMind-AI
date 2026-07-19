@@ -7,7 +7,7 @@ import { ValidationError } from '../errors/http.errors';
  * Throws a formatted ValidationError on failure.
  */
 export async function validateBody<T>(req: NextRequest, schema: z.ZodType<T>): Promise<T> {
-  let body: unknown;
+  let body: SafeAny;
 
   try {
     body = await req.json();

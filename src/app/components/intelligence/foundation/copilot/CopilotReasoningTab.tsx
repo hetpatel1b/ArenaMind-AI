@@ -7,7 +7,7 @@ import { useIntelligenceWorkspace } from '../IntelligenceWorkspaceContext';
 export const CopilotReasoningTab = React.memo(function CopilotReasoningTab() {
   const { state } = useIntelligenceWorkspace();
 
-  const renderRootCause = (node: any, depth = 0) => {
+  const renderRootCause = (node: SafeAny, depth = 0) => {
     return (
       <div
         key={node.id}
@@ -43,7 +43,7 @@ export const CopilotReasoningTab = React.memo(function CopilotReasoningTab() {
             {node.description}
           </div>
         </motion.div>
-        {node.children?.map((child: any) => renderRootCause(child, depth + 1))}
+        {node.children?.map((child: SafeAny) => renderRootCause(child, depth + 1))}
       </div>
     );
   };

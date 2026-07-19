@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export type ThemeType = 'light' | 'dark' | 'system';
 
@@ -35,7 +36,7 @@ export function useHeaderState() {
         setState({ ...defaultState, ...JSON.parse(stored) });
       }
     } catch (e) {
-      console.error('Failed to load header state', e);
+      LoggerService.error('Failed to load header state', e);
     }
   }, []);
 
@@ -45,7 +46,7 @@ export function useHeaderState() {
       try {
         localStorage.setItem(HEADER_STORAGE_KEY, JSON.stringify(nextState));
       } catch (e) {
-        console.error('Failed to save header state', e);
+        LoggerService.error('Failed to save header state', e);
       }
       return nextState;
     });

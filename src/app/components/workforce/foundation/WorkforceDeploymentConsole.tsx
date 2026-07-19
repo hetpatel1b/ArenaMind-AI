@@ -149,9 +149,9 @@ const UnitCard = React.memo(function UnitCard({
   type,
   dispatch,
 }: {
-  unit: any;
+  unit: SafeAny;
   type: string;
-  dispatch: any;
+  dispatch: SafeAny;
 }) {
   return (
     <motion.div

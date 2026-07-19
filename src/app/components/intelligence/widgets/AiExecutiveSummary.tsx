@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { IntelligenceMatchPayload, ReportingPayload } from '../IntelligenceCommandWorkspace';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 interface AiExecutiveSummaryProps {
   matchData: IntelligenceMatchPayload;
   reportingPayload: ReportingPayload;
-  primaryRecommendation: any | null;
+  primaryRecommendation: SafeAny | null;
 }
 
 export function AiExecutiveSummary({
@@ -16,7 +17,7 @@ export function AiExecutiveSummary({
   primaryRecommendation: initialRecommendation,
 }: AiExecutiveSummaryProps) {
   const shouldReduceMotion = useReducedMotion();
-  const [recommendation, setRecommendation] = useState<any>(initialRecommendation);
+  const [recommendation, setRecommendation] = useState<SafeAny>(initialRecommendation);
   const [loading, setLoading] = useState(false);
 
   const fetchRecommendation = async () => {
@@ -29,7 +30,7 @@ export function AiExecutiveSummary({
         setRecommendation(json.data[0]);
       }
     } catch (err) {
-      console.error(err);
+      LoggerService.error('Error fetching executive summary:', err);
     }
   };
 
@@ -49,7 +50,7 @@ export function AiExecutiveSummary({
       });
       await fetchRecommendation();
     } catch (err) {
-      console.error('Failed to generate summary');
+      LoggerService.error('Failed to generate summary');
     } finally {
       setLoading(false);
     }

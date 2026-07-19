@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 import { AIFeature } from '@prisma/client';
 import { SchemaType, Schema } from '@google/generative-ai';
@@ -16,12 +17,10 @@ export class PromptRegistryService {
     const { organizationId, role, matchPhase, incidentSeverity, riskLevel } = contextParams || {};
 
     // Base search criteria
-    const whereClause: any = { featureName: feature };
-    if (organizationId) {
-      whereClause.organizationId = organizationId;
-    } else {
-      whereClause.organizationId = null;
-    }
+    const whereClause: Prisma.AiPromptWhereInput = {
+      featureName: feature,
+      organizationId: organizationId || null,
+    };
 
     // Attempt to find the most specific prompt
     const prompts = await prisma.aiPrompt.findMany({

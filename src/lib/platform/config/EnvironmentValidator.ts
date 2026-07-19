@@ -33,12 +33,15 @@ export class EnvironmentValidator {
     const result = EnvironmentSchema.safeParse(env);
 
     if (!result.success) {
+      // eslint-disable-next-line no-console
       console.error('❌ CRITICAL STARTUP FAILURE: Invalid Environment Variables ❌');
 
       for (const issue of result.error.issues) {
+        // eslint-disable-next-line no-console
         console.error(`  - [${issue.path.join('.')}] ${issue.message}`);
       }
 
+      // eslint-disable-next-line no-console
       console.error('\nPlease fix the configuration above before restarting the application.');
 
       // We only forcefully exit in production or staging to prevent invalid state

@@ -147,7 +147,7 @@ export function CameraSidebar() {
                           key={cam.id}
                           onClick={() => {
                             dispatch({ type: 'SELECT_CAMERA', payload: cam.id });
-                            dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'PTZ' as any });
+                            dispatch({ type: 'SET_WORKSPACE_MODE', payload: 'PTZ' as SafeAny });
                           }}
                           style={{
                             padding: '10px 12px 10px 32px',

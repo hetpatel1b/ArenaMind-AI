@@ -82,7 +82,7 @@ export function AiSignalPropagationLayer() {
           style={
             {
               offsetPath: `path('${path1}')`,
-            } as any
+            } as SafeAny
           }
         />
 
@@ -105,7 +105,7 @@ export function AiSignalPropagationLayer() {
           style={
             {
               offsetPath: `path('${path2}')`,
-            } as any
+            } as SafeAny
           }
         />
 

@@ -1,6 +1,6 @@
 import { api } from '../apiClient';
 
 export const incidentApi = {
-  getState: (params?: any) => api.get<any>('/incidents', params),
-  executeScenario: (data: any) => api.post<any>('/incidents/scenario', data),
+  getState: (params?: SafeAny) => api.get<SafeAny>('/incidents', params),
+  executeScenario: (data: SafeAny) => api.post<SafeAny>('/incidents/scenario', data),
 };

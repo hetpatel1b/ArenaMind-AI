@@ -173,7 +173,7 @@ export default function GovernanceNotificationCenter() {
                   {notif.actionType && notif.actionLabel && (
                     <button
                       onClick={() => {
-                        dispatch({ type: notif.actionType as any });
+                        dispatch({ type: notif.actionType as SafeAny });
                         dispatch({ type: 'DISMISS_NOTIFICATION', payload: notif.id });
                       }}
                       style={{

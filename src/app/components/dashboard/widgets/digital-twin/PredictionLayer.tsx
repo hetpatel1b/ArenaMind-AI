@@ -4,8 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface PredictionLayerProps {
-  layout: any;
-  zones: any[];
+  layout: SafeAny;
+  zones: SafeAny[];
 }
 
 export function PredictionLayer({ layout, zones }: PredictionLayerProps) {

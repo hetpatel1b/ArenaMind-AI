@@ -33,7 +33,7 @@ export class ScenarioEngine {
     return this.scheduler.getIsPlaying();
   }
 
-  public setOnTickCallback(cb: (time: number, scenario: any | null) => void) {
+  public setOnTickCallback(cb: (time: number, scenario: SafeAny | null) => void) {
     this.scheduler.setOnTickCallback(cb);
   }
 

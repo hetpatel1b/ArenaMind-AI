@@ -16,7 +16,7 @@ export function WorkforceShiftCommand({ type }: { type: 'shifts' | 'breaks' }) {
       invalidateKeys: [['workforce', 'engine']],
       optimisticUpdate: async (queryClient, variables) => {
         // Implement optimistic update logic if needed
-      }
+      },
     }
   );
 
@@ -49,12 +49,18 @@ export function WorkforceShiftCommand({ type }: { type: 'shifts' | 'breaks' }) {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button 
-            style={{...primaryBtnStyle, opacity: forceShiftMutation.isPending ? 0.5 : 1}} 
+          <button
+            style={{ ...primaryBtnStyle, opacity: forceShiftMutation.isPending ? 0.5 : 1 }}
             disabled={forceShiftMutation.isPending}
-            onClick={() => forceShiftMutation.mutate({ department: selectedDepartment || undefined })}
+            onClick={() =>
+              forceShiftMutation.mutate({ department: selectedDepartment || undefined })
+            }
           >
-            {forceShiftMutation.isPending ? 'Processing...' : (type === 'shifts' ? 'Force Shift Rotation' : 'Schedule Global Break')}
+            {forceShiftMutation.isPending
+              ? 'Processing...'
+              : type === 'shifts'
+                ? 'Force Shift Rotation'
+                : 'Schedule Global Break'}
           </button>
           <button style={secondaryBtnStyle}>View Overtime Risks</button>
         </div>
@@ -91,7 +97,7 @@ const ShiftCard = React.memo(function ShiftCard({
   type,
   index,
 }: {
-  unit: any;
+  unit: SafeAny;
   type: 'shifts' | 'breaks';
   index: number;
 }) {

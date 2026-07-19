@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/client';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class ObservabilityService {
   async logRequest(params: {
@@ -54,7 +55,7 @@ export class ObservabilityService {
         },
       });
     } catch (e) {
-      console.error('Failed to log AI Request:', e);
+      LoggerService.error('Failed to log AI Request:', e);
     }
   }
 }

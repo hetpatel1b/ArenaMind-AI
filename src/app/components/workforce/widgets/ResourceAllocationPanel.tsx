@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface ResourceAllocationPanelProps {
-  resources: any[];
+  resources: SafeAny[];
 }
 
 export function ResourceAllocationPanel({ resources }: ResourceAllocationPanelProps) {

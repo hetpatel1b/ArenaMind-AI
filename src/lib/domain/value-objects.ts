@@ -2,7 +2,7 @@
  * Generic class for Value Objects.
  * Value objects are immutable and distinguished by their structural properties, not identity.
  */
-export abstract class ValueObject<T extends Record<string, unknown>> {
+export abstract class ValueObject<T extends Record<string, SafeAny>> {
   public readonly props: Readonly<T>;
 
   constructor(props: T) {

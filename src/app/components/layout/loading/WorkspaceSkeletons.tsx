@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const pulseAnimation = {
   animate: { opacity: [0.3, 0.7, 0.3] },
-  transition: { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } as any,
+  transition: { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } as SafeAny,
 };
 
 export function CardSkeleton() {
@@ -109,7 +109,7 @@ export function GraphSkeleton() {
           <motion.div
             key={i}
             {...pulseAnimation}
-            transition={{ ...pulseAnimation.transition, delay: i * 0.1 } as any}
+            transition={{ ...pulseAnimation.transition, delay: i * 0.1 } as SafeAny}
             style={{
               width: '10%',
               height: `${h}%`,

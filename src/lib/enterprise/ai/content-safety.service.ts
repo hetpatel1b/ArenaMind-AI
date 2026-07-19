@@ -1,3 +1,4 @@
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 export class ContentSafetyService {
   // Basic PII regexes for simulation
   private readonly PII_PATTERNS = [
@@ -49,7 +50,7 @@ export class ContentSafetyService {
     for (const pattern of this.SECRET_PATTERNS) {
       if (pattern.test(sanitized)) {
         sanitized = sanitized.replace(new RegExp(pattern.source, 'gi'), '[REDACTED_SECRET]');
-        console.warn('[ContentSafety] Secret redacted from AI output.');
+        LoggerService.warn('[ContentSafety] Secret redacted from AI output.');
       }
     }
 

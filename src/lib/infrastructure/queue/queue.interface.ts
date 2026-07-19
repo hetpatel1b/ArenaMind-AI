@@ -7,14 +7,14 @@ export interface IJobOptions {
   };
 }
 
-export interface IJob<T = any> {
+export interface IJob<T = unknown> {
   id: string;
   name: string;
   data: T;
   opts?: IJobOptions;
 }
 
-export interface IQueue<T = any> {
+export interface IQueue<T = unknown> {
   name: string;
   add(name: string, data: T, opts?: IJobOptions): Promise<IJob<T>>;
   process(handler: (job: IJob<T>) => Promise<void>): void;

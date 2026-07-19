@@ -188,7 +188,7 @@ export function EnterpriseSettingsModal({
                           {['light', 'dark', 'system'].map((t) => (
                             <button
                               key={t}
-                              onClick={() => setTheme(t as any)}
+                              onClick={() => setTheme(t as SafeAny)}
                               style={{
                                 padding: 'var(--space-4) var(--space-6)',
                                 backgroundColor:

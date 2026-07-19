@@ -13,7 +13,7 @@ function generateBaseResponse() {
   };
 }
 
-export function successResponse<T>(data: T, status = 200, meta?: Record<string, unknown>) {
+export function successResponse<T>(data: T, status = 200, meta?: Record<string, SafeAny>) {
   return NextResponse.json(
     {
       success: true,
@@ -39,7 +39,7 @@ export function paginatedResponse<T>(data: T[], meta: PaginatedMeta, status = 20
   );
 }
 
-export function errorResponse(message: string, code: string, status = 400, details?: unknown) {
+export function errorResponse(message: string, code: string, status = 400, details?: SafeAny) {
   return NextResponse.json(
     {
       success: false,

@@ -24,7 +24,9 @@ if (typeof window !== 'undefined') {
   });
 
   // Suppress Next.js error overlay for Supabase's AuthRetryableFetchError
+  // eslint-disable-next-line no-console
   const originalConsoleError = console.error;
+  // eslint-disable-next-line no-console
   console.error = (...args: Parameters<typeof console.error>) => {
     const isAuthRetryError = args.some(
       (arg) =>

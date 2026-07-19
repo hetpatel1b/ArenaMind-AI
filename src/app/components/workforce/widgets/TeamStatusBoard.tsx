@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface TeamStatusBoardProps {
-  resources: any[];
+  resources: SafeAny[];
 }
 
 export function TeamStatusBoard({ resources }: TeamStatusBoardProps) {

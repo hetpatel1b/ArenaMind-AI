@@ -45,8 +45,8 @@ export const GET = createRouteHandler(async (req: NextRequest, { bizContext }) =
   const overallConfidence = 'HIGH';
 
   // 3. AI Analysis Output (Requires real AI Gateway connection)
-  const reasoningStream: any[] = [];
-  const sourceMetrics: any[] = [];
+  const reasoningStream: SafeAny[] = [];
+  const sourceMetrics: SafeAny[] = [];
 
   return successResponse({
     engineMetrics,

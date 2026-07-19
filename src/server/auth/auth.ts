@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/db/client';
@@ -6,6 +7,19 @@ import { authConfig } from './auth.config';
 import { AuditService } from '../audit/audit.service';
 import crypto from 'crypto';
 import { authenticator } from 'otplib';
+import { z } from 'zod';
+
+const ActiveTokenSchema = z.object({
+  jti: z.string(),
+  exp: z.number(),
+});
+
+const UserMetadataSchema = z
+  .object({
+    totpSecret: z.string().optional(),
+    activeTokens: z.array(ActiveTokenSchema).optional(),
+  })
+  .catchall(z.unknown());
 
 // Configure authenticator for enterprise requirements
 authenticator.options = { window: 1 };
@@ -46,7 +60,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error('MFA token is required for this account.');
           }
 
-          const metadata = (user.metadata as any) || {};
+          const parsedMetadata = UserMetadataSchema.safeParse(user.metadata);
+          const metadata = parsedMetadata.success ? parsedMetadata.data : {};
           const totpSecret = metadata.totpSecret;
 
           if (!totpSecret) {
@@ -69,12 +84,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Concurrent Session Policy & Stateless JWT tracking
-        const metadata = (user.metadata as any) || {};
+        const parsedMetadata = UserMetadataSchema.safeParse(user.metadata);
+        const metadata = parsedMetadata.success ? parsedMetadata.data : {};
         const activeTokens = Array.isArray(metadata.activeTokens) ? metadata.activeTokens : [];
         const now = Date.now();
 
         // Lazy cleanup of expired tokens
-        const validTokens = activeTokens.filter((t: any) => t.exp > now);
+        const validTokens = activeTokens.filter((t) => t.exp > now);
 
         if (validTokens.length >= 5) {
           await AuditService.log({
@@ -101,7 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           data: {
             lastLoginAt: new Date(),
             sessionCount: validTokens.length,
-            metadata,
+            metadata: metadata as Prisma.InputJsonValue,
           },
         });
 
@@ -133,14 +149,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (user) {
-          const metadata = (user.metadata as any) || {};
+          const parsedMetadata = UserMetadataSchema.safeParse(user.metadata);
+          const metadata = parsedMetadata.success ? parsedMetadata.data : {};
           const activeTokens = Array.isArray(metadata.activeTokens) ? metadata.activeTokens : [];
-          const updatedTokens = activeTokens.filter((t: any) => t.jti !== token.jti);
+          const updatedTokens = activeTokens.filter((t) => t.jti !== token.jti);
           metadata.activeTokens = updatedTokens;
 
           await prisma.user.update({
             where: { id: user.id },
-            data: { sessionCount: updatedTokens.length, metadata },
+            data: {
+              sessionCount: updatedTokens.length,
+              metadata: metadata as Prisma.InputJsonValue,
+            },
           });
 
           await AuditService.log({

@@ -19,7 +19,7 @@ export interface BusinessContext {
   venueId: string;
 
   /** Additional metadata attached to the context */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, SafeAny>;
 }
 
 /**

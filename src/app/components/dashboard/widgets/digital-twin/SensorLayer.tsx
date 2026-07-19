@@ -3,14 +3,14 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 
 interface SensorLayerProps {
-  layout: any;
+  layout: SafeAny;
 }
 
 export function SensorLayer({ layout }: SensorLayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Generate 500 mock sensors distributed around the layout
-  const [sensors, setSensors] = React.useState<any[]>([]);
+  const [sensors, setSensors] = React.useState<SafeAny[]>([]);
 
   useEffect(() => {
     let seed = 999;
@@ -19,7 +19,7 @@ export function SensorLayer({ layout }: SensorLayerProps) {
       return seed / 233280;
     };
 
-    const items: any[] = [];
+    const items: SafeAny[] = [];
     setTimeout(() => setSensors(items), 0);
   }, []);
 

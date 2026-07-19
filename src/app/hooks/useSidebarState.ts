@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SidebarState } from '../types/SidebarConfig';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 const SIDEBAR_STORAGE_KEY = 'arenamind_sidebar_state';
 
@@ -30,7 +31,7 @@ export function useSidebarState() {
         setState({ ...defaultState, ...JSON.parse(stored) });
       }
     } catch (e) {
-      console.error('Failed to load sidebar state', e);
+      LoggerService.error('Failed to load sidebar state', e);
     }
   }, []);
 

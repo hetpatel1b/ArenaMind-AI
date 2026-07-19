@@ -177,7 +177,7 @@ function CrowdAIResponseBlock({
   prediction,
   confidence,
   isLatest,
-}: any) {
+}: SafeAny) {
   const [activeTab, setActiveTab] = useState<'reasoning' | 'signals' | 'history' | 'memory'>(
     'reasoning'
   );

@@ -15,7 +15,7 @@ export interface IBaseRepository<TEntity, TCreateDTO, TUpdateDTO> {
    * Retrieves all entities matching optional filtering, pagination, and sorting.
    */
   findAll(options?: {
-    filter?: Record<string, unknown>;
+    filter?: Record<string, SafeAny>;
     pagination?: PaginationOptions;
     sort?: SortOptions[];
   }): Promise<PaginatedResult<TEntity>>;
@@ -43,5 +43,5 @@ export interface IBaseRepository<TEntity, TCreateDTO, TUpdateDTO> {
   /**
    * Counts the number of entities matching a filter.
    */
-  count(filter?: Record<string, unknown>): Promise<number>;
+  count(filter?: Record<string, SafeAny>): Promise<number>;
 }

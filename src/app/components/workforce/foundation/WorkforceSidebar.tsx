@@ -42,7 +42,8 @@ export function WorkforceSidebar() {
   // Group units by department and calculate averages
   const depts = React.useMemo(() => {
     if (!units || units.length === 0) return {};
-    const groups: Record<string, { units: any[]; totalPersonnel: number; avgFatigue: number }> = {};
+    const groups: Record<string, { units: SafeAny[]; totalPersonnel: number; avgFatigue: number }> =
+      {};
     for (const unit of units) {
       if (!groups[unit.department]) {
         groups[unit.department] = { units: [], totalPersonnel: 0, avgFatigue: 0 };

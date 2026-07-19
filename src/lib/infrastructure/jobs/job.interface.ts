@@ -1,4 +1,4 @@
-export interface IRunnableJob<T = any> {
+export interface IRunnableJob<T = unknown> {
   name: string;
   execute(data: T): Promise<void>;
   onSuccess?(data: T): void;

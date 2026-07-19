@@ -6,8 +6,8 @@ import { useSession, signOut as nextAuthSignOut } from 'next-auth/react';
 import type { UserSessionContext } from '@/lib/auth/server-session';
 
 type AuthContextType = {
-  user: any | null;
-  session: any | null;
+  user: SafeAny | null;
+  session: SafeAny | null;
   userContext: UserSessionContext | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
@@ -20,11 +20,15 @@ export function AuthProvider({
   initialSession,
 }: {
   children: React.ReactNode;
-  initialSession: any | null;
+  initialSession: SafeAny | null;
 }) {
   const { data: nextAuthSession, status } = useSession();
-  const [session, setSession] = useState<any | null>(initialSession);
-  const [user, setUser] = useState<any | null>(initialSession?.user ?? null);
+  const [session, setSession] = useState<unknown | null>(initialSession);
+  const [user, setUser] = useState<unknown | null>(
+    initialSession && typeof initialSession === 'object' && 'user' in initialSession
+      ? (initialSession as Record<string, SafeAny>).user
+      : null
+  );
   const [userContext, setUserContext] = useState<UserSessionContext | null>(null);
   const [isLoading, setIsLoading] = useState(!initialSession);
   const [isContextLoading, setIsContextLoading] = useState(!!initialSession);

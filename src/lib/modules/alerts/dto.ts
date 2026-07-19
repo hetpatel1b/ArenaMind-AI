@@ -10,7 +10,7 @@ export const AlertDtoSchema = registerSchema(
     type: z.string(),
     title: z.string(),
     body: z.string(),
-    data: z.any(),
+    data: z.unknown(),
     createdAt: z.date(),
   })
 );
@@ -24,7 +24,7 @@ export const CreateAlertDtoSchema = registerSchema(
     type: z.string().min(3).max(50),
     title: z.string().min(3).max(100),
     body: z.string().min(5).max(500),
-    data: z.any().optional(),
+    data: z.unknown().optional(),
   })
 );
 export type CreateAlertDto = z.infer<typeof CreateAlertDtoSchema>;

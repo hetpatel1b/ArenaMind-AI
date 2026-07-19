@@ -30,10 +30,7 @@ export class AuditService extends BaseService {
     });
   }
 
-  async createAuditLog(
-    ctx: BusinessContext,
-    data: any
-  ): Promise<AuditLog> {
+  async createAuditLog(ctx: BusinessContext, data: SafeAny): Promise<AuditLog> {
     return this.execute('createAuditLog', ctx, async () => {
       return auditRepository.create(data);
     });

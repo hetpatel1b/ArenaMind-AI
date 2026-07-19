@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 export interface StreamEvent {
   type: 'token' | 'error' | 'end' | 'reconnect' | 'interrupted';
-  payload?: any;
+  payload?: SafeAny;
 }
 
 export class StreamingService extends EventEmitter {
@@ -10,7 +10,7 @@ export class StreamingService extends EventEmitter {
   // Currently abstracting the stream implementation so the frontend contract is untouched
 
   public stream(
-    providerStream: AsyncIterable<any>,
+    providerStream: AsyncIterable<SafeAny>,
     cancellationToken?: AbortSignal
   ): AsyncIterable<string> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -25,10 +25,15 @@ export class StreamingService extends EventEmitter {
               break;
             }
 
+            const chunkObj = chunk as {
+              choices?: Array<{ delta?: { content?: string } }>;
+              candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+            };
+
             // Abstract token parsing (would adapt based on provider: grok vs gemini)
             const token =
-              chunk?.choices?.[0]?.delta?.content ||
-              chunk?.candidates?.[0]?.content?.parts?.[0]?.text ||
+              chunkObj?.choices?.[0]?.delta?.content ||
+              chunkObj?.candidates?.[0]?.content?.parts?.[0]?.text ||
               '';
 
             if (token) {

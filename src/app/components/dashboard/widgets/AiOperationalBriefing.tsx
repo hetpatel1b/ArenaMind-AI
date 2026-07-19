@@ -10,7 +10,7 @@ interface AiOperationalBriefingProps {
   tournamentPhase: string;
   currentPhase: string;
   healthScore: number;
-  primaryRecommendation: any | null;
+  primaryRecommendation: SafeAny | null;
 }
 
 export function AiOperationalBriefing({

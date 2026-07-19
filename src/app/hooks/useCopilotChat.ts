@@ -16,7 +16,7 @@ export interface CopilotMessage {
 export interface UseCopilotChatOptions {
   moduleFeature: string;
   matchId?: string;
-  contextData?: any;
+  contextData?: SafeAny;
 }
 
 export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopilotChatOptions) {
@@ -116,7 +116,7 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
             }
           }
         }
-      } catch (error: any) {
+      } catch (error: SafeAny) {
         if (error.name === 'AbortError') {
           setMessages((prev) =>
             prev.map((m) =>

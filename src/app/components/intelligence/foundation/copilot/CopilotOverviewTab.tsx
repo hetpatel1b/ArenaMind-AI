@@ -10,7 +10,7 @@ import {
 export const CopilotOverviewTab = React.memo(function CopilotOverviewTab({
   messages,
 }: {
-  messages: any[];
+  messages: SafeAny[];
 }) {
   const { state } = useIntelligenceWorkspace();
 

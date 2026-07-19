@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface AiOptimizationRecommendationsProps {
-  recommendations: any[];
+  recommendations: SafeAny[];
 }
 
 export function AiOptimizationRecommendations({

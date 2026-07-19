@@ -10,7 +10,7 @@ export interface CrowdWorkspaceRightPanelProps {
   mode: RightPanelMode;
   onClose: () => void;
   // Payload props for copilot mode, etc could go here
-  copilotData?: any;
+  copilotData?: SafeAny;
 }
 
 export function CrowdWorkspaceRightPanel({

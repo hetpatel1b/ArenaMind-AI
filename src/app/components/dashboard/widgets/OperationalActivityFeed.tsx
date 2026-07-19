@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useActivityFeed } from '@/lib/hooks/useLiveTelemetry';
 
 interface OperationalActivityFeedProps {
-  incidents: any[];
+  incidents: SafeAny[];
 }
 
 export function OperationalActivityFeed({ incidents }: OperationalActivityFeedProps) {

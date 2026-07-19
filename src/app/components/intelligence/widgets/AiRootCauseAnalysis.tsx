@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export function AiRootCauseAnalysis({ matchId }: { matchId?: string }) {
   const shouldReduceMotion = useReducedMotion();
-  const [causes, setCauses] = useState<any[]>([]);
+  const [causes, setCauses] = useState<SafeAny[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,7 +21,7 @@ export function AiRootCauseAnalysis({ matchId }: { matchId?: string }) {
         setCauses(json.data[0].data || []); // The JSON array is stored in the `data` field of the recommendation
       }
     } catch (err) {
-      console.error(err);
+      LoggerService.error('Error fetching root cause classifications:', err);
     }
   };
 

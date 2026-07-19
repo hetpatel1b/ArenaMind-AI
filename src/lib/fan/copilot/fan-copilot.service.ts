@@ -7,7 +7,7 @@ export interface CopilotResponse {
   message: string;
   action?: {
     type: 'ROUTE' | 'ALERT' | 'RECOMMENDATION';
-    data: any;
+    data: SafeAny;
   };
 }
 

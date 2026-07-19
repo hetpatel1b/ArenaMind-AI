@@ -1,7 +1,8 @@
 import { AIAlternative } from './types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class RecommendationValidatorService {
-  validateRecommendations(alternatives: AIAlternative[], contextData: any): AIAlternative[] {
+  validateRecommendations(alternatives: AIAlternative[], contextData: SafeAny): AIAlternative[] {
     if (!alternatives || !Array.isArray(alternatives)) return [];
 
     return alternatives.filter((alt) => {
@@ -20,7 +21,7 @@ export class RecommendationValidatorService {
           .toLowerCase()
           .includes('severe weather');
         if (hasSevereWeather) {
-          console.warn(
+          LoggerService.warn(
             `[Validator] Rejected recommendation "${alt.action}" due to severe weather constraints.`
           );
           return false;
@@ -31,7 +32,7 @@ export class RecommendationValidatorService {
       if (actionLower.includes('swat') || actionLower.includes('tactical team')) {
         const isCritical = JSON.stringify(contextData).toLowerCase().includes('critical incident');
         if (!isCritical) {
-          console.warn(
+          LoggerService.warn(
             `[Validator] Rejected recommendation "${alt.action}" due to lack of critical incident severity.`
           );
           return false;

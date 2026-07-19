@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 interface FutureRecommendationsProps {
   matchId?: string;
-  initialRecommendations?: any[];
+  initialRecommendations?: SafeAny[];
 }
 
 export function FutureRecommendations({
@@ -13,7 +14,7 @@ export function FutureRecommendations({
   initialRecommendations = [],
 }: FutureRecommendationsProps) {
   const shouldReduceMotion = useReducedMotion();
-  const [recommendations, setRecommendations] = useState<any[]>(initialRecommendations);
+  const [recommendations, setRecommendations] = useState<SafeAny[]>(initialRecommendations);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,7 +29,7 @@ export function FutureRecommendations({
         setRecommendations(json.data);
       }
     } catch (err) {
-      console.error(err);
+      LoggerService.error('Error fetching future recommendations:', err);
     }
   };
 
@@ -72,7 +73,7 @@ export function FutureRecommendations({
         prev.map((r) => (r.id === recId ? { ...r, actionTaken: action } : r))
       );
     } catch (err) {
-      console.error('Failed to update recommendation action');
+      LoggerService.error('Failed to update recommendation action');
     }
   };
 
@@ -81,7 +82,7 @@ export function FutureRecommendations({
   );
 
   // Also parse data if it's nested
-  const renderItem = (rec: any, data: any, idx: number) => {
+  const renderItem = (rec: SafeAny, data: SafeAny, idx: number) => {
     const confidence = Math.round((rec.confidenceScore || 0) * 100);
     return (
       <motion.div
@@ -272,7 +273,7 @@ export function FutureRecommendations({
             if (Array.isArray(rec.data)) {
               return (
                 <React.Fragment key={rec.id}>
-                  {rec.data.map((d: any, i: number) => renderItem(rec, d, idx + i))}
+                  {rec.data.map((d: SafeAny, i: number) => renderItem(rec, d, idx + i))}
                 </React.Fragment>
               );
             }

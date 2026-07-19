@@ -20,7 +20,7 @@ export class AppError extends Error {
     public category: ErrorCategory,
     message: string,
     public statusCode: number = 500,
-    public details?: any
+    public details?: SafeAny
   ) {
     super(message);
     this.name = 'AppError';
@@ -29,7 +29,7 @@ export class AppError extends Error {
 
 export class GlobalErrorHandler {
   static handle(
-    error: unknown,
+    error: SafeAny,
     context: { requestId?: string; correlationId?: string; route?: string } = {}
   ) {
     let appError: AppError;
@@ -43,7 +43,7 @@ export class GlobalErrorHandler {
       (error as { name: string }).name === 'ZodError'
     ) {
       appError = new AppError(ErrorCategory.VALIDATION, 'Validation failed', 400, {
-        issues: (error as { issues?: unknown }).issues || (error as { errors?: unknown }).errors,
+        issues: (error as { issues?: SafeAny }).issues || (error as { errors?: SafeAny }).errors,
       });
     } else if (error instanceof Error) {
       appError = new AppError(ErrorCategory.INTERNAL, 'An unexpected error occurred.', 500, {
@@ -63,7 +63,14 @@ export class GlobalErrorHandler {
     });
 
     // Determine what to return to the client
-    const responsePayload: any = {
+    const responsePayload: {
+      error: {
+        category: string;
+        message: string;
+        details?: SafeAny;
+        stack?: string;
+      };
+    } = {
       error: {
         category: appError.category,
         message: appError.statusCode >= 500 ? 'Internal Server Error' : appError.message,

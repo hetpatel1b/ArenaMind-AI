@@ -1,8 +1,8 @@
 export class ApiError extends Error {
   status: number;
-  data: any;
+  data: SafeAny;
 
-  constructor(status: number, message: string, data?: any) {
+  constructor(status: number, message: string, data?: SafeAny) {
     super(message);
     this.status = status;
     this.data = data;
@@ -13,7 +13,7 @@ export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
 }
 
-export const apiClient = async <T = any>(
+export const apiClient = async <T = unknown>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> => {
@@ -88,13 +88,13 @@ export const api = {
   get: <T>(url: string, params?: RequestOptions['params'], options?: RequestOptions) =>
     apiClient<T>(url, { method: 'GET', params, ...options }),
 
-  post: <T>(url: string, data?: any, options?: RequestOptions) =>
+  post: <T>(url: string, data?: SafeAny, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'POST', body: JSON.stringify(data), ...options }),
 
-  put: <T>(url: string, data?: any, options?: RequestOptions) =>
+  put: <T>(url: string, data?: SafeAny, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'PUT', body: JSON.stringify(data), ...options }),
 
-  patch: <T>(url: string, data?: any, options?: RequestOptions) =>
+  patch: <T>(url: string, data?: SafeAny, options?: RequestOptions) =>
     apiClient<T>(url, { method: 'PATCH', body: JSON.stringify(data), ...options }),
 
   delete: <T>(url: string, options?: RequestOptions) =>

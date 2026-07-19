@@ -26,7 +26,7 @@ export function StatusChangeHighlight({
   trigger,
 }: {
   children: React.ReactNode;
-  trigger: any;
+  trigger: SafeAny;
 }) {
   const shouldReduceMotion = useReducedMotion();
 

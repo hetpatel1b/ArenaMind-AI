@@ -36,12 +36,12 @@ describe('Serialization', () => {
 
   it('recursively serializes arrays', () => {
     const arr = [1, new Date('2026-01-01T12:00:00Z'), { a: new Date('2026-01-02T12:00:00Z') }];
-    const result = serializeToPlainObject(arr);
+    const result = serializeToPlainObject(arr) as unknown[];
 
     expect(Array.isArray(result)).toBe(true);
     expect(result[0]).toBe(1);
     expect(result[1]).toBe('2026-01-01T12:00:00.000Z');
-    expect(result[2].a).toBe('2026-01-02T12:00:00.000Z');
+    expect((result[2] as { a: string }).a).toBe('2026-01-02T12:00:00.000Z');
   });
 
   it('recursively serializes nested objects', () => {
@@ -59,7 +59,14 @@ describe('Serialization', () => {
       },
     };
 
-    const result = serializeToPlainObject(obj);
+    const result = serializeToPlainObject(obj) as {
+      id: string;
+      createdAt: string;
+      meta: {
+        score: number;
+        isActive: boolean;
+      };
+    };
 
     expect(result.id).toBe('123');
     expect(result.createdAt).toBe('2026-01-01T12:00:00.000Z');

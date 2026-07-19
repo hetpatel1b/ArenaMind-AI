@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWorkspaceStore } from '@/app/hooks/useWorkspaceStore';
 import { useAuth } from '@/components/providers/auth-provider';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 // 15 minutes idle timeout for Enterprise lock
 const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
@@ -69,10 +70,10 @@ export function SessionManager({ children }: { children: React.ReactNode }) {
             const end = performance.now();
             setLatency(Math.round(end - start));
           } else {
-            console.error('Heartbeat failed');
+            LoggerService.error('Heartbeat failed');
           }
         } catch (err) {
-          console.error('Heartbeat failed', err);
+          LoggerService.error('Heartbeat failed', err);
         }
       }
     }, HEARTBEAT_INTERVAL_MS);

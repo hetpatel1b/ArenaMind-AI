@@ -7,7 +7,7 @@ export class HallucinationGuardService {
    */
   enforceGuardrails(
     response: Partial<StructuredAIResponse>,
-    verifiedContext: any
+    verifiedContext: SafeAny
   ): Partial<StructuredAIResponse> {
     if (!response || typeof response.observation !== 'string') return response;
 

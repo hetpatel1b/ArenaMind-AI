@@ -27,7 +27,13 @@ export function CriticalPulse({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function WarningShake({ trigger, children }: { trigger: any; children: React.ReactNode }) {
+export function WarningShake({
+  trigger,
+  children,
+}: {
+  trigger: SafeAny;
+  children: React.ReactNode;
+}) {
   const shouldReduceMotion = useReducedMotion();
 
   return (

@@ -1,6 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, Schema } from '@google/generative-ai';
 import { BaseAIProvider } from './base.provider';
 import { AIRequest, AIResponse, AIProviderOptions } from '../types';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export class GeminiProvider extends BaseAIProvider {
   private genAI: GoogleGenerativeAI;
@@ -20,7 +21,7 @@ export class GeminiProvider extends BaseAIProvider {
         temperature: request.temperature ?? 0.2,
         maxOutputTokens: request.maxTokens ?? 2048,
         responseMimeType: 'application/json',
-        responseSchema: request.responseSchema,
+        responseSchema: request.responseSchema as Schema | undefined,
       },
     });
 
@@ -52,11 +53,13 @@ export class GeminiProvider extends BaseAIProvider {
 
       // Enforce Zod if provided
       if (request.zodSchema) {
-        parsedData = request.zodSchema.parse(parsedData);
+        parsedData = (request.zodSchema as { parse: (val: SafeAny) => unknown }).parse(
+          parsedData
+        ) as Record<string, SafeAny>;
       }
     } catch (e) {
       // Fallback
-      console.warn('Failed to parse Gemini output as JSON', e);
+      LoggerService.error('Failed to parse Gemini output as JSON', e);
     }
 
     return {

@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface UserRoleManagementProps {
-  users: any[];
+  users: SafeAny[];
 }
 
 export function UserRoleManagement({ users }: UserRoleManagementProps) {

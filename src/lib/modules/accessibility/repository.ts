@@ -4,8 +4,8 @@ import { prisma } from '@/lib/db/client';
 
 export class AccessibilityRequestRepository extends PrismaRepository<
   AccessibilityRequest,
-  any,
-  any
+  unknown,
+  unknown
 > {
   constructor() {
     super(prisma.accessibilityRequest, 'accessibilityRequest');

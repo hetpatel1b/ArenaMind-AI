@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 export interface UseEngineTelemetryOptions<TData, TPayload> {
-  queryKey: unknown[];
+  queryKey: SafeAny[];
   queryFn: () => Promise<TData>;
   dispatch: (action: { type: 'ENGINE_TICK'; payload: TPayload }) => void;
   mapPayload: (data: TData) => TPayload;

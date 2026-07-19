@@ -1,5 +1,5 @@
 import { api } from '../apiClient';
 
 export const governanceApi = {
-  getState: () => api.get<any>('/governance'),
+  getState: () => api.get<SafeAny>('/governance'),
 };

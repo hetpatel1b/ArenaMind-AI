@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface ZoneIntelligencePanelProps {
-  zones: any[];
+  zones: SafeAny[];
 }
 
 export function ZoneIntelligencePanel({ zones }: ZoneIntelligencePanelProps) {

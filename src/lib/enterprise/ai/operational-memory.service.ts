@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
 export class OperationalMemoryService {
@@ -9,7 +10,7 @@ export class OperationalMemoryService {
     currentFeature?: string,
     semanticKeywords: string[] = []
   ): Promise<string> {
-    const whereClause: any = {};
+    const whereClause: Prisma.AiRecommendationWhereInput = {};
 
     // Organization-specific memory isolation
     if (organizationId) {

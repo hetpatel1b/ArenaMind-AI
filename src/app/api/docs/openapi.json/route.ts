@@ -8,13 +8,14 @@ import '@/lib/modules/crowd/dto';
 import '@/lib/modules/accessibility/dto';
 import '@/lib/modules/alerts/dto';
 import '@/lib/modules/reports/dto';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export async function GET() {
   try {
     const doc = generateOpenApiDocument();
     return NextResponse.json(doc);
   } catch (err) {
-    console.error('Error generating OpenAPI spec', err);
+    LoggerService.error('Error generating OpenAPI spec', err);
     return NextResponse.json({ error: 'Failed to generate API docs' }, { status: 500 });
   }
 }

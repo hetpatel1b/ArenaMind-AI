@@ -16,9 +16,9 @@ export class EvaluationService {
    */
   public async evaluateExecution(
     prompt: string,
-    response: any,
-    telemetry: any,
-    internalMetadata: any
+    response: SafeAny,
+    telemetry: SafeAny,
+    internalMetadata: SafeAny
   ): Promise<EvaluationReport> {
     // Simulate deep LLM-as-a-judge evaluation
     // In production, this would dispatch a background job to an evaluator model (e.g. GPT-4o or Claude 3.5 Sonnet)
@@ -48,14 +48,14 @@ export class EvaluationService {
     return report;
   }
 
-  private detectHallucinations(response: any, telemetry: any): number {
+  private detectHallucinations(response: SafeAny, telemetry: SafeAny): number {
     // If confidence is 0, hallucination guard triggered
     if (response?.confidence === 0) return 100;
     // Mock basic heuristic: 0 if all good
     return 0;
   }
 
-  private evaluateReasoning(explainability: any): number {
+  private evaluateReasoning(explainability: SafeAny): number {
     if (!explainability) return 50;
     let score = 50;
     if (explainability.evidenceChain?.length > 0) score += 20;
@@ -64,7 +64,7 @@ export class EvaluationService {
     return score;
   }
 
-  private evaluateRecommendations(alternatives: any[]): number {
+  private evaluateRecommendations(alternatives: SafeAny[]): number {
     if (!alternatives || alternatives.length === 0) return 0;
     return Math.min(100, alternatives.length * 25 + 50); // Base 50 + 25 per alt
   }

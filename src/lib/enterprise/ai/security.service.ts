@@ -1,3 +1,4 @@
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 export class SecurityService {
   validatePromptSafety(prompt: string): boolean {
     if (!prompt) return true;
@@ -28,7 +29,9 @@ export class SecurityService {
     const normalizedPrompt = prompt.toLowerCase();
     for (const pattern of dangerousPatterns) {
       if (pattern.test(normalizedPrompt)) {
-        console.warn(`[Security] Blocked prompt injection attempt matching pattern: ${pattern}`);
+        LoggerService.warn(
+          `[Security] Blocked prompt injection attempt matching pattern: ${pattern}`
+        );
         return false;
       }
     }

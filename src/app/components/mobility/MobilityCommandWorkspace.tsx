@@ -19,9 +19,9 @@ export interface MobilityMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  venue: { name: string; capacity: number; zones: any[] };
-  aiRecommendations: any[];
-  phaseTransitions: any[];
+  venue: { name: string; capacity: number; zones: SafeAny[] };
+  aiRecommendations: SafeAny[];
+  phaseTransitions: SafeAny[];
 }
 
 export interface MobilityState {
@@ -29,7 +29,7 @@ export interface MobilityState {
   shuttles: { status: string; capacity: number; delay: number };
   parking: { status: string; occupancy: number; overflowActive: boolean };
   accessibility: { status: string; activeRequests: number; shuttleAvailability: number };
-  predictions?: Record<string, any>;
+  predictions?: Record<string, SafeAny>;
 }
 
 interface MobilityCommandWorkspaceProps {

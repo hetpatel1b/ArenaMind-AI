@@ -18,10 +18,10 @@ export interface IntelligenceMatchPayload {
   awayTeam: string;
   currentPhase: string;
   venue: { name: string; capacity: number };
-  incidents: any[];
-  phaseTransitions: any[];
-  aiRecommendations: any[];
-  kpiSnapshots?: any[];
+  incidents: SafeAny[];
+  phaseTransitions: SafeAny[];
+  aiRecommendations: SafeAny[];
+  kpiSnapshots?: SafeAny[];
 }
 
 export interface ReportingPayload {

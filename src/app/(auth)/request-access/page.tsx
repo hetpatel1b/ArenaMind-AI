@@ -54,7 +54,7 @@ export default function RequestAccessPage() {
       if (signUpError) throw signUpError;
 
       setIsTransitioning(true);
-    } catch (err: any) {
+    } catch (err: SafeAny) {
       setError(err.message || 'Failed to provision demo access');
     } finally {
       setIsLoading(false);

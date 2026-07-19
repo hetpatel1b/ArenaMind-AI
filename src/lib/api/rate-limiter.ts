@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { RateLimitError } from '../errors/http.errors';
 import { prisma } from '@/lib/db/client';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export interface RateLimitOptions {
   windowMs: number;
@@ -44,6 +45,6 @@ export async function enforceRateLimit(
   } catch (error) {
     if (error instanceof RateLimitError) throw error;
     // Log but allow pass-through if DB fails (fail-open)
-    console.error('Rate limit DB error', error);
+    LoggerService.error('Rate limit DB error', error);
   }
 }

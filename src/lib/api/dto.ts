@@ -8,7 +8,7 @@ export const QueryParamsSchema = z.object({
   pagination: paginationSchema.optional(),
   sort: z.array(sortSchema).optional(),
   search: searchSchema.optional(),
-  filters: z.record(z.string(), z.any()).optional(),
+  filters: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type QueryParamsDTO = z.infer<typeof QueryParamsSchema>;
@@ -23,7 +23,7 @@ export function parseQueryParams(searchParams: URLSearchParams): QueryParamsDTO 
   const sortOrder = searchParams.get('order');
   const query = searchParams.get('q');
 
-  const filters: Record<string, any> = {};
+  const filters: Record<string, SafeAny> = {};
   for (const [key, value] of searchParams.entries()) {
     if (!['page', 'limit', 'sort', 'order', 'q'].includes(key)) {
       if (filters[key]) {
@@ -62,11 +62,11 @@ export function parseQueryParams(searchParams: URLSearchParams): QueryParamsDTO 
  * Optionally allows custom transform functions per key (e.g. string to number).
  */
 export function extractAllowedFilters(
-  rawFilters: Record<string, any> | undefined,
+  rawFilters: Record<string, SafeAny> | undefined,
   allowedKeys: string[],
-  transforms?: Record<string, (val: any) => any>
-): Record<string, any> {
-  const safeFilters: Record<string, any> = {};
+  transforms?: Record<string, (val: SafeAny) => unknown>
+): Record<string, SafeAny> {
+  const safeFilters: Record<string, SafeAny> = {};
   if (!rawFilters) return safeFilters;
 
   for (const key of allowedKeys) {

@@ -2,7 +2,11 @@ import { useEffect, useRef } from 'react';
 import { VehicleState, VehiclePhysics } from '@/lib/domain/VehiclePhysics';
 import { VehicleRenderer } from '@/lib/domain/VehicleRenderer';
 
-export function useMobilityCanvas(engineVehicles: any[], worldWidth: number, worldHeight: number) {
+export function useMobilityCanvas(
+  engineVehicles: SafeAny[],
+  worldWidth: number,
+  worldHeight: number
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const vehiclesRef = useRef<VehicleState[]>([]);
 

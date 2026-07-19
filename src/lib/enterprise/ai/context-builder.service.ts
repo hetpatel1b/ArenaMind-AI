@@ -95,16 +95,16 @@ export class ContextBuilderService {
         capacity: match.venue.capacity,
       },
       kpis: match.kpiSnapshots[0] || {},
-      activeIncidents: match.incidents.map((inc: any) => ({
+      activeIncidents: match.incidents.map((inc: SafeAny) => ({
         title: inc.title,
         severity: inc.severityTier,
         status: inc.status,
       })),
-      crowdState: match.crowdSnapshots.map((cs: any) => ({
+      crowdState: match.crowdSnapshots.map((cs: SafeAny) => ({
         zoneId: cs.zoneId,
         density: cs.densityPct,
       })),
-      mobilityState: match.mobilitySnapshots.map((ms: any) => ({
+      mobilityState: match.mobilitySnapshots.map((ms: SafeAny) => ({
         mode: ms.transitMode,
         status: ms.status,
         delay: ms.delayMinutes,

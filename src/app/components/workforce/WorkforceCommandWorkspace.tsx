@@ -18,10 +18,10 @@ export interface WorkforceMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  venue: { name: string; capacity: number; zones: any[] };
-  resources: any[];
-  aiRecommendations: any[]; // specifically filtered for resource_suggestions
-  phaseTransitions: any[];
+  venue: { name: string; capacity: number; zones: SafeAny[] };
+  resources: SafeAny[];
+  aiRecommendations: SafeAny[]; // specifically filtered for resource_suggestions
+  phaseTransitions: SafeAny[];
 }
 
 export function WorkforceCommandWorkspace({ matchData }: { matchData: WorkforceMatchPayload }) {

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 import { AuditService } from '../audit/audit.service';
 
@@ -17,10 +18,10 @@ export class OrganizationService {
     });
   }
 
-  static async createOrganization(data: any, createdById: string) {
+  static async createOrganization(data: Record<string, SafeAny>, createdById: string) {
     const org = await prisma.organization.create({
       data: {
-        ...data,
+        ...(data as Prisma.OrganizationCreateInput),
         createdById,
       },
     });

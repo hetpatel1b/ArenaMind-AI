@@ -66,10 +66,13 @@ try {
   }
 } catch (err) {
   if (err instanceof z.ZodError) {
+    // eslint-disable-next-line no-console
     console.error('❌ CRITICAL STARTUP FAILURE: Invalid Environment Variables ❌');
     for (const issue of err.issues) {
+      // eslint-disable-next-line no-console
       console.error(`  - [${issue.path.join('.')}] ${issue.message}`);
     }
+    // eslint-disable-next-line no-console
     console.error('\nPlease fix the configuration above before restarting the application.');
 
     // Do not swallow in production/staging to ensure deployment safety

@@ -99,9 +99,9 @@ export class AlertService extends BaseService {
           throw new NotFoundError('Alert not found');
         }
 
-        const data = (notif.data as Record<string, unknown>) || {};
-        if ((payload as Record<string, unknown>)?.acknowledged !== undefined) {
-          data.acknowledged = (payload as Record<string, unknown>)?.acknowledged;
+        const data = (notif.data as Record<string, SafeAny>) || {};
+        if ((payload as Record<string, SafeAny>)?.acknowledged !== undefined) {
+          data.acknowledged = (payload as Record<string, SafeAny>)?.acknowledged;
           data.acknowledgedAt = new Date().toISOString();
           data.acknowledgedBy = ctx.userId;
         }

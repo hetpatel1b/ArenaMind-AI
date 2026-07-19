@@ -44,11 +44,15 @@ export class HttpClient {
         return await this.circuitBreaker.execute(action);
       }
       return await action();
-    } catch (error: any) {
-      errorTracker.captureException(error, ErrorSeverity.WARNING, {
-        url,
-        method: init?.method || 'GET',
-      });
+    } catch (error: SafeAny) {
+      errorTracker.captureException(
+        error instanceof Error ? error : new Error(String(error)),
+        ErrorSeverity.WARNING,
+        {
+          url,
+          method: init?.method || 'GET',
+        }
+      );
       throw error;
     }
   }

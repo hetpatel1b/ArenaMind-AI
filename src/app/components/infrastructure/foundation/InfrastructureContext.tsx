@@ -114,7 +114,7 @@ function infrastructureReducer(
           second: '2-digit',
         }),
         label: `Executed: ${actionName}`,
-        type: WorkspaceSection.INFRASTRUCTURE as any,
+        type: WorkspaceSection.INFRASTRUCTURE as SafeAny,
       };
 
       return {

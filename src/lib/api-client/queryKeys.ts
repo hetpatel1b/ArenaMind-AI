@@ -23,7 +23,7 @@ export const queryKeys = {
   incident: {
     all: ['incident'] as const,
     metrics: ['incident', 'metrics'] as const,
-    list: (filters?: Record<string, any>) => ['incident', 'list', filters] as const,
+    list: (filters?: Record<string, SafeAny>) => ['incident', 'list', filters] as const,
     detail: (id: string) => ['incident', 'detail', id] as const,
   },
 
@@ -83,7 +83,7 @@ export const queryKeys = {
     list: (status?: string) => ['matches', 'list', status] as const,
     detail: (id: string) => ['matches', 'detail', id] as const,
   },
-  
+
   // Reports
   reports: {
     all: ['reports'] as const,

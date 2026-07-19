@@ -99,7 +99,7 @@ describe('DTO Utilities', () => {
     it('applies transforms if provided', () => {
       const raw = { age: '25' };
       const extracted = extractAllowedFilters(raw, ['age'], {
-        age: (val) => parseInt(val, 10),
+        age: (val) => parseInt(val as string, 10),
       });
       expect(extracted).toEqual({ age: 25 });
     });
@@ -107,7 +107,7 @@ describe('DTO Utilities', () => {
     it('ignores transform if result is NaN', () => {
       const raw = { age: 'invalid' };
       const extracted = extractAllowedFilters(raw, ['age'], {
-        age: (val) => parseInt(val, 10),
+        age: (val) => parseInt(val as string, 10),
       });
       expect(extracted).toEqual({});
     });

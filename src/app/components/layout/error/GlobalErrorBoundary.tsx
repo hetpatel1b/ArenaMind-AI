@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -22,7 +23,7 @@ export class GlobalErrorBoundary extends React.Component<ErrorBoundaryProps, Err
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Enterprise Error Boundary caught an error:', error, errorInfo);
+    LoggerService.error('Enterprise Error Boundary caught an error:', error, errorInfo);
   }
 
   handleRetry = () => {

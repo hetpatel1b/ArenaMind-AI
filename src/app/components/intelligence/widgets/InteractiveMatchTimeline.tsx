@@ -5,8 +5,8 @@ import { DateFormatter } from '@/lib/utils/formatters';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface InteractiveMatchTimelineProps {
-  phaseTransitions: any[];
-  incidents: any[];
+  phaseTransitions: SafeAny[];
+  incidents: SafeAny[];
 }
 
 export function InteractiveMatchTimeline({

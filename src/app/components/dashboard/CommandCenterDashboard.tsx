@@ -20,13 +20,13 @@ export interface DashboardMatchPayload {
   homeTeam: string;
   awayTeam: string;
   currentPhase: string;
-  venue: { name: string; capacity: number; zones?: any[] };
-  incidents: any[];
-  aiRecommendations: any[];
-  kpiSnapshots: any[];
-  healthScores: any[];
-  zones: any[];
-  resources: any[];
+  venue: { name: string; capacity: number; zones?: SafeAny[] };
+  incidents: SafeAny[];
+  aiRecommendations: SafeAny[];
+  kpiSnapshots: SafeAny[];
+  healthScores: SafeAny[];
+  zones: SafeAny[];
+  resources: SafeAny[];
 }
 
 export function CommandCenterDashboard({ matchData }: { matchData: DashboardMatchPayload }) {
@@ -62,15 +62,15 @@ function InnerDashboardGrid({
   zonesToUse,
   shouldReduceMotion,
 }: {
-  matchData: any;
-  zonesToUse: any;
+  matchData: SafeAny;
+  zonesToUse: SafeAny;
   shouldReduceMotion: boolean;
 }) {
   const { globalMetrics, dispatch, isQueueCollapsed, isWorkspaceCollapsed, focusMode } =
     useCommandCenter();
 
   useEffect(() => {
-    const handleSearch = (e: any) => {
+    const handleSearch = (e: SafeAny) => {
       // Upon global search, switch context to inspector
       dispatch({ type: 'MISSION_FOCUSED', payload: { missionId: null } });
       dispatch({ type: 'SET_WORKSPACE_MODE', payload: { mode: 'INSPECTOR' } });

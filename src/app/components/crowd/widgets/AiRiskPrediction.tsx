@@ -5,8 +5,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 interface AiRiskPredictionProps {
   currentPhase: string;
-  incidents: any[];
-  recommendations?: any[];
+  incidents: SafeAny[];
+  recommendations?: SafeAny[];
 }
 
 export function AiRiskPrediction({

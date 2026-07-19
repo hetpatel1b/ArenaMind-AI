@@ -23,12 +23,12 @@ export class BackupVerificationService {
     };
 
     if (status.isVerified && status.checksumMatch && status.restorationTested) {
-      LoggerService.info('Backup verification completed successfully', status);
+      LoggerService.info('Backup verification completed successfully', { ...status });
     } else {
       LoggerService.error(
         'Backup verification failed or unsupported',
         new Error('Integrity check failed or unsupported'),
-        status
+        { ...status }
       );
     }
 

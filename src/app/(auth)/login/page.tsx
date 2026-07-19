@@ -50,7 +50,7 @@ export default function LoginPage() {
       }
 
       setIsTransitioning(true);
-    } catch (err: any) {
+    } catch (err: SafeAny) {
       setError(err.message || 'Invalid credentials');
     } finally {
       setIsLoading(false);

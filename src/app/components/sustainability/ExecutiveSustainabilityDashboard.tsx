@@ -12,7 +12,7 @@ import { sustainabilityRecommendationsService } from '../../../lib/sustainabilit
 import { sustainabilityCopilotService } from '../../../lib/sustainability/copilot.service';
 
 export default function ExecutiveSustainabilityDashboard() {
-  const [data, setData] = React.useState<any>({
+  const [data, setData] = React.useState<SafeAny>({
     carbon: null,
     energy: null,
     waste: null,

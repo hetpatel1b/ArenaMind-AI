@@ -1,7 +1,7 @@
 import React from 'react';
 import { IdentityUser } from '../GovernanceTypes';
 
-export const UserRow = React.memo(({ u, dispatch }: { u: IdentityUser; dispatch: any }) => (
+export const UserRow = React.memo(({ u, dispatch }: { u: IdentityUser; dispatch: SafeAny }) => (
   <div
     className="gov-grid-row"
     style={{

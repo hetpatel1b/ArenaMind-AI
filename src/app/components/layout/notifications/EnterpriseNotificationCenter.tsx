@@ -135,7 +135,7 @@ export function EnterpriseNotificationCenter({
                 {['ALL', 'CRITICAL', 'WARNING', 'INFO'].map((f) => (
                   <button
                     key={f}
-                    onClick={() => setFilter(f as any)}
+                    onClick={() => setFilter(f as SafeAny)}
                     style={{
                       background: filter === f ? 'rgba(255,255,255,0.1)' : 'transparent',
                       border: '1px solid',

@@ -2,7 +2,7 @@ import { PrismaRepository } from '@/lib/repositories/prisma.repository';
 import { Match } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class MatchRepository extends PrismaRepository<Match, any, any> {
+export class MatchRepository extends PrismaRepository<Match, SafeAny, SafeAny> {
   constructor() {
     super(prisma.match, 'match');
   }

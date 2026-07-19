@@ -80,7 +80,7 @@ export default function GovernanceTimeline() {
         }}
       >
         <AnimatePresence initial={false}>
-          {state.timelineEvents.map((event: any) => {
+          {state.timelineEvents.map((event: SafeAny) => {
             const getColor = () => {
               switch (event.type) {
                 case 'identity':

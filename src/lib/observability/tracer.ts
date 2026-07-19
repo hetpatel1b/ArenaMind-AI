@@ -8,7 +8,7 @@ export class Span {
     public readonly name: string,
     public readonly traceId: string,
     public readonly spanId: string,
-    private tags: Record<string, any> = {}
+    private tags: Record<string, SafeAny> = {}
   ) {
     this.startTime = Date.now();
     logger.debug(`Span started: ${name}`, { traceId, spanId, ...tags });
@@ -25,7 +25,7 @@ export class Span {
     });
   }
 
-  addTag(key: string, value: any) {
+  addTag(key: string, value: SafeAny) {
     this.tags[key] = value;
   }
 }

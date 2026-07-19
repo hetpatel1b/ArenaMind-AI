@@ -1,6 +1,7 @@
 import { IQueue, IJob, IJobOptions } from './queue.interface';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
-export class MemoryQueue<T = any> implements IQueue<T> {
+export class MemoryQueue<T = unknown> implements IQueue<T> {
   public name: string;
   private queue: IJob<T>[] = [];
   private processing = false;
@@ -39,7 +40,7 @@ export class MemoryQueue<T = any> implements IQueue<T> {
           try {
             await this.handler(job);
           } catch (err) {
-            console.error(`[Queue ${this.name}] Job ${job.id} handler error:`, err);
+            LoggerService.error(`[Queue ${this.name}] Job ${job.id} handler error:`, err);
             // Job failure logic handled upstream by the worker wrapping the handler.
           }
         }

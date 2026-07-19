@@ -8,7 +8,7 @@ export interface AIMessage {
 export interface AIProviderOptions {
   apiKey?: string;
   endpointUrl?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, SafeAny>;
 }
 
 export interface AIRequest {
@@ -16,11 +16,11 @@ export interface AIRequest {
   messages: AIMessage[];
   maxTokens?: number;
   temperature?: number;
-  responseSchema?: any; // The generic schema structure (e.g., zod or provider specific)
-  zodSchema?: any; // The zod schema for strict validation
+  responseSchema?: SafeAny; // The generic schema structure (e.g., zod or provider specific)
+  zodSchema?: SafeAny; // The zod schema for strict validation
 }
 
-export interface AIResponse<T = any> {
+export interface AIResponse<T = unknown> {
   data: T;
   rawText: string;
   metadata: {

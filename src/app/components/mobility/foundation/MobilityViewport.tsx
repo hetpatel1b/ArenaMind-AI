@@ -223,8 +223,8 @@ export const MobilityViewport = forwardRef<MobilityViewportRef, MobilityViewport
     // Initial fit
     useEffect(() => {
       const timer = setTimeout(() => {
-        if (ref && 'current' in ref && (ref as any).current) {
-          (ref as any).current.fitToScreen();
+        if (ref && 'current' in ref && (ref as SafeAny).current) {
+          (ref as SafeAny).current.fitToScreen();
           // Immediately apply without flying for the very first frame
           t.current = { ...target.current };
           applyTransform();

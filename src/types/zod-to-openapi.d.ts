@@ -1,15 +1,15 @@
 declare module '@asteasolutions/zod-to-openapi' {
-  export function extendZodWithOpenApi(z: any): void;
+  export function extendZodWithOpenApi(z: SafeAny): void;
 
   export class OpenAPIRegistry {
-    registerComponent(type: string, name: string, options: any): any;
-    register(name: string, schema: any): any;
-    registerPath(config: any): void;
-    definitions: any[];
+    registerComponent(type: string, name: string, options: SafeAny): SafeAny;
+    register(name: string, schema: SafeAny): SafeAny;
+    registerPath(config: SafeAny): void;
+    definitions: SafeAny[];
   }
 
   export class OpenApiGeneratorV31 {
-    constructor(definitions: any[]);
-    generateDocument(config: any): any;
+    constructor(definitions: SafeAny[]);
+    generateDocument(config: SafeAny): SafeAny;
   }
 }

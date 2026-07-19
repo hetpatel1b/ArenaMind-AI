@@ -44,14 +44,14 @@ export class AiContextBuilder {
         currentPhase: match.currentPhase,
         attendance: match.actualAttendance || match.expectedAttendance,
       },
-      activeIncidents: incidents.map((i: any) => ({
+      activeIncidents: incidents.map((i) => ({
         id: i.id,
         title: i.title,
         severityTier: i.severityTier,
         status: i.status,
         createdAt: i.createdAt,
       })),
-      crowdDensity: crowdSnapshots.map((c: any) => ({
+      crowdDensity: crowdSnapshots.map((c) => ({
         zoneId: c.zoneId,
         densityPct: c.densityPct,
         fanCount: c.fanCount,
@@ -59,9 +59,9 @@ export class AiContextBuilder {
       resourceSummary: {
         total: resources.length,
         deployed: resources.filter(
-          (r: any) => r.status === 'deployed' || r.status === 'incident_assigned'
+          (r) => r.status === 'deployed' || r.status === 'incident_assigned'
         ).length,
-        available: resources.filter((r: any) => r.status === 'available').length,
+        available: resources.filter((r) => r.status === 'available').length,
       },
     };
   }

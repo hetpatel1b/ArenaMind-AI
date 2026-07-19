@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import { config } from '@/lib/platform/config/ConfigurationService';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 const prismaClientSingleton = () => {
   const pool = new Pool({
@@ -25,10 +26,10 @@ const prismaClientSingleton = () => {
   });
 
   // Slow query detection (N+1 detection in logs)
-  client.$on('query', (e: any) => {
+  client.$on('query', (e: SafeAny) => {
     if (e.duration >= 100) {
       // Log queries taking longer than 100ms
-      console.warn(`[SLOW QUERY] Duration: ${e.duration}ms | Query: ${e.query}`);
+      LoggerService.warn(`[SLOW QUERY] Duration: ${e.duration}ms | Query: ${e.query}`);
     }
   });
 
@@ -45,6 +46,7 @@ if (process.env.NEXT_PUBLIC_E2E_MODE === 'true') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   prisma = require('../../../tests/e2e/mocks/prisma.mock').prismaMock;
 } else {
-  prisma = globalThis.prismaClientGlobalInstance ?? (prismaClientSingleton() as any);
-  if (process.env.NODE_ENV !== 'production') globalThis.prismaClientGlobalInstance = prisma as any;
+  prisma = globalThis.prismaClientGlobalInstance ?? (prismaClientSingleton() as SafeAny);
+  if (process.env.NODE_ENV !== 'production')
+    globalThis.prismaClientGlobalInstance = prisma as SafeAny;
 }

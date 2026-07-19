@@ -83,7 +83,7 @@ export default function DemoRegisterPage() {
       setTimeout(() => {
         router.push('/login'); // Redirect to login so they can sign in with NextAuth!
       }, 2000);
-    } catch (err: any) {
+    } catch (err: SafeAny) {
       setError(err.message || 'Failed to provision demo access');
     } finally {
       setIsLoading(false);

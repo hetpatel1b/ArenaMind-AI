@@ -13,8 +13,13 @@ import { aiSupervisorAgent } from './agents/supervisor.agent';
 import { AgentOutput } from './planning/conflict-resolution.service';
 import { StructuredAIResponse } from '../types';
 
+interface OrchestratorAgent {
+  agentId: string;
+  execute(contextData: SafeAny, userPrompt: string): Promise<Partial<StructuredAIResponse>>;
+}
+
 export class AgentOrchestratorService {
-  private agentRegistry: Record<AgentId, any> = {
+  private agentRegistry: Record<AgentId, OrchestratorAgent> = {
     crowd: aiCrowdAgent,
     incident: aiIncidentAgent,
     mobility: aiMobilityAgent,
@@ -34,7 +39,7 @@ export class AgentOrchestratorService {
   async orchestrate(
     userPrompt: string,
     featureName: string,
-    contextData: any,
+    contextData: SafeAny,
     onProgress?: (msg: string) => void
   ): Promise<Partial<StructuredAIResponse>> {
     // 1. Task Planning
@@ -61,7 +66,8 @@ export class AgentOrchestratorService {
 
     // 4. Format outputs for Supervisor
     const agentOutputs: AgentOutput[] = rawResults.map((result, idx) => {
-      const agentId = agentsToRun[idx].agentId;
+      const agent = agentsToRun[idx];
+      const agentId = agent ? agent.agentId : 'unknown';
       if (result.status === 'fulfilled' && result.value) {
         return {
           agentId,

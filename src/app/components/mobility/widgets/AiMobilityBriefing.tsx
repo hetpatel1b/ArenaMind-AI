@@ -8,7 +8,7 @@ interface AiMobilityBriefingProps {
   stadiumName: string;
   currentPhase: string;
   mobilityState: MobilityState;
-  primaryRecommendation: any | null;
+  primaryRecommendation: SafeAny | null;
 }
 
 export function AiMobilityBriefing({

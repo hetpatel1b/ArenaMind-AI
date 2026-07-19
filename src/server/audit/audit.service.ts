@@ -1,4 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 export interface AuditLogEntry {
   tableName: string;
@@ -6,8 +8,8 @@ export interface AuditLogEntry {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'ACCESS';
   userId?: string;
   organizationId?: string;
-  oldData?: any;
-  newData?: any;
+  oldData?: Prisma.InputJsonValue;
+  newData?: Prisma.InputJsonValue;
   ipAddress?: string;
   browser?: string;
   device?: string;
@@ -26,8 +28,8 @@ export class AuditService {
           action: entry.action,
           userId: entry.userId,
           organizationId: entry.organizationId,
-          oldData: entry.oldData ?? null,
-          newData: entry.newData ?? null,
+          oldData: entry.oldData,
+          newData: entry.newData,
           ipAddress: entry.ipAddress,
           browser: entry.browser,
           device: entry.device,
@@ -35,7 +37,7 @@ export class AuditService {
       });
     } catch (error) {
       // In production, we'd want to alert on this without failing the primary transaction
-      console.error('Failed to write audit log:', error);
+      LoggerService.error('Failed to write audit log:', error);
     }
   }
 }

@@ -6,8 +6,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 interface AiWorkforceBriefingProps {
   stadiumName: string;
   currentPhase: string;
-  resources: any[];
-  primaryRecommendation: any | null;
+  resources: SafeAny[];
+  primaryRecommendation: SafeAny | null;
 }
 
 export function AiWorkforceBriefing({

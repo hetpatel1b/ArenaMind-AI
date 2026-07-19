@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 import { ScenarioRegistry } from './registry';
 import { ScenarioTemplate } from './types';
@@ -100,7 +101,7 @@ export class ProvisioningService {
               shortCode: zone.shortCode,
               capacity: zone.capacity,
               safeCapacity: zone.safeCapacity,
-              metadata: zone.metadata,
+              metadata: zone.metadata as Prisma.InputJsonValue,
             },
           });
           zoneIdMap.set(zone.id, createdZone.id);

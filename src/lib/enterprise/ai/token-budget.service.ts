@@ -19,14 +19,16 @@ export class TokenBudgetService {
    * Trims conversation history to fit within a specific token budget,
    * while prioritizing recent messages and critical information.
    */
-  trimHistory(history: any[], maxTokens: number = 8000): any[] {
+  trimHistory(history: SafeAny[], maxTokens: number = 8000): SafeAny[] {
     let currentTokens = 0;
-    const trimmedHistory: any[] = [];
+    const trimmedHistory: SafeAny[] = [];
 
     // Iterate backwards to keep the most recent messages
     for (let i = history.length - 1; i >= 0; i--) {
       const msg = history[i];
-      const text = typeof msg.content === 'string' ? msg.content : msg.parts?.[0]?.text || '';
+      const msgObj = msg as { content?: string; parts?: Array<{ text?: string }> };
+      const text =
+        typeof msgObj.content === 'string' ? msgObj.content : msgObj.parts?.[0]?.text || '';
       const msgTokens = this.estimateTokens(text) + 10;
 
       // If we exceed the budget, stop adding (unless it's a critical message, which we could tag in the future)

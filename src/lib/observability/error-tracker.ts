@@ -12,7 +12,7 @@ export class ErrorTracker {
   captureException(
     error: Error,
     severity: ErrorSeverity = ErrorSeverity.CRITICAL,
-    context?: Record<string, any>
+    context?: Record<string, SafeAny>
   ) {
     // Sanitize stack trace (remove internal node module paths in a real app)
     const sanitizedStack = error.stack?.split('\n').slice(0, 5).join('\n');
@@ -34,7 +34,7 @@ export class ErrorTracker {
   captureMessage(
     message: string,
     severity: ErrorSeverity = ErrorSeverity.INFO,
-    context?: Record<string, any>
+    context?: Record<string, SafeAny>
   ) {
     logger.info(`Tracked Message: ${message}`, { severity, ...context });
   }

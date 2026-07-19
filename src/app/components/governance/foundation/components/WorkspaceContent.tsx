@@ -17,8 +17,8 @@ export function WorkspaceContent({
   dispatch,
 }: {
   section: WorkspaceSection;
-  state: any;
-  dispatch: any;
+  state: SafeAny;
+  dispatch: SafeAny;
 }) {
   if (section === WorkspaceSection.USERS) {
     return (

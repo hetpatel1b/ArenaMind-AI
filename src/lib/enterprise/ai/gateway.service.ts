@@ -31,7 +31,7 @@ export class AIGatewayService {
     feature: AIFeature,
     userMessage?: string,
     onProgress?: (msg: string) => void
-  ): Promise<any> {
+  ): Promise<SafeAny> {
     const start = Date.now();
     try {
       if (onProgress) onProgress('Initializing AI Gateway...');
@@ -91,13 +91,18 @@ export class AIGatewayService {
       await this._logTelemetry(ctx, matchId, feature, systemPrompt, finalData, rawResponse, start);
 
       return finalData;
-    } catch (e: unknown) {
+    } catch (e: SafeAny) {
       await this._logError(ctx, matchId, start, e);
       throw e;
     }
   }
 
-  async chat(ctx: BusinessContext, matchId: string, message: string, history: any[]): Promise<any> {
+  async chat(
+    ctx: BusinessContext,
+    matchId: string,
+    message: string,
+    history: SafeAny[]
+  ): Promise<SafeAny> {
     const contextData = await aiCrossModuleCorrelationService.getUnifiedTelemetry(ctx, matchId);
     const trimmedHistory = aiTokenBudgetService.trimHistory(history, 8000);
 
@@ -130,7 +135,7 @@ Answer the user's questions strictly based on this context. Be concise and preci
       await this._logChatTelemetry(ctx, matchId, response, start);
 
       return response.rawText;
-    } catch (e: unknown) {
+    } catch (e: SafeAny) {
       await this._logError(ctx, matchId, start, e);
       return this._buildErrorResponse(e);
     }
@@ -157,8 +162,8 @@ Answer the user's questions strictly based on this context. Be concise and preci
   private async _buildPrompt(
     ctx: BusinessContext,
     feature: AIFeature,
-    contextData: any,
-    memoryData: any
+    contextData: SafeAny,
+    memoryData: SafeAny
   ) {
     const basePrompt = await promptRegistry.getSystemPrompt(feature, {
       organizationId: ctx.organizationId,
@@ -191,7 +196,7 @@ Answer the user's questions strictly based on this context. Be concise and preci
     matchId: string,
     feature: AIFeature,
     systemPrompt: string,
-    contextData: any,
+    contextData: SafeAny,
     start: number,
     onProgress?: (msg: string) => void
   ) {
@@ -241,44 +246,51 @@ Answer the user's questions strictly based on this context. Be concise and preci
     return conversationId;
   }
 
-  private _postProcessResponse(rawResponse: any, contextData: any) {
+  private _postProcessResponse(rawResponse: SafeAny, contextData: SafeAny) {
     if (!rawResponse) return rawResponse;
 
-    let finalData = rawResponse;
+    const finalData = rawResponse as {
+      _internalMetadata?: Record<string, SafeAny>;
+      confidence?: number;
+      missingInformation?: string[];
+      riskAnalysis?: SafeAny;
+      alternatives?: SafeAny[];
+    };
     const internalMeta = finalData._internalMetadata || {};
     delete finalData._internalMetadata;
 
-    finalData = aiHallucinationGuardService.enforceGuardrails(finalData, contextData);
+    const guarded = aiHallucinationGuardService.enforceGuardrails(
+      finalData,
+      contextData
+    ) as typeof finalData;
 
-    if (finalData.confidence !== undefined && Array.isArray(finalData.missingInformation)) {
-      finalData.confidence = aiConfidenceScoringService.adjustConfidence(
-        finalData.confidence,
-        finalData.missingInformation,
+    if (guarded.confidence !== undefined && Array.isArray(guarded.missingInformation)) {
+      guarded.confidence = aiConfidenceScoringService.adjustConfidence(
+        guarded.confidence,
+        guarded.missingInformation,
         {
           providerReliability: 95,
-          agentAgreementScore: internalMeta.consensusScore,
+          agentAgreementScore: (internalMeta.consensusScore as number) || 0,
           contextCompletenessScore: 80,
         }
       );
     }
 
-    if (finalData.riskAnalysis) {
-      finalData.riskAnalysis = aiRiskEngineService.validateRiskAnalysis(finalData.riskAnalysis);
+    if (guarded.riskAnalysis) {
+      guarded.riskAnalysis = aiRiskEngineService.validateRiskAnalysis(guarded.riskAnalysis);
     }
 
-    if (Array.isArray(finalData.alternatives)) {
-      finalData.alternatives = aiRecommendationValidatorService.validateRecommendations(
-        finalData.alternatives,
+    if (Array.isArray(guarded.alternatives)) {
+      guarded.alternatives = aiRecommendationValidatorService.validateRecommendations(
+        guarded.alternatives,
         contextData
       );
-      finalData.alternatives = aiRecommendationRankingService.rankAlternatives(
-        finalData.alternatives
-      );
+      guarded.alternatives = aiRecommendationRankingService.rankAlternatives(guarded.alternatives);
     }
 
     // re-attach internal meta for logging later
-    finalData._internalMetadata = internalMeta;
-    return finalData;
+    guarded._internalMetadata = internalMeta;
+    return guarded;
   }
 
   private async _logTelemetry(
@@ -286,12 +298,19 @@ Answer the user's questions strictly based on this context. Be concise and preci
     matchId: string,
     feature: AIFeature,
     systemPrompt: string,
-    finalData: any,
-    rawResponse: any,
+    finalData: SafeAny,
+    rawResponse: SafeAny,
     start: number
   ) {
-    const internalMeta = finalData._internalMetadata || {};
-    delete finalData._internalMetadata;
+    const finalDataObj = finalData as {
+      _internalMetadata?: Record<string, SafeAny>;
+      confidence?: number;
+    };
+    const rawResponseObj = rawResponse as {
+      confidence?: number;
+    };
+    const internalMeta = finalDataObj._internalMetadata || {};
+    delete finalDataObj._internalMetadata;
 
     await aiObservabilityService.logRequest({
       organizationId: ctx.organizationId,
@@ -306,17 +325,17 @@ Answer the user's questions strictly based on this context. Be concise and preci
       outputTokens: aiTokenBudgetService.estimateTokens(JSON.stringify(finalData)),
       status: 'success',
       cacheHit: false,
-      agentCount: internalMeta.agentCount,
-      consensusScore: internalMeta.consensusScore,
-      hallucinationDetected: finalData?.confidence === 0,
+      agentCount: internalMeta.agentCount as number | undefined,
+      consensusScore: internalMeta.consensusScore as number | undefined,
+      hallucinationDetected: finalDataObj?.confidence === 0,
       confidenceAdjustment:
-        finalData?.confidence !== undefined
-          ? finalData.confidence - (rawResponse?.confidence || 0)
+        finalDataObj?.confidence !== undefined
+          ? finalDataObj.confidence - (rawResponseObj?.confidence || 0)
           : 0,
     });
   }
 
-  private async _logError(ctx: BusinessContext, matchId: string, start: number, e: unknown) {
+  private async _logError(ctx: BusinessContext, matchId: string, start: number, e: SafeAny) {
     await aiObservabilityService.logRequest({
       organizationId: ctx.organizationId,
       matchId,
@@ -361,7 +380,7 @@ Answer the user's questions strictly based on this context. Be concise and preci
     });
   }
 
-  private _buildErrorResponse(e: unknown) {
+  private _buildErrorResponse(e: SafeAny) {
     return {
       status: 'error',
       metadata: { traceId: crypto.randomUUID() },

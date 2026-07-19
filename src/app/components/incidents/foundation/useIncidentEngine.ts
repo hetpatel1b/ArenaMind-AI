@@ -1,10 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { incidentApi } from '@/lib/api-client/features/incident';
 import { useMemo } from 'react';
-import { Incident, Resource, IncidentStage, Department, SystemNotification, ChatMessage } from './IncidentTypes';
+import {
+  Incident,
+  Resource,
+  IncidentStage,
+  Department,
+  SystemNotification,
+  ChatMessage,
+} from './IncidentTypes';
 import { ExecutiveBannerProps } from './ExecutiveIncidentBanner';
 
-export function useIncidentEngine(initialData?: any) {
+export function useIncidentEngine(initialData?: SafeAny) {
   const { data } = useQuery({
     queryKey: ['incidents', 'engine'],
     queryFn: () => incidentApi.getState({ matchId: '123e4567-e89b-12d3-a456-426614174000' }),

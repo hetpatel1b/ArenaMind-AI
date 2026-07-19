@@ -1,10 +1,10 @@
 export interface RankedContext {
-  item: any;
+  item: SafeAny;
   score: number;
 }
 
 export class ContextRankingService {
-  rankContext(contextData: any): any {
+  rankContext(contextData: SafeAny): SafeAny {
     if (!contextData || typeof contextData !== 'object') {
       return contextData;
     }
@@ -12,7 +12,7 @@ export class ContextRankingService {
     const rankedItems: RankedContext[] = [];
 
     // Analyze arrays or objects
-    const extractAndScore = (data: any) => {
+    const extractAndScore = (data: SafeAny) => {
       if (Array.isArray(data)) {
         data.forEach((item) => {
           if (item && typeof item === 'object') {
@@ -46,7 +46,7 @@ export class ContextRankingService {
     return topContext.length > 0 ? topContext : contextData;
   }
 
-  private calculateScore(item: any): number {
+  private calculateScore(item: SafeAny): number {
     let score = 50; // Default baseline
 
     const strObj = JSON.stringify(item).toLowerCase();

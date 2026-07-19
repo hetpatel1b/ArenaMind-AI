@@ -24,7 +24,7 @@ export function isArrowKey(event: React.KeyboardEvent | KeyboardEvent): boolean 
     KEYBOARD_KEYS.ARROW_DOWN,
     KEYBOARD_KEYS.ARROW_LEFT,
     KEYBOARD_KEYS.ARROW_RIGHT,
-  ].includes(event.key as any);
+  ].includes(event.key as SafeAny);
 }
 
 /**

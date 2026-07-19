@@ -1,8 +1,9 @@
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 /* eslint-disable no-console */
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
 interface LogContext {
-  [key: string]: unknown;
+  [key: string]: SafeAny;
   correlationId?: string;
   requestId?: string;
   userId?: string;
@@ -25,15 +26,15 @@ class Logger {
   }
 
   public info(message: string, context?: LogContext) {
-    console.log(this.formatMessage('info', message, context));
+    LoggerService.info(this.formatMessage('info', message, context));
   }
 
   public warn(message: string, context?: LogContext) {
-    console.warn(this.formatMessage('warn', message, context));
+    LoggerService.warn(this.formatMessage('warn', message, context));
   }
 
   public error(message: string, context?: LogContext) {
-    console.error(this.formatMessage('error', message, context));
+    LoggerService.error(this.formatMessage('error', message, context));
   }
 
   public debug(message: string, context?: LogContext) {

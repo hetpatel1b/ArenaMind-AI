@@ -147,8 +147,9 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
   const state = useMemo((): CrowdBehaviorState => {
     if (!crowdData?.data) return FALLBACK_STATE;
 
-    const zones: ZoneTelemetryExt[] = crowdData.data.map((snapshot: any) => {
-      const risk = snapshot.densityPct > 90 ? 'critical' : snapshot.densityPct > 75 ? 'high' : 'low';
+    const zones: ZoneTelemetryExt[] = crowdData.data.map((snapshot: SafeAny) => {
+      const risk =
+        snapshot.densityPct > 90 ? 'critical' : snapshot.densityPct > 75 ? 'high' : 'low';
       return {
         id: snapshot.zoneId,
         name: snapshot.zoneId.toUpperCase().replace('-', ' '),
@@ -160,12 +161,12 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
         trend: 'stable',
         status: risk === 'critical' ? 'action_required' : 'safe',
         historicalDensity: [{ time: snapshot.timestamp || 0, value: snapshot.densityPct }],
-        mood: 90 - (snapshot.densityPct / 2),
+        mood: 90 - snapshot.densityPct / 2,
         compressionScore: Math.min(100, snapshot.densityPct * 1.1),
       };
     });
 
-    const missions: MissionTelemetry[] = (incidentsData?.data || []).map((inc: any) => ({
+    const missions: MissionTelemetry[] = (incidentsData?.data || []).map((inc: SafeAny) => ({
       id: inc.id,
       priority: inc.severityTier === 1 ? 'high' : 'medium',
       title: inc.title,
@@ -176,7 +177,7 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
       riskReduction: 'Medium',
     }));
 
-    const resources: ResourceTelemetry[] = (workforceData?.data || []).map((wf: any) => ({
+    const resources: ResourceTelemetry[] = (workforceData?.data || []).map((wf: SafeAny) => ({
       id: wf.id,
       type: wf.role.charAt(0).toUpperCase() + wf.role.slice(1),
       name: wf.name,
@@ -190,9 +191,15 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
 
     const totalPop = zones.reduce((sum, z) => sum + z.population, 0);
     const totalCap = zones.reduce((sum, z) => sum + z.capacity, 0);
-    const peakZone = zones.length > 0 ? zones.reduce((prev, curr) => ((curr.densityPct > (prev?.densityPct || 0)) ? curr : prev), zones[0]) : null;
+    const peakZone =
+      zones.length > 0
+        ? zones.reduce(
+            (prev, curr) => (curr.densityPct > (prev?.densityPct || 0) ? curr : prev),
+            zones[0]
+          )
+        : null;
 
-    const globalStatus = (peakZone && peakZone.densityPct > 90) ? 'critical' : 'normal';
+    const globalStatus = peakZone && peakZone.densityPct > 90 ? 'critical' : 'normal';
 
     return {
       zones,
@@ -201,7 +208,7 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
         ingressRate: 500,
         egressRate: 200,
         netFlow: 300,
-        bottleneckCount: zones.filter(z => z.riskLevel === 'critical').length,
+        bottleneckCount: zones.filter((z) => z.riskLevel === 'critical').length,
       },
       missions,
       resources,
@@ -213,15 +220,18 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
         highestRiskZoneId: peakZone ? peakZone.id : null,
         overallStatus: globalStatus,
       },
-      copilot: (peakZone && peakZone.densityPct > 85) ? {
-        isActive: true,
-        observation: `${peakZone.name} is reaching critical capacity.`,
-        reasoning: ['Density exceeds 85% threshold.'],
-        prediction: 'Potential crush risk in 10 minutes.',
-        recommendation: 'Deploy security to regulate flow.',
-        expectedOutcome: 'Density normalized to 75%.',
-        confidence: 90,
-      } : null,
+      copilot:
+        peakZone && peakZone.densityPct > 85
+          ? {
+              isActive: true,
+              observation: `${peakZone.name} is reaching critical capacity.`,
+              reasoning: ['Density exceeds 85% threshold.'],
+              prediction: 'Potential crush risk in 10 minutes.',
+              recommendation: 'Deploy security to regulate flow.',
+              expectedOutcome: 'Density normalized to 75%.',
+              confidence: 90,
+            }
+          : null,
     };
   }, [crowdData, incidentsData, workforceData]);
 
@@ -230,7 +240,6 @@ export function useCrowdBehaviorEngine(matchId: string = '123e4567-e89b-12d3-a45
     executeCommand: (cmd: string) => {
       // In a real implementation, this would trigger a POST to /api/v1/incidents
     },
-    takeAction: (actionId: string) => {
-    },
+    takeAction: (actionId: string) => {},
   };
 }

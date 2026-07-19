@@ -5,8 +5,8 @@ import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 interface InteractiveWorkforceMapProps {
-  zones: any[];
-  resources: any[];
+  zones: SafeAny[];
+  resources: SafeAny[];
 }
 
 export function InteractiveWorkforceMap({ zones, resources }: InteractiveWorkforceMapProps) {

@@ -12,14 +12,24 @@ describe('OpenAPI Utilities', () => {
     const TestSchema = z.object({ id: z.string() });
     const registered = registerSchema('TestSchema', TestSchema);
     expect(registered).toBeDefined();
-    
+
     // Check if the registry has the definition
     expect(registry.definitions.length).toBeGreaterThan(0);
   });
 
   it('generates a valid OpenAPI document', () => {
-    const doc = generateOpenApiDocument();
-    
+    const doc = generateOpenApiDocument() as {
+      openapi: string;
+      info: { title: string };
+      servers?: Array<{ url: string; description: string }>;
+      components?: {
+        securitySchemes?: {
+          bearerAuth?: unknown;
+        };
+      };
+      security?: unknown[];
+    };
+
     expect(doc.openapi).toBe('3.1.0');
     expect(doc.info.title).toBe('ArenaMind AI Operations API');
     expect(doc.servers?.length).toBeGreaterThan(0);

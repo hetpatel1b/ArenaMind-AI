@@ -1,5 +1,5 @@
 import { api } from '../apiClient';
 
 export const organizationApi = {
-  getOrganization: () => api.get<any>('/organizations'),
+  getOrganization: () => api.get<SafeAny>('/organizations'),
 };

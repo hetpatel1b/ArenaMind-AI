@@ -10,7 +10,7 @@ export interface LogContext {
   route?: string;
   latency?: number;
   environment?: string;
-  [key: string]: any;
+  [key: string]: SafeAny;
 }
 
 export class LoggerService {
@@ -35,7 +35,7 @@ export class LoggerService {
     level: LogLevel,
     message: string,
     context?: LogContext,
-    error?: unknown
+    error?: SafeAny
   ): string {
     const logEntry = {
       // standard datadog/ELK fields
@@ -69,15 +69,15 @@ export class LoggerService {
 
     // Clean up undefined fields
     Object.keys(logEntry).forEach((key) => {
-      if ((logEntry as Record<string, unknown>)[key] === undefined) {
-        delete (logEntry as Record<string, unknown>)[key];
+      if ((logEntry as Record<string, SafeAny>)[key] === undefined) {
+        delete (logEntry as Record<string, SafeAny>)[key];
       }
     });
 
     return JSON.stringify(logEntry);
   }
 
-  private static print(level: LogLevel, message: string, context?: LogContext, error?: unknown) {
+  private static print(level: LogLevel, message: string, context?: LogContext, error?: SafeAny) {
     if (!this.shouldLog(level)) return;
 
     const formattedMessage = this.formatMessage(level, message, context, error);
@@ -93,10 +93,12 @@ export class LoggerService {
         console.info(formattedMessage);
         break;
       case 'warn':
+        // eslint-disable-next-line no-console
         console.warn(formattedMessage);
         break;
       case 'error':
       case 'fatal':
+        // eslint-disable-next-line no-console
         console.error(formattedMessage);
         break;
     }
@@ -118,11 +120,11 @@ export class LoggerService {
     this.print('warn', message, context);
   }
 
-  static error(message: string, error?: unknown, context?: LogContext) {
+  static error(message: string, error?: SafeAny, context?: LogContext) {
     this.print('error', message, context, error);
   }
 
-  static fatal(message: string, error?: unknown, context?: LogContext) {
+  static fatal(message: string, error?: SafeAny, context?: LogContext) {
     this.print('fatal', message, context, error);
   }
 }

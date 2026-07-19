@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 interface QueueIntelligenceProps {
-  queueData: any[];
+  queueData: SafeAny[];
 }
 
 export function QueueIntelligence({ queueData }: QueueIntelligenceProps) {

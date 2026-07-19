@@ -10,7 +10,7 @@ interface CrowdPersistentCopilotProps {
     maxDensity: number;
     highestRiskZoneName: string;
   };
-  recommendations?: any[];
+  recommendations?: SafeAny[];
 }
 
 export function CrowdPersistentCopilot({

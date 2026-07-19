@@ -25,5 +25,5 @@ export type FilterOperator =
 export interface FilterCondition<TField = string> {
   field: TField;
   operator: FilterOperator;
-  value?: unknown;
+  value?: SafeAny;
 }

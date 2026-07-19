@@ -6,7 +6,7 @@ export interface AuditEventPayload {
   tableName?: string;
   action: string;
   userId?: string;
-  metadata?: any;
+  metadata?: SafeAny;
 }
 
 export class AuditLogger {

@@ -2,7 +2,7 @@ import { PrismaRepository } from '@/lib/repositories/prisma.repository';
 import { User } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 
-export class UserRepository extends PrismaRepository<User, any, any> {
+export class UserRepository extends PrismaRepository<User, SafeAny, SafeAny> {
   constructor() {
     super(prisma.user, 'user');
   }

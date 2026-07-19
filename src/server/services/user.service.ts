@@ -21,15 +21,24 @@ export class UserService {
     });
   }
 
-  static async inviteUser(data: any, inviterId: string, organizationId: string) {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+  static async inviteUser(
+    data: Record<string, SafeAny>,
+    inviterId: string,
+    organizationId: string
+  ) {
+    const email = data.email as string;
+    const name = data.name as string | undefined;
+    const password = data.password as string;
+    const role = data.role as UserRole;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
-        email: data.email,
-        name: data.name,
+        email,
+        name,
         password: hashedPassword,
-        role: data.role as UserRole,
+        role,
         organizationId,
         isActive: true,
       },

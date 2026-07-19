@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface StadiumConfigurationProps {
-  stadiumData: any;
+  stadiumData: SafeAny;
 }
 
 export function StadiumConfiguration({ stadiumData }: StadiumConfigurationProps) {
@@ -125,7 +125,7 @@ export function StadiumConfiguration({ stadiumData }: StadiumConfigurationProps)
             Operational Zones
           </span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {stadiumData.zones?.map((zone: any) => (
+            {stadiumData.zones?.map((zone: SafeAny) => (
               <div
                 key={zone.id}
                 style={{

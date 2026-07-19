@@ -11,7 +11,7 @@ export const ProfileDtoSchema = registerSchema(
     phoneNumber: z.string().nullable(),
     employeeId: z.string().nullable(),
     isActive: z.boolean(),
-    preferences: z.any(),
+    preferences: z.record(z.string(), z.unknown()),
   })
 );
 
@@ -21,7 +21,7 @@ export const UpdateUserDtoSchema = registerSchema(
   'UpdateUser',
   z.object({
     phoneNumber: z.string().nullable().optional(),
-    preferences: z.any().optional(),
+    preferences: z.record(z.string(), z.unknown()).optional(),
   })
 );
 export type UpdateUserDto = z.infer<typeof UpdateUserDtoSchema>;

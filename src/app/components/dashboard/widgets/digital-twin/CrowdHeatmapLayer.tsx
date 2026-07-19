@@ -4,8 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface CrowdHeatmapLayerProps {
-  layout: any;
-  zones: any[];
+  layout: SafeAny;
+  zones: SafeAny[];
 }
 
 export function CrowdHeatmapLayer({ layout, zones }: CrowdHeatmapLayerProps) {
@@ -34,7 +34,7 @@ export function CrowdHeatmapLayer({ layout, zones }: CrowdHeatmapLayerProps) {
         const crowdSnapshots = zone.crowdSnapshots?.[0];
         const density = crowdSnapshots ? Number(crowdSnapshots.densityPct) : 0;
 
-        let style: any = {};
+        let style: SafeAny = {};
         if (zoneLayout.rx) {
           // It's an ellipse (like concourse)
           style = {

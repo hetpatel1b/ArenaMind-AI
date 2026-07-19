@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-export function PerformanceAnalytics({ kpiSnapshots = [] }: { kpiSnapshots?: any[] }) {
+export function PerformanceAnalytics({ kpiSnapshots = [] }: { kpiSnapshots?: SafeAny[] }) {
   const shouldReduceMotion = useReducedMotion();
   const [activeTab, setActiveTab] = useState('crowd');
 

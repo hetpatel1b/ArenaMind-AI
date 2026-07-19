@@ -38,7 +38,7 @@ export default function AcceptInvitePage() {
       if (updateError) throw updateError;
 
       setIsTransitioning(true);
-    } catch (err: any) {
+    } catch (err: SafeAny) {
       setError(err.message || 'Failed to establish clearance');
     } finally {
       setIsLoading(false);

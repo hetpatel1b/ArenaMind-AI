@@ -1,7 +1,8 @@
+import { LoggerService } from '@/lib/platform/observability/LoggerService';
 export interface JobData {
   id: string;
   type: string;
-  payload: any;
+  payload: SafeAny;
   priority: number; // 1 = High, 10 = Low
   retryCount?: number;
   maxRetries?: number;
@@ -23,8 +24,7 @@ export class AIJobQueueService {
     this.queue.push(job);
     this.queue.sort((a, b) => a.priority - b.priority); // Highest priority (lowest number) first
 
-    // eslint-disable-next-line no-console
-    console.log(
+    LoggerService.info(
       `[AIJobQueue] Job ${job.id} added (Priority ${job.priority}). Queue length: ${this.queue.length}`
     );
     this.processQueue();
@@ -46,16 +46,15 @@ export class AIJobQueueService {
     try {
       await this.executeJob(job);
     } catch (error) {
-      console.error(`[AIJobQueue] Job ${job.id} failed:`, error);
+      LoggerService.error(`[AIJobQueue] Job ${job.id} failed:`, error);
       if (job.retryCount! < job.maxRetries!) {
         job.retryCount!++;
-        // eslint-disable-next-line no-console
-        console.log(
+        LoggerService.info(
           `[AIJobQueue] Re-queueing job ${job.id} (Attempt ${job.retryCount}/${job.maxRetries})`
         );
         this.queue.push(job); // Add back to queue (could implement exponential delay here)
       } else {
-        console.warn(`[AIJobQueue] Job ${job.id} moved to dead-letter queue.`);
+        LoggerService.warn(`[AIJobQueue] Job ${job.id} moved to dead-letter queue.`);
         this.deadLetterQueue.push(job);
       }
     } finally {

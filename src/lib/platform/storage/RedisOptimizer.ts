@@ -44,7 +44,7 @@ export class RedisOptimizer {
    * Compression-aware set (mocks snappy/lz4 for now by just JSON stringifying)
    * A true production implementation would `import * as snappy from 'snappy'`
    */
-  static async setCompressed(key: string, value: any, ttlSeconds?: number): Promise<void> {
+  static async setCompressed(key: string, value: SafeAny, ttlSeconds?: number): Promise<void> {
     const client = this.getClient();
     const payload = JSON.stringify(value);
     // Imagine Snappy compression here: const compressed = snappy.compressSync(payload);

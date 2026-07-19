@@ -6,7 +6,7 @@ export const SettingDtoSchema = registerSchema(
   z.object({
     id: z.string().uuid(),
     key: z.string(),
-    value: z.any(),
+    value: z.unknown(),
   })
 );
 
@@ -16,7 +16,7 @@ export const UpdateSettingDtoSchema = registerSchema(
   'UpdateSetting',
   z.object({
     key: z.string().min(1).max(100),
-    value: z.any(),
+    value: z.unknown(),
   })
 );
 export type UpdateSettingDto = z.infer<typeof UpdateSettingDtoSchema>;

@@ -5,7 +5,7 @@ import { ValidationError } from '../errors/http.errors';
  * Validates data against a Zod schema.
  * Throws a standardized ValidationError if validation fails.
  */
-export function validateDto<T>(schema: z.ZodType<T>, data: unknown): T {
+export function validateDto<T>(schema: z.ZodType<T>, data: SafeAny): T {
   const result = schema.safeParse(data);
 
   if (!result.success) {

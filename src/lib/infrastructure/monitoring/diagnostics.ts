@@ -3,7 +3,7 @@ import { memoryCache } from '../cache/memory-cache';
 
 export interface HealthCheckResult {
   status: 'up' | 'down';
-  details?: any;
+  details?: SafeAny;
 }
 
 export class DiagnosticsService {
