@@ -1,0 +1,40 @@
+{
+  "info": {
+    "name": "ArenaMind AI API",
+    "description": "Postman Collection for ArenaMind AI Operations API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Incidents",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/matches/{{matchId}}/incidents",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "matches", "{{matchId}}", "incidents"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": "your_jwt_here"
+    },
+    {
+      "key": "matchId",
+      "value": "123e4567-e89b-12d3-a456-426614174000"
+    }
+  ]
+}
