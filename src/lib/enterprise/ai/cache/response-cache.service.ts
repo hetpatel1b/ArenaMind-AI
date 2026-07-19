@@ -6,6 +6,9 @@ import { LoggerService } from '@/lib/platform/observability/LoggerService';
 // Check if REDIS_URL exists, if not we gracefully fallback or fail,
 // but for enterprise audit we initialize the real client.
 const redisClient = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : null;
+if (redisClient) {
+  redisClient.on('error', () => {});
+}
 
 export class ResponseCacheService {
   private readonly defaultTTL = 60 * 60; // 1 hour in seconds

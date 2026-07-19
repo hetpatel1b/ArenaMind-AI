@@ -11,7 +11,9 @@ export class RedisOptimizer {
     if (!config.redisUrl) {
       LoggerService.warn('Redis URL not configured. Returning unconfigured client.');
       // Return a dummy client to avoid crashing if Redis is strictly needed but unavailable
-      return new Redis({ lazyConnect: true });
+      const dummyClient = new Redis({ lazyConnect: true });
+      dummyClient.on('error', () => {});
+      return dummyClient;
     }
 
     // High performance connection pooling configuration

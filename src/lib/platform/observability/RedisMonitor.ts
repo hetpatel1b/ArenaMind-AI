@@ -7,6 +7,7 @@ if (config.redisUrl) {
     maxRetriesPerRequest: 1,
     retryStrategy: () => null,
   });
+  redisClient.on('error', () => {});
 }
 
 export class RedisMonitor {

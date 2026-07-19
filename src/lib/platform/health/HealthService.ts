@@ -14,6 +14,7 @@ if (config.redisUrl) {
     maxRetriesPerRequest: 1,
     retryStrategy: () => null, // Don't retry endlessly for health check
   });
+  redisClient.on('error', () => {});
 }
 
 export type HealthStatus = 'up' | 'down' | 'degraded';
