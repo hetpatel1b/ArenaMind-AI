@@ -1,4 +1,14 @@
-import { UserRole } from '@prisma/client';
+export enum UserRole {
+  super_admin = 'super_admin',
+  organization_admin = 'organization_admin',
+  operations_manager = 'operations_manager',
+  security_commander = 'security_commander',
+  incident_commander = 'incident_commander',
+  workforce_commander = 'workforce_commander',
+  camera_operator = 'camera_operator',
+  read_only_analyst = 'read_only_analyst',
+  operations_manager_demo = 'operations_manager_demo',
+}
 
 export enum Environment {
   PRODUCTION = 'PRODUCTION',

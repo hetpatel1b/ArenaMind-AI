@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { UserRole } from '@prisma/client';
+
 import {
   GovernanceState,
   GovernanceAction,
@@ -9,6 +9,7 @@ import {
   WorkspaceSection,
   SecurityLevel,
   ComplianceStatus,
+  UserRole,
 } from './GovernanceTypes';
 
 const initialState: GovernanceState = {
