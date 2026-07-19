@@ -31,6 +31,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_SUPABASE_URL="https://dummy.supabase.co"
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY="dummy"
 ENV DATABASE_URL="postgres://dummy:dummy@localhost:5432/dummy"
+ENV NEXTAUTH_SECRET="dummy-secret-key-that-is-at-least-32-characters-long"
+ENV GEMINI_API_KEY="dummy"
+ENV REDIS_URL="redis://localhost:6379"
 
 RUN pnpm run build
 
