@@ -42,6 +42,42 @@ const mockUsers: Record<string, any> = {
   },
 };
 
+const mockMatch = {
+  id: 'mock-match-1',
+  organizationId: 'mock-org-id',
+  venueId: 'mock-venue-1',
+  homeTeam: 'Team A',
+  awayTeam: 'Team B',
+  matchStatus: 'active',
+  status: 'live',
+  name: 'World Cup Final 2026',
+  title: 'FIFA Operations Command',
+  scheduledStart: new Date(),
+  venue: {
+    id: 'mock-venue-1',
+    name: 'Lusail Stadium',
+    zones: [
+      {
+        id: 'mock-zone-1',
+        name: 'Zone A',
+        crowdSnapshots: [
+          {
+            id: 'snapshot-1',
+            occupancyCount: 15000,
+            densityScore: 0.8,
+            recordedAt: new Date(),
+          },
+        ],
+      },
+    ],
+  },
+  incidents: [],
+  aiRecommendations: [],
+  kpiSnapshots: [],
+  healthScores: [],
+  resources: [],
+};
+
 const createRecursiveMock = (): any => {
   const handler: ProxyHandler<any> = {
     get(target, prop) {
@@ -76,10 +112,26 @@ const createRecursiveMock = (): any => {
         };
       }
 
+      if (prop === 'match') {
+        return {
+          findFirst: async () => mockMatch,
+          findUnique: async () => mockMatch,
+          findMany: async () => [mockMatch],
+          create: async ({ data }: any) => ({ id: 'mock-match-1', ...data }),
+          update: async ({ data }: any) => ({ id: 'mock-match-1', ...data }),
+        };
+      }
+
       const mockFn = (...args: any[]) => {
         const firstArg = args[0];
         if (typeof firstArg === 'function') {
           return firstArg(target);
+        }
+        if (prop === 'findMany') {
+          return Promise.resolve([]);
+        }
+        if (prop === 'count') {
+          return Promise.resolve(0);
         }
         return Promise.resolve(null);
       };
