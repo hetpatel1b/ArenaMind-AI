@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import { createRouteHandler } from '@/lib/api/route-factory';
 import { alertService } from '@/lib/modules/alerts/service';
 import { successResponse } from '@/lib/api/response';
@@ -17,6 +18,6 @@ export const PATCH = createRouteHandler(
   },
   {
     requireAuth: true,
-    allowedRoles: ['operations_manager', 'deputy_manager', 'coordinator'],
+    allowedRoles: [UserRole.operations_manager, UserRole.deputy_manager, UserRole.coordinator],
   }
 );

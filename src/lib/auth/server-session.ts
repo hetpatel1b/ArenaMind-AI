@@ -1,10 +1,11 @@
 import { auth } from '@/server/auth/auth';
+import { UserRole } from '@prisma/client';
 
 export type UserSessionContext = {
   authId: string;
   userId: string;
   email: string;
-  role: string;
+  role: UserRole;
   organizationId: string | null;
 };
 
@@ -21,7 +22,7 @@ export async function getServerSession(): Promise<UserSessionContext | null> {
     authId: user.id,
     userId: user.id,
     email: user.email || '',
-    role: user.role || 'user',
+    role: user.role as UserRole,
     organizationId: user.organizationId || null,
   };
 }

@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
-import { GlobalErrorHandler } from '@/lib/platform/errors/GlobalErrorHandler';
 import { MatchService } from '@/server/services/match.service';
-import { withAuth, AuthenticatedRequest } from '@/server/middleware/rbac';
+import { createRouteHandler } from '@/lib/api/route-factory';
 import { createMatchSchema } from '@/server/validators/match.schema';
 
-export const GET = withAuth(async (req: AuthenticatedRequest) => {
-  const { organizationId } = req.user;
+export const GET = createRouteHandler(async (req, { bizContext }) => {
+  const { venueId: organizationId } = bizContext;
   if (!organizationId) {
     return NextResponse.json({ error: 'No organization linked' }, { status: 400 });
   }
@@ -14,18 +13,14 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
   return NextResponse.json(matches);
 });
 
-export const POST = withAuth(async (req: AuthenticatedRequest) => {
-  const { organizationId, id: userId } = req.user;
+export const POST = createRouteHandler(async (req, { bizContext }) => {
+  const { venueId: organizationId, userId } = bizContext;
   if (!organizationId) {
     return NextResponse.json({ error: 'No organization linked' }, { status: 400 });
   }
 
-  try {
-    const body = await req.json();
-    const data = createMatchSchema.parse({ ...body, organizationId });
-    const match = await MatchService.createMatch(data, userId);
-    return NextResponse.json(match, { status: 201 });
-  } catch (error: any) {
-    return GlobalErrorHandler.handle(error);
-  }
+  const body = await req.json();
+  const data = createMatchSchema.parse({ ...body, organizationId });
+  const match = await MatchService.createMatch(data, userId as string);
+  return NextResponse.json(match, { status: 201 });
 });

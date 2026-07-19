@@ -4,44 +4,49 @@ import { authConfig } from '@/server/auth/auth.config';
 
 const { auth } = NextAuth(authConfig);
 
-// Define explicit route groups
-const PROTECTED_ROUTES = [
-  '/dashboard',
-  '/incidents',
-  '/crowd',
-  '/resources',
-  '/transport',
-  '/reports',
-  '/settings',
-  '/profile',
-  '/api/v1',
-  '/api/private',
-];
-
 export default auth(async (request) => {
   const session = request.auth;
+  const isLoggedIn = !!session;
   const { pathname } = request.nextUrl;
-  let response = NextResponse.next();
 
-  // NextAuth automatically handles session parsing, we just need to verify existence.
-  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+  const isApiAuthRoute = pathname.startsWith('/api/auth');
+  const isPublicRoute = pathname === '/login' || pathname === '/' || isApiAuthRoute;
+  const isApiRoute = pathname.startsWith('/api') && !isApiAuthRoute;
 
-  if (!pathname.startsWith('/api/auth')) {
-    // Rule 1: Unauthenticated user opening protected routes -> Redirect to /login
-    if (!session && isProtectedRoute) {
-      if (pathname.startsWith('/api')) {
-        response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      } else {
-        const loginUrl = request.nextUrl.clone();
-        loginUrl.pathname = '/login';
-        response = NextResponse.redirect(loginUrl);
-      }
+  let response: NextResponse;
+
+  // Fail-Safe Default: DENY unauthenticated requests
+  if (!isLoggedIn && !isPublicRoute) {
+    if (isApiRoute) {
+      response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    } else {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/login';
+      response = NextResponse.redirect(loginUrl);
     }
-    // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
-    else if (session && pathname === '/login') {
-      const dashboardUrl = request.nextUrl.clone();
-      dashboardUrl.pathname = '/dashboard';
-      response = NextResponse.redirect(dashboardUrl);
+  }
+  // Rule 2: Authenticated user opening /login -> Automatically redirect to dashboard
+  else if (isLoggedIn && pathname === '/login') {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = '/dashboard';
+    response = NextResponse.redirect(dashboardUrl);
+  } else {
+    // Proceed normally, but we need to inject headers if logged in
+    if (isLoggedIn && session?.user) {
+      const headers = new Headers(request.headers);
+      headers.set('x-user-id', session.user.id || '');
+      headers.set('x-user-role', session.user.role || '');
+      if (session.user.organizationId) {
+        headers.set('x-user-organization-id', session.user.organizationId);
+      }
+
+      response = NextResponse.next({
+        request: {
+          headers,
+        },
+      });
+    } else {
+      response = NextResponse.next();
     }
   }
 
@@ -76,5 +81,6 @@ export default auth(async (request) => {
 });
 
 export const config = {
+  // Protect all routes by default, except internal Next.js paths and static assets
   matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 };

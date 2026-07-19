@@ -1,13 +1,13 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from '../database/prisma';
 import bcrypt from 'bcrypt';
 import { authConfig } from './auth.config';
+import { AuditService } from '../audit/audit.service';
+import crypto from 'crypto';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -53,19 +53,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error('Account is suspended or inactive');
         }
 
-        // Session limit checks
-        if (user.sessionCount >= 5) {
-          // We could invalidate older sessions, but for this audit we log or handle
-          console.warn(`[Auth] User ${user.email} exceeded concurrent session limit.`);
+        // Concurrent Session Policy & Stateless JWT tracking
+        const metadata = (user.metadata as any) || {};
+        const activeTokens = Array.isArray(metadata.activeTokens) ? metadata.activeTokens : [];
+        const now = Date.now();
+
+        // Lazy cleanup of expired tokens
+        const validTokens = activeTokens.filter((t: any) => t.exp > now);
+
+        if (validTokens.length >= 5) {
+          await AuditService.log({
+            tableName: 'User',
+            recordId: user.id,
+            action: 'ACCESS',
+            userId: user.id,
+            organizationId: user.organizationId || undefined,
+            newData: { status: 'CONCURRENT_SESSION_LIMIT_REACHED' },
+          });
+          throw new Error(
+            'Maximum concurrent sessions reached. Please log out from other devices.'
+          );
         }
 
-        // Update last login
+        // Generate new token ID and explicitly set 24h expiration
+        const jti = crypto.randomUUID();
+        const exp = now + 24 * 60 * 60 * 1000;
+        validTokens.push({ jti, exp });
+        metadata.activeTokens = validTokens;
+
         await prisma.user.update({
           where: { id: user.id },
           data: {
             lastLoginAt: new Date(),
-            sessionCount: { increment: 1 },
+            sessionCount: validTokens.length,
+            metadata,
           },
+        });
+
+        await AuditService.log({
+          tableName: 'User',
+          recordId: user.id,
+          action: 'LOGIN',
+          userId: user.id,
+          organizationId: user.organizationId || undefined,
         });
 
         return {
@@ -74,8 +104,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           role: user.role,
           organizationId: user.organizationId ?? undefined,
+          jti,
         };
       },
     }),
   ],
+  events: {
+    async signOut(message) {
+      const token = 'token' in message ? message.token : null;
+      if (token && token.email && token.jti) {
+        const user = await prisma.user.findUnique({
+          where: { email: token.email as string },
+        });
+
+        if (user) {
+          const metadata = (user.metadata as any) || {};
+          const activeTokens = Array.isArray(metadata.activeTokens) ? metadata.activeTokens : [];
+          const updatedTokens = activeTokens.filter((t: any) => t.jti !== token.jti);
+          metadata.activeTokens = updatedTokens;
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { sessionCount: updatedTokens.length, metadata },
+          });
+
+          await AuditService.log({
+            tableName: 'User',
+            recordId: user.id,
+            action: 'LOGOUT',
+            userId: user.id,
+            organizationId: user.organizationId || undefined,
+          });
+        }
+      }
+    },
+  },
 });

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '../auth/server-session';
 import { mapErrorToResponse } from '../errors/error.mapper';
 import { BusinessContext, createSystemContext } from '../services/business.context';
-import { Role } from '../auth/constants';
+import { UserRole } from '@prisma/client';
 import { hasPermission, Permission } from '../auth/permissions';
 import { AuthorizationError, AuthenticationError } from '../errors/http.errors';
 import { logger } from '../observability/logger';
@@ -11,7 +10,7 @@ import { generateETag, checkConditionalCache } from './caching';
 
 export interface RouteConfig {
   requireAuth?: boolean;
-  allowedRoles?: Role[];
+  allowedRoles?: UserRole[];
   requiredPermissions?: Permission[];
   /** If true, bypasses the strict venue isolation check (Admin only) */
   globalAccess?: boolean;
@@ -21,12 +20,25 @@ export interface RouteConfig {
 export type RouteHandler = (
   req: NextRequest,
   context: { params?: any; bizContext: BusinessContext }
-) => Promise<NextResponse>;
+) => Promise<NextResponse | Response>;
+
+function getUserFromHeaders(req: Request) {
+  const id = req.headers.get('x-user-id');
+  const role = req.headers.get('x-user-role') as UserRole | null;
+
+  if (!id || !role) return null;
+
+  return {
+    id,
+    role,
+    organizationId: req.headers.get('x-user-organization-id') || null,
+  };
+}
 
 /**
  * Higher-Order Function that creates a standardized Next.js Route Handler.
  * Automatically handles:
- * 1. Authentication & Session Extraction
+ * 1. Authentication & Session Extraction (via Edge Middleware Headers)
  * 2. Role-Based Access Control
  * 3. Business Context Generation (Correlation IDs)
  * 4. Global Error Catching & Formatting
@@ -38,7 +50,7 @@ export function createRouteHandler(
   return async (
     req: NextRequest,
     context?: { params?: any | Promise<any> }
-  ): Promise<NextResponse> => {
+  ): Promise<NextResponse | Response> => {
     const params =
       context?.params instanceof Promise ? await context.params : await context?.params;
     const correlationId = req.headers.get('x-correlation-id') || crypto.randomUUID();
@@ -47,20 +59,20 @@ export function createRouteHandler(
       let bizContext: BusinessContext;
 
       if (config.requireAuth) {
-        const session = await getServerSession();
-        if (!session) {
+        const user = getUserFromHeaders(req);
+        if (!user) {
           throw new AuthenticationError('Authentication required');
         }
 
         // Validate Roles
-        if (config.allowedRoles && !config.allowedRoles.includes(session.role as Role)) {
+        if (config.allowedRoles && !config.allowedRoles.includes(user.role)) {
           throw new AuthorizationError('Role not authorized for this endpoint');
         }
 
         // Validate Permissions
         if (config.requiredPermissions) {
           for (const perm of config.requiredPermissions) {
-            if (!hasPermission(session.role as Role, perm)) {
+            if (!hasPermission(user.role, perm)) {
               throw new AuthorizationError(`Missing required permission: ${perm}`);
             }
           }
@@ -68,9 +80,9 @@ export function createRouteHandler(
 
         bizContext = {
           correlationId,
-          userId: session.userId,
-          role: session.role,
-          venueId: session.organizationId as string,
+          userId: user.id,
+          role: user.role,
+          venueId: user.organizationId as string,
         };
       } else {
         // Public endpoint, use system context tied to a default tenant
@@ -87,10 +99,10 @@ export function createRouteHandler(
       }
 
       const startTime = performance.now();
-      logger.info(`Incoming API Request: ${req.method} ${req.nextUrl.pathname}`, { 
+      logger.info(`Incoming API Request: ${req.method} ${req.nextUrl.pathname}`, {
         correlationId,
         userId: bizContext.userId,
-        organizationId: bizContext.venueId
+        organizationId: bizContext.venueId,
       });
 
       // Execute the actual business logic

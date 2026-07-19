@@ -1,6 +1,7 @@
 import { getServerSession, UserSessionContext } from './server-session';
-import { AuthError, AuthorizationError, Role } from './constants';
+import { AuthError, AuthorizationError } from './constants';
 import { hasPermission, Permission } from './permissions';
+import { UserRole } from '@prisma/client';
 
 export async function requireAuth(): Promise<UserSessionContext> {
   const session = await getServerSession();
@@ -10,9 +11,9 @@ export async function requireAuth(): Promise<UserSessionContext> {
   return session;
 }
 
-export async function requireRole(allowedRoles: Role[]): Promise<UserSessionContext> {
+export async function requireRole(allowedRoles: UserRole[]): Promise<UserSessionContext> {
   const session = await requireAuth();
-  if (!allowedRoles.includes(session.role as Role)) {
+  if (!allowedRoles.includes(session.role)) {
     throw new AuthorizationError();
   }
   return session;
@@ -20,7 +21,7 @@ export async function requireRole(allowedRoles: Role[]): Promise<UserSessionCont
 
 export async function requirePermission(permission: Permission): Promise<UserSessionContext> {
   const session = await requireAuth();
-  if (!hasPermission(session.role as Role, permission)) {
+  if (!hasPermission(session.role, permission)) {
     throw new AuthorizationError(`Missing permission: ${permission}`);
   }
   return session;
@@ -29,7 +30,7 @@ export async function requirePermission(permission: Permission): Promise<UserSes
 export async function requireStadiumAccess(venueId: string): Promise<UserSessionContext> {
   const session = await requireAuth();
 
-  if (session.role === 'system_admin') {
+  if (session.role === UserRole.super_admin || session.role === UserRole.organization_admin) {
     return session;
   }
 

@@ -1,23 +1,21 @@
 import { NextResponse } from 'next/server';
-import { GlobalErrorHandler } from '@/lib/platform/errors/GlobalErrorHandler';
 import { OrganizationService } from '@/server/services/organization.service';
-import { withRole, AuthenticatedRequest } from '@/server/middleware/rbac';
+import { createRouteHandler } from '@/lib/api/route-factory';
 import { UserRole } from '@prisma/client';
 
-export const GET = withRole(
-  [UserRole.super_admin, UserRole.organization_admin],
-  async (req: AuthenticatedRequest) => {
+export const GET = createRouteHandler(
+  async (req) => {
     const organizations = await OrganizationService.getOrganizations();
     return NextResponse.json(organizations);
-  }
+  },
+  { requireAuth: true, allowedRoles: [UserRole.super_admin, UserRole.organization_admin] }
 );
 
-export const POST = withRole([UserRole.super_admin], async (req: AuthenticatedRequest) => {
-  try {
+export const POST = createRouteHandler(
+  async (req, { bizContext }) => {
     const body = await req.json();
-    const org = await OrganizationService.createOrganization(body, req.user.id);
+    const org = await OrganizationService.createOrganization(body, bizContext.userId as string);
     return NextResponse.json(org, { status: 201 });
-  } catch (error: any) {
-    return GlobalErrorHandler.handle(error);
-  }
-});
+  },
+  { requireAuth: true, allowedRoles: [UserRole.super_admin] }
+);

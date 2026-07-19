@@ -32,17 +32,7 @@ model Account {
   @@map("accounts")
 }
 
-model Session {
-  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id") @db.Uuid
-  expires      DateTime
-  deviceInfo   String?  @map("device_info")
-  ipAddress    String?  @map("ip_address")
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("sessions")
-}
 
 model VerificationToken {
   identifier String
@@ -80,8 +70,6 @@ model Organization {
   reports   Report[]
 
   // Phase 17 Sprint 2 additions
-  roles             Role[]
-  permissions       Permission[]
   mobilitySnapshots MobilitySnapshot[]
   cameras           Camera[]
   cameraEvents      CameraEvent[]
@@ -134,7 +122,6 @@ model User {
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   accounts Account[]
-  sessions Session[]
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -703,41 +690,7 @@ model AuditLog {
 // Phase 17 Sprint 2 New Models
 // ==========================================
 
-model Role {
-  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  organizationId String    @map("organization_id") @db.Uuid
-  name           String
-  description    String?
-  isSystem       Boolean   @default(false) @map("is_system")
-  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  permissions  Permission[]
-
-  @@unique([organizationId, name])
-  @@index([organizationId])
-  @@map("roles")
-}
-
-model Permission {
-  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  organizationId String    @map("organization_id") @db.Uuid
-  roleId         String    @map("role_id") @db.Uuid
-  resource       String // e.g. "MATCH", "INCIDENT"
-  action         String // e.g. "CREATE", "READ", "UPDATE", "DELETE"
-  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
-
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@unique([roleId, resource, action])
-  @@index([organizationId])
-  @@map("permissions")
-}
 
 model MobilitySnapshot {
   id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid

@@ -1,15 +1,9 @@
+import { UserRole } from '@prisma/client';
+
 export enum Environment {
   PRODUCTION = 'PRODUCTION',
   STAGING = 'STAGING',
   DEVELOPMENT = 'DEVELOPMENT',
-}
-
-export enum UserRole {
-  GLOBAL_ADMIN = 'GLOBAL_ADMIN',
-  SECURITY_ADMIN = 'SECURITY_ADMIN',
-  COMPLIANCE_OFFICER = 'COMPLIANCE_OFFICER',
-  AUDITOR = 'AUDITOR',
-  VIEWER = 'VIEWER',
 }
 
 export enum ComplianceStatus {
@@ -140,7 +134,7 @@ export interface IdentityUser {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   status: 'Active' | 'Away' | 'Locked' | 'Offline';
   lastActive: string;
 }

@@ -46,17 +46,17 @@ export default async function DashboardPage() {
 
 ArenaMind AI requires strict enforcement of both **what** a user can do (Role) and **where** they can do it (Stadium).
 
-### Enforcing Roles
+### Server-Side Authorization
 
 Use `requireRole()` to restrict entire endpoints or pages to specific roles.
 
 ```typescript
 import { requireRole } from '@/lib/auth/guards';
-import { Roles } from '@/lib/auth/constants';
+import { UserRole } from '@prisma/client';
 
-// In a Route Handler
-export async function POST(req: Request) {
-  const session = await requireRole([Roles.OPERATIONS_MANAGER, Roles.SYSTEM_ADMIN]);
+export async function GET() {
+  const session = await requireRole([UserRole.operations_manager, UserRole.super_admin]);
+
   // Only Operations Managers and Admins can reach here
 }
 ```

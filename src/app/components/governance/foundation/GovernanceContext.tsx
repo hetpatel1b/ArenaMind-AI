@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { UserRole } from '@prisma/client';
 import {
   GovernanceState,
   GovernanceAction,
@@ -111,7 +112,7 @@ const initialState: GovernanceState = {
       id: 'u1',
       name: 'Sarah Chen',
       email: 'schen@arena.ai',
-      role: 'Global Admin',
+      role: UserRole.super_admin,
       lastActive: 'Just now',
       status: 'Active',
     },
@@ -119,7 +120,7 @@ const initialState: GovernanceState = {
       id: 'u2',
       name: 'Marcus Johnson',
       email: 'mjohnson@arena.ai',
-      role: 'Security Ops',
+      role: UserRole.security_commander,
       lastActive: '5m ago',
       status: 'Active',
     },
@@ -127,7 +128,7 @@ const initialState: GovernanceState = {
       id: 'u3',
       name: 'Elena Rostova',
       email: 'erostova@arena.ai',
-      role: 'Compliance Officer',
+      role: UserRole.operations_manager,
       lastActive: '1h ago',
       status: 'Away',
     },
@@ -135,7 +136,7 @@ const initialState: GovernanceState = {
       id: 'u4',
       name: 'David Kim',
       email: 'dkim@arena.ai',
-      role: 'Auditor',
+      role: UserRole.read_only_analyst,
       lastActive: '2d ago',
       status: 'Offline',
     },
@@ -143,7 +144,7 @@ const initialState: GovernanceState = {
       id: 'u5',
       name: 'James Wilson',
       email: 'jwilson@arena.ai',
-      role: 'Viewer',
+      role: UserRole.read_only_analyst,
       lastActive: '1w ago',
       status: 'Locked',
     },

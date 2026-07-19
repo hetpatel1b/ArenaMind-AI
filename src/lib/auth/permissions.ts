@@ -1,4 +1,4 @@
-import { Role, Roles } from './constants';
+import { UserRole } from '@prisma/client';
 
 export const Permissions = {
   VIEW_DASHBOARD: 'view:dashboard',
@@ -14,8 +14,8 @@ export const Permissions = {
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];
 
-export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  [Roles.OPERATIONS_MANAGER]: [
+export const ROLE_PERMISSIONS: Partial<Record<UserRole, readonly Permission[]>> = {
+  [UserRole.operations_manager]: [
     Permissions.VIEW_DASHBOARD,
     Permissions.VIEW_INCIDENTS,
     Permissions.CREATE_INCIDENT,
@@ -25,7 +25,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     Permissions.VIEW_REPORTS,
     Permissions.CHANGE_PHASE,
   ],
-  [Roles.DEPUTY_MANAGER]: [
+  [UserRole.deputy_manager]: [
     Permissions.VIEW_DASHBOARD,
     Permissions.VIEW_INCIDENTS,
     Permissions.CREATE_INCIDENT,
@@ -34,16 +34,17 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     Permissions.DISPATCH_RESOURCE,
     Permissions.VIEW_REPORTS,
   ],
-  [Roles.COORDINATOR]: [
+  [UserRole.coordinator]: [
     Permissions.VIEW_DASHBOARD,
     Permissions.VIEW_INCIDENTS,
     Permissions.CREATE_INCIDENT,
     Permissions.UPDATE_INCIDENT,
   ],
-  [Roles.SYSTEM_ADMIN]: [...Object.values(Permissions)],
+  [UserRole.super_admin]: [...Object.values(Permissions)],
+  [UserRole.organization_admin]: [...Object.values(Permissions)],
 };
 
-export function hasPermission(role: Role, permission: Permission): boolean {
+export function hasPermission(role: UserRole, permission: Permission): boolean {
   const permissions = ROLE_PERMISSIONS[role];
   return permissions?.includes(permission) ?? false;
 }
