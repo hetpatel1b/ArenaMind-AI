@@ -51,6 +51,10 @@ jobs:
 
     - name: E2E Tests
       run: pnpm run test:e2e
+      env:
+        DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
+        NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
 
     - name: Production Build
       run: pnpm run build
