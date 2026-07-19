@@ -1,11 +1,12 @@
-import { Environment, EnvironmentValidator } from './EnvironmentValidator';
+import { env } from '../../config/env';
+import { Environment } from '../../config/env';
 
 export class ConfigurationService {
   private static instance: ConfigurationService;
   private config: Environment;
 
   private constructor() {
-    this.config = EnvironmentValidator.validate(process.env);
+    this.config = env;
   }
 
   /**
@@ -41,12 +42,11 @@ export class ConfigurationService {
   }
 
   public get nextAuthSecret(): string {
-    // We provide a fallback just in case, though Zod schema handles defaults
-    return this.config.NEXTAUTH_SECRET || 'development-secret-do-not-use-in-production';
+    return this.config.NEXTAUTH_SECRET;
   }
 
   public get nextAuthUrl(): string {
-    return this.config.NEXTAUTH_URL || 'http://localhost:3000';
+    return this.config.NEXTAUTH_URL;
   }
 
   public get grokApiKey(): string | undefined {

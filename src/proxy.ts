@@ -10,7 +10,8 @@ export default auth(async (request) => {
   const { pathname } = request.nextUrl;
 
   const isApiAuthRoute = pathname.startsWith('/api/auth');
-  const isPublicRoute = pathname === '/login' || pathname === '/' || isApiAuthRoute;
+  const isPublicRoute =
+    pathname === '/login' || pathname === '/demo-register' || pathname === '/' || isApiAuthRoute;
   const isApiRoute = pathname.startsWith('/api') && !isApiAuthRoute;
 
   let response: NextResponse;

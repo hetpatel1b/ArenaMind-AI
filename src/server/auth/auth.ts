@@ -5,6 +5,10 @@ import bcrypt from 'bcrypt';
 import { authConfig } from './auth.config';
 import { AuditService } from '../audit/audit.service';
 import crypto from 'crypto';
+import { authenticator } from 'otplib';
+
+// Configure authenticator for enterprise requirements
+authenticator.options = { window: 1 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -41,9 +45,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!credentials.mfaToken) {
             throw new Error('MFA token is required for this account.');
           }
-          // In a real implementation, we would verify the TOTP token here.
-          // For now, we simulate the validation.
-          if (credentials.mfaToken !== '000000' && credentials.mfaToken.toString().length !== 6) {
+
+          const metadata = (user.metadata as any) || {};
+          const totpSecret = metadata.totpSecret;
+
+          if (!totpSecret) {
+            throw new Error('MFA is enabled but no secret is configured.');
+          }
+
+          const isValid = authenticator.verify({
+            token: credentials.mfaToken as string,
+            secret: totpSecret,
+          });
+
+          if (!isValid) {
             throw new Error('Invalid MFA token.');
           }
         }

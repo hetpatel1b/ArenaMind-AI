@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Map from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 interface InteractiveWorkforceMapProps {
   zones: any[];
@@ -103,6 +105,14 @@ export function InteractiveWorkforceMap({ zones, resources }: InteractiveWorkfor
           alignItems: 'center',
         }}
       >
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
+          <Map
+            initialViewState={{ longitude: 51.4903, latitude: 25.4208, zoom: 15 }}
+            mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+            interactive={false}
+          />
+        </div>
+
         <div
           style={{
             width: '70%',
@@ -114,6 +124,7 @@ export function InteractiveWorkforceMap({ zones, resources }: InteractiveWorkfor
             justifyContent: 'center',
             alignItems: 'center',
             boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)',
+            zIndex: 5,
           }}
         >
           {/* Pitch */}
