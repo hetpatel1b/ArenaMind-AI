@@ -71,6 +71,30 @@ const allItems: ISidebarItem[] = [
     icon: 'M22 12h-4l-3 9L9 3l-3 9H2',
     status: 'online',
   },
+  {
+    id: 'fan',
+    label: 'Fan Experience',
+    href: '/dashboard/fan',
+    icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  },
+  {
+    id: 'sustainability',
+    label: 'Sustainability',
+    href: '/dashboard/sustainability',
+    icon: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+  },
+  {
+    id: 'inclusive',
+    label: 'Inclusive AI',
+    href: '/dashboard/inclusive',
+    icon: 'M12 2A10 10 0 1 0 22 12 10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8ZM12 6a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 6Zm3.5 4h-7a.5.5 0 0 0 0 1h2.32L9.2 16.29a.5.5 0 1 0 .86.51l1.83-3.21 1.83 3.21a.5.5 0 1 0 .86-.51L13.18 11h2.32a.5.5 0 0 0 0-1Z',
+  },
+  {
+    id: 'tournament',
+    label: 'Tournament Command',
+    href: '/dashboard/tournament',
+    icon: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z',
+  },
 ];
 
 const MAIN_GROUPS: ISidebarGroup[] = [
@@ -96,6 +120,16 @@ const MAIN_GROUPS: ISidebarGroup[] = [
     items: [
       allItems.find((i) => i.id === 'governance')!,
       allItems.find((i) => i.id === 'infrastructure')!,
+    ],
+  },
+  {
+    id: 'worldcup',
+    title: 'World Cup 2026',
+    items: [
+      allItems.find((i) => i.id === 'tournament')!,
+      allItems.find((i) => i.id === 'fan')!,
+      allItems.find((i) => i.id === 'inclusive')!,
+      allItems.find((i) => i.id === 'sustainability')!,
     ],
   },
 ];
