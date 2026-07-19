@@ -58,6 +58,9 @@ jobs:
         DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
         NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
+        NEXTAUTH_SECRET: "dummy-secret-key-that-is-at-least-32-characters-long"
+        GEMINI_API_KEY: "dummy"
+        REDIS_URL: "redis://localhost:6379"
 
     - name: Production Build
       run: pnpm run build
@@ -67,6 +70,9 @@ jobs:
         DATABASE_URL: "postgres://dummy:dummy@localhost:5432/dummy"
         NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy"
+        NEXTAUTH_SECRET: "dummy-secret-key-that-is-at-least-32-characters-long"
+        GEMINI_API_KEY: "dummy"
+        REDIS_URL: "redis://localhost:6379"
 
     - name: Docker Build Test
       run: docker build -t arenamind-test .
