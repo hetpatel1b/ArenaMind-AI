@@ -36,6 +36,33 @@ export class CrossDomainIntelligenceService {
           'Accessibility score 99/100',
         ],
       },
+      {
+        id: 'cd-3',
+        primaryDomain: 'Media',
+        secondaryDomain: 'Crowd',
+        relationship: 'Congestion -> Crowd Flow',
+        narrative:
+          'Mixed zone media overcrowding at Gate E caused a 15% reduction in fan egress throughput.',
+        dataPoints: ['Media occupancy +120%', 'Egress delay +8m', 'Fan sentiment -5%'],
+      },
+      {
+        id: 'cd-4',
+        primaryDomain: 'Broadcast',
+        secondaryDomain: 'Infrastructure',
+        relationship: 'Signal Loss -> Executive Alert',
+        narrative:
+          'Fiber route degradation triggered automatic failover to satellite and alerted match executives.',
+        dataPoints: ['Fiber packet loss 12%', 'Failover time 45ms', 'Executive alert triggered'],
+      },
+      {
+        id: 'cd-5',
+        primaryDomain: 'Hospitality',
+        secondaryDomain: 'Mobility',
+        relationship: 'Occupancy -> VIP Transport',
+        narrative:
+          'Unplanned VIP arrivals at Corporate Box 4 necessitated 3 additional luxury transports, slightly impacting standard shuttle routes.',
+        dataPoints: ['Suite occupancy +15%', 'Luxury transport dispatch +3', 'Shuttle wait +2m'],
+      },
     ];
   }
 }

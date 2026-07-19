@@ -224,4 +224,128 @@ export const SCENARIOS: Scenario[] = [
       },
     ],
   },
+  {
+    id: 'media-overcrowding',
+    name: 'Press Conference Emergency',
+    description: 'Media Center Overcrowding during post-match interviews.',
+    events: [
+      {
+        timeSeconds: 2,
+        description: 'Media Zone capacity exceeded',
+        action: (s) => {
+          s.incidents.unshift({
+            id: 'INC-7108',
+            type: 'Media Control',
+            severity: 'elevated',
+            status: 'active',
+            location: 'Main Press Center',
+            description: 'Unaccredited journalists breaching mixed zone.',
+            timestamp: '21:30',
+          });
+          s.copilot.currentObservations =
+            'Media Center occupancy is at 115%. Unaccredited personnel detected.';
+          s.copilot.reasoning =
+            'High risk of crowd crush in mixed zone. Immediate access control needed.';
+          s.copilot.recommendations = [
+            'Deploy Media Security to entrance',
+            'Open secondary mixed zone',
+            'Issue digital alert to accredited media',
+          ];
+          s.copilot.executiveSummary =
+            'Media zone overcrowding detected. Cross-domain alerts dispatched to workforce.';
+        },
+      },
+      {
+        timeSeconds: 10,
+        description: 'Security deployed and area secured',
+        action: (s) => {
+          s.incidents[0]!.status = 'resolved';
+          s.incidents[0]!.resolvedAt = '21:35';
+          s.copilot.executiveSummary = 'Media operations stabilized. Overflow mixed zone active.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'broadcast-failure',
+    name: 'Broadcast Signal Failure',
+    description: 'Critical degradation of primary fiber optic uplink.',
+    events: [
+      {
+        timeSeconds: 2,
+        description: 'Signal loss detected',
+        action: (s) => {
+          s.incidents.unshift({
+            id: 'INC-7109',
+            type: 'Broadcast',
+            severity: 'critical',
+            status: 'active',
+            location: 'Broadcast Compound',
+            description: 'Primary fiber route degraded by 45%.',
+            timestamp: '21:40',
+          });
+          s.copilot.currentObservations = 'Primary fiber route experiencing severe packet loss.';
+          s.copilot.reasoning =
+            'Potential physical damage to fiber route 1. Automatic failover required to prevent live feed drop.';
+          s.copilot.recommendations = [
+            'Failover to satellite uplink',
+            'Dispatch technical team to fiber node B',
+            'Throttle non-essential telemetry',
+          ];
+          s.copilot.executiveSummary =
+            'Critical broadcast degradation. Auto-failover to satellite executed.';
+        },
+      },
+      {
+        timeSeconds: 10,
+        description: 'Failover complete',
+        action: (s) => {
+          s.incidents[0]!.status = 'resolved';
+          s.incidents[0]!.resolvedAt = '21:42';
+          s.copilot.executiveSummary = 'Live feed restored via satellite. Repair team on site.';
+        },
+      },
+    ],
+  },
+  {
+    id: 'vip-surge',
+    name: 'VIP Hospitality Overflow',
+    description: 'Celebrity arrival causes surge in VIP corridors.',
+    events: [
+      {
+        timeSeconds: 2,
+        description: 'VIP surge detected',
+        action: (s) => {
+          s.incidents.unshift({
+            id: 'INC-7110',
+            type: 'Hospitality',
+            severity: 'elevated',
+            status: 'active',
+            location: 'VIP Lounge A',
+            description: 'Unplanned celebrity arrival causing corridor congestion.',
+            timestamp: '21:45',
+          });
+          s.copilot.currentObservations = 'VIP Corridor A experiencing 200% normal flow.';
+          s.copilot.reasoning =
+            'High-profile guest arrival detected. Extra hospitality and VIP security required.';
+          s.copilot.recommendations = [
+            'Deploy VIP Security escort',
+            'Reroute standard fan traffic away from VIP gates',
+            'Deploy extra hospitality concierge staff',
+          ];
+          s.copilot.executiveSummary =
+            'VIP surge managed. Additional escorts and concierge deployed.';
+        },
+      },
+      {
+        timeSeconds: 10,
+        description: 'VIPs secured',
+        action: (s) => {
+          s.incidents[0]!.status = 'resolved';
+          s.incidents[0]!.resolvedAt = '21:50';
+          s.copilot.executiveSummary = 'VIP guests safely escorted to suite. Corridor cleared.';
+        },
+      },
+    ],
+  },
 ];

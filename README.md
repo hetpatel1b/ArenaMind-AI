@@ -65,6 +65,8 @@ ArenaMind replaces fragmented operations with a single intelligent command surfa
 - **Security operations centers** requiring real-time situational awareness
 - **Emergency management teams** coordinating multi-department responses
 - **Enterprise organizations** evaluating AI-driven operational intelligence
+- **Media & Broadcast teams** managing live feeds, compounds, and press areas
+- **Hospitality & VIP teams** overseeing premium fan experiences
 
 ---
 
@@ -115,6 +117,14 @@ SOC2, ISO 27001, and GDPR compliance tracking, audit logging, RBAC policy enforc
 ### 🏗️ Infrastructure Monitoring
 
 Live topology visualization of servers, pods, and databases with CPU, memory, latency, and API health metrics.
+
+### 🎥 Broadcast & Media Operations
+
+Real-time signal health monitoring, fiber route auto-failover, press zone capacity tracking, and broadcast compound management.
+
+### 🥂 Hospitality & VIP Management
+
+Premium lounge occupancy tracking, personalized concierge AI recommendations, luxury transport routing, and VIP surge detection.
 
 ### 🤖 Enterprise AI Copilot
 
@@ -183,6 +193,7 @@ ArenaMind's AI system is a production-grade multi-agent architecture designed fo
 │  Crowd · Security · Medical · Mobility    │
 │  Camera · Workforce · Infrastructure      │
 │  Governance · Weather · Executive         │
+│  Media · Broadcast · Hospitality          │
 ├───────────────────────────────────────────┤
 │           Knowledge Layer                 │
 │  Knowledge Graph · Entity Resolution      │
@@ -256,6 +267,9 @@ arenamind-ai/
 │   │   └── dashboard/          # Dashboard route pages
 │   ├── components/             # Global shared components
 │   ├── lib/                    # Core libraries
+│   │   ├── media/              # Media Operations Domain
+│   │   ├── broadcast/          # Broadcast Operations Domain
+│   │   ├── hospitality/        # Hospitality & VIP Domain
 │   │   ├── enterprise/ai/      # Enterprise AI engine
 │   │   ├── demo/               # Demo scenario engine
 │   │   ├── hooks/              # Shared React hooks
@@ -372,6 +386,8 @@ Create a `.env` file based on `.env.example`. The following variables are requir
 | **Workforce Management** | Department deployment visualization with fatigue alerts        |
 | **Governance & Audit**   | Compliance tracking with RBAC policy enforcement               |
 | **Infrastructure**       | Live topology graph with health metrics                        |
+| **Media & Broadcast**    | Press zone alerts and fiber route auto-failover visualizations |
+| **Hospitality**          | VIP corridor tracking and luxury suite occupancy               |
 | **AI Copilot**           | Explainable reasoning with decision tree and approval workflow |
 
 ---
@@ -387,6 +403,9 @@ ArenaMind includes a built-in **Executive Scenario Controller** that triggers pr
 | **Security Threat**   | Suspicious package at Concourse West | Perimeter establishment → Police deployment → Camera override → VIP reroute → EOD response → All-clear |
 | **VIP Arrival**       | VIP convoy approaching Gate A        | Traffic control → Parking reservation → Camera focus → Security deployment → Executive summary         |
 | **Weather Alert**     | Severe thunderstorm warning          | Shelter protocol → Transport delay → Infrastructure load → Emergency planning → AI recommendations     |
+| **Press Emergency**   | Media Zone capacity exceeded         | Security deployment → Overflow zone opened → Digital alerts to accredited media → Executive summary    |
+| **Broadcast Failure** | Signal loss detected                 | Fiber route failover to satellite → Repair team dispatched → Telemetry throttled → Executive summary   |
+| **VIP Surge**         | Celebrity arrival causes congestion  | VIP Security escort deployed → Fan traffic rerouted → Concierge staff increased → Executive summary    |
 
 Each scenario unfolds with realistic operational delays and cascades deterministically through every connected module — dashboard, copilot, map, incidents, notifications, and timeline.
 

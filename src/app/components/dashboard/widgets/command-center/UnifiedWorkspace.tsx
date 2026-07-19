@@ -374,6 +374,27 @@ function AnalyticsMode() {
         </div>
       </div>
 
+      {/* Domain Status Panel */}
+      <div>
+        <div
+          style={{
+            fontSize: '10px',
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            marginBottom: '8px',
+            letterSpacing: '1px',
+          }}
+        >
+          Extended Domains Health
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <KpiBox label="Media Operations" value="Clear" trend="Stable" status="good" />
+          <KpiBox label="Broadcast Signal" value="Optimal" trend="99.9%" status="good" />
+          <KpiBox label="Hospitality Occ" value="92%" trend="High" status="warning" />
+          <KpiBox label="VIP Guest Flow" value="Smooth" trend="Stable" status="good" />
+        </div>
+      </div>
+
       {/* Dynamic Risk Matrix */}
       <div>
         <div

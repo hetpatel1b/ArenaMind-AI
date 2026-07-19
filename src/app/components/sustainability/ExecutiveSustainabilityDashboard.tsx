@@ -3,6 +3,8 @@
 import React from 'react';
 import CarbonKpiWidget from './widgets/CarbonKpiWidget';
 import ResourceKpiWidget from './widgets/ResourceKpiWidget';
+import WasteDashboardWidget from './widgets/WasteDashboardWidget';
+import WaterDashboardWidget from './widgets/WaterDashboardWidget';
 import SustainabilityCopilotPanel from './copilot/SustainabilityCopilotPanel';
 import { carbonIntelligenceService } from '../../../lib/sustainability/intelligence/carbon.service';
 import { energyIntelligenceService } from '../../../lib/sustainability/intelligence/energy.service';
@@ -49,9 +51,20 @@ export default function ExecutiveSustainabilityDashboard() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '24px',
+            marginBottom: '24px',
+          }}
+        >
           <CarbonKpiWidget metrics={data.carbon} />
           <ResourceKpiWidget energy={data.energy} waste={data.waste} water={data.water} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <WasteDashboardWidget waste={data.waste} />
+          <WaterDashboardWidget water={data.water} />
         </div>
       </div>
 
