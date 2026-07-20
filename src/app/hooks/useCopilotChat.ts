@@ -22,10 +22,12 @@ export interface UseCopilotChatOptions {
 export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopilotChatOptions) {
   const [messages, setMessages] = useState<CopilotMessage[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastUserPromptRef = useRef<string>('');
 
   const sendMessage = useCallback(
     async (text: string) => {
       if (!text.trim()) return;
+      lastUserPromptRef.current = text.trim();
 
       const userMessageId = Date.now().toString();
       const assistantMessageId = (Date.now() + 1).toString();
@@ -38,7 +40,7 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
           role: 'assistant',
           content: '',
           isLoading: true,
-          progress: 'Connecting...',
+          progress: 'Connecting to Copilot...',
         },
       ]);
 
@@ -59,14 +61,21 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
         });
 
         if (!response.ok) {
-          throw new Error(`Server returned ${response.status}`);
+          let errorMsg = `Server error (${response.status})`;
+          try {
+            const errJson = await response.json();
+            if (errJson.error) errorMsg = errJson.error;
+          } catch (e) {
+            // fallback
+          }
+          throw new Error(errorMsg);
         }
 
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
 
-        if (!reader) throw new Error('No reader available');
+        if (!reader) throw new Error('No streaming reader available.');
 
         while (true) {
           const { done, value } = await reader.read();
@@ -86,29 +95,39 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
               currentData = line.substring(6).trim();
             } else if (line === '') {
               if (currentEvent && currentData) {
-                const parsed = JSON.parse(currentData);
-                if (currentEvent === 'progress') {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantMessageId ? { ...m, progress: parsed.step } : m
-                    )
-                  );
-                } else if (currentEvent === 'complete') {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantMessageId
-                        ? { ...m, isLoading: false, progress: undefined, response: parsed.result }
-                        : m
-                    )
-                  );
-                } else if (currentEvent === 'error') {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantMessageId
-                        ? { ...m, isLoading: false, progress: undefined, error: parsed.message }
-                        : m
-                    )
-                  );
+                try {
+                  const parsed = JSON.parse(currentData);
+                  if (currentEvent === 'progress') {
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === assistantMessageId ? { ...m, progress: parsed.step } : m
+                      )
+                    );
+                  } else if (currentEvent === 'complete') {
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === assistantMessageId
+                          ? { ...m, isLoading: false, progress: undefined, response: parsed.result }
+                          : m
+                      )
+                    );
+                  } else if (currentEvent === 'error') {
+                    setMessages((prev) =>
+                      prev.map((m) =>
+                        m.id === assistantMessageId
+                          ? {
+                              ...m,
+                              isLoading: false,
+                              progress: undefined,
+                              error:
+                                parsed.message || 'Unable to start AI Copilot. Please try again.',
+                            }
+                          : m
+                      )
+                    );
+                  }
+                } catch (e) {
+                  // Ignore JSON parse errors for incomplete chunks
                 }
                 currentEvent = '';
                 currentData = '';
@@ -133,7 +152,7 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
                     ...m,
                     isLoading: false,
                     progress: undefined,
-                    error: error.message || 'Failed to connect.',
+                    error: error.message || 'Unable to connect to AI Copilot.',
                   }
                 : m
             )
@@ -158,11 +177,18 @@ export function useCopilotChat({ moduleFeature, matchId, contextData }: UseCopil
     stopGeneration();
   }, [stopGeneration]);
 
+  const retryLastMessage = useCallback(() => {
+    if (lastUserPromptRef.current) {
+      sendMessage(lastUserPromptRef.current);
+    }
+  }, [sendMessage]);
+
   return {
     messages,
     sendMessage,
     stopGeneration,
     clearHistory,
+    retryLastMessage,
     isLoading: !!abortControllerRef.current,
   };
 }

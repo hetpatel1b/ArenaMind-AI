@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/client';
 import { LoggerService } from '@/lib/platform/observability/LoggerService';
+import { toOptionalUUID } from '@/lib/validation/uuid';
 
 export class ObservabilityService {
   async logRequest(params: {
@@ -29,12 +30,15 @@ export class ObservabilityService {
       const estimatedCost =
         (params.inputTokens / 1_000_000) * 0.1 + (params.outputTokens / 1_000_000) * 0.4;
 
-      const validMatchId = params.matchId === 'system-default-match' ? undefined : params.matchId;
+      const validOrgId = toOptionalUUID(params.organizationId);
+      const validMatchId = toOptionalUUID(params.matchId);
+      const validUserId = toOptionalUUID(params.userId);
+
       await prisma.aiGatewayLog.create({
         data: {
-          organizationId: params.organizationId,
+          organizationId: validOrgId,
           matchId: validMatchId,
-          userId: params.userId,
+          userId: validUserId,
           provider: params.provider,
           modelName: params.modelName,
           promptVersion: params.promptVersion,

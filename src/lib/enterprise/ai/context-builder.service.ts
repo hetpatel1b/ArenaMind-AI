@@ -1,87 +1,92 @@
 import { BusinessContext } from '@/lib/services/business.context';
 import { prisma } from '@/lib/db/client';
+import { isUUID } from '@/lib/validation/uuid';
 
 export class ContextBuilderService {
   async buildMatchContext(ctx: BusinessContext, matchId: string) {
-    const isSystemDefault = matchId === 'system-default-match';
-    const match = isSystemDefault
-      ? await prisma.match.findFirst({
-          include: {
-            venue: true,
-            incidents: {
-              where: { status: { in: ['open', 'active'] } },
-              take: 5,
-              orderBy: { severityTier: 'asc' },
-            },
-            crowdSnapshots: {
-              orderBy: { recordedAt: 'desc' },
-              take: 5,
-            },
-            kpiSnapshots: {
-              orderBy: { capturedAt: 'desc' },
-              take: 1,
-            },
-            mobilitySnapshots: {
-              orderBy: { capturedAt: 'desc' },
-              take: 5,
-            },
-            resources: {
-              where: { status: 'available' },
-            },
+    const isValidMatchUuid = isUUID(matchId);
+    let match: SafeAny = null;
+
+    if (isValidMatchUuid) {
+      match = await prisma.match.findUnique({
+        where: { id: matchId },
+        include: {
+          venue: true,
+          incidents: {
+            where: { status: { in: ['open', 'active'] } },
+            take: 5,
+            orderBy: { severityTier: 'asc' },
           },
-        })
-      : await prisma.match.findUnique({
-          where: { id: matchId },
-          include: {
-            venue: true,
-            incidents: {
-              where: { status: { in: ['open', 'active'] } },
-              take: 5,
-              orderBy: { severityTier: 'asc' },
-            },
-            crowdSnapshots: {
-              orderBy: { recordedAt: 'desc' },
-              take: 5,
-            },
-            kpiSnapshots: {
-              orderBy: { capturedAt: 'desc' },
-              take: 1,
-            },
-            mobilitySnapshots: {
-              orderBy: { capturedAt: 'desc' },
-              take: 5,
-            },
-            resources: {
-              where: { status: 'available' },
-            },
+          crowdSnapshots: {
+            orderBy: { recordedAt: 'desc' },
+            take: 5,
           },
-        });
+          kpiSnapshots: {
+            orderBy: { capturedAt: 'desc' },
+            take: 1,
+          },
+          mobilitySnapshots: {
+            orderBy: { capturedAt: 'desc' },
+            take: 5,
+          },
+          resources: {
+            where: { status: 'available' },
+          },
+        },
+      });
+    }
+
+    // Fallback: search for first active match or system default if not found by UUID
+    if (!match) {
+      match = await prisma.match.findFirst({
+        include: {
+          venue: true,
+          incidents: {
+            where: { status: { in: ['open', 'active'] } },
+            take: 5,
+            orderBy: { severityTier: 'asc' },
+          },
+          crowdSnapshots: {
+            orderBy: { recordedAt: 'desc' },
+            take: 5,
+          },
+          kpiSnapshots: {
+            orderBy: { capturedAt: 'desc' },
+            take: 1,
+          },
+          mobilitySnapshots: {
+            orderBy: { capturedAt: 'desc' },
+            take: 5,
+          },
+          resources: {
+            where: { status: 'available' },
+          },
+        },
+      });
+    }
 
     if (!match) {
-      if (isSystemDefault) {
-        return {
-          matchInfo: {
-            phase: 'pre_match',
-            status: 'scheduled',
-            attendance: 50000,
-          },
-          venue: {
-            name: 'ArenaMind Default Stadium',
-            capacity: 80000,
-          },
-          kpis: {
-            healthScore: 100,
-            avgCrowdDensityPct: 0,
-          },
-          activeIncidents: [],
-          crowdState: [],
-          mobilityState: [],
-          resources: {
-            available: 100,
-          },
-        };
-      }
-      throw new Error('Match not found');
+      return {
+        matchInfo: {
+          phase: 'pre_match',
+          status: 'scheduled',
+          attendance: 50000,
+        },
+        venue: {
+          name: 'ArenaMind Default Stadium',
+          capacity: 80000,
+        },
+        kpis: {
+          healthScore: 100,
+          avgCrowdDensityPct: 0,
+        },
+        activeIncidents: [],
+        crowdState: [],
+        mobilityState: [],
+        resources: {
+          available: 100,
+        },
+      };
     }
 
     return {
@@ -91,26 +96,26 @@ export class ContextBuilderService {
         attendance: match.actualAttendance || match.expectedAttendance,
       },
       venue: {
-        name: match.venue.name,
-        capacity: match.venue.capacity,
+        name: match.venue?.name || 'ArenaMind Default Stadium',
+        capacity: match.venue?.capacity || 80000,
       },
-      kpis: match.kpiSnapshots[0] || {},
-      activeIncidents: match.incidents.map((inc: SafeAny) => ({
+      kpis: match.kpiSnapshots?.[0] || {},
+      activeIncidents: (match.incidents || []).map((inc: SafeAny) => ({
         title: inc.title,
         severity: inc.severityTier,
         status: inc.status,
       })),
-      crowdState: match.crowdSnapshots.map((cs: SafeAny) => ({
+      crowdState: (match.crowdSnapshots || []).map((cs: SafeAny) => ({
         zoneId: cs.zoneId,
         density: cs.densityPct,
       })),
-      mobilityState: match.mobilitySnapshots.map((ms: SafeAny) => ({
+      mobilityState: (match.mobilitySnapshots || []).map((ms: SafeAny) => ({
         mode: ms.transitMode,
         status: ms.status,
         delay: ms.delayMinutes,
       })),
       resources: {
-        available: match.resources.length,
+        available: match.resources?.length || 0,
       },
     };
   }

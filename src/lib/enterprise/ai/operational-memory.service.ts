@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
+import { toOptionalUUID } from '@/lib/validation/uuid';
 
 export class OperationalMemoryService {
   /**
@@ -10,11 +11,12 @@ export class OperationalMemoryService {
     currentFeature?: string,
     semanticKeywords: string[] = []
   ): Promise<string> {
+    const validOrgId = toOptionalUUID(organizationId);
     const whereClause: Prisma.AiRecommendationWhereInput = {};
 
     // Organization-specific memory isolation
-    if (organizationId) {
-      whereClause.match = { organizationId };
+    if (validOrgId) {
+      whereClause.match = { organizationId: validOrgId };
     }
     if (currentFeature) {
       whereClause.featureName = currentFeature;
@@ -24,14 +26,19 @@ export class OperationalMemoryService {
     const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     whereClause.createdAt = { gte: ninetyDaysAgo };
 
-    const pastRecommendations = await prisma.aiRecommendation.findMany({
-      where: whereClause,
-      orderBy: { createdAt: 'desc' },
-      take: 20, // Fetch more for ranking
-      include: {
-        incident: true,
-      },
-    });
+    let pastRecommendations: SafeAny[] = [];
+    try {
+      pastRecommendations = await prisma.aiRecommendation.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        take: 20, // Fetch more for ranking
+        include: {
+          incident: true,
+        },
+      });
+    } catch (e) {
+      return 'HISTORICAL PRECEDENT: No highly relevant past incidents found in operational memory.';
+    }
 
     if (pastRecommendations.length === 0) {
       return 'HISTORICAL PRECEDENT: No highly relevant past incidents found in operational memory.';

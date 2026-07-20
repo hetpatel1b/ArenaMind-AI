@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { createRouteHandler } from '../../../src/lib/api/route-factory';
 import { createSystemContext } from '../../../src/lib/services/business.context';
+import { SYSTEM_USER_ID } from '../../../src/lib/validation/uuid';
 
 // Mock dependencies that are not the subject of this unit test
 vi.mock('../../../src/lib/observability/logger', () => ({
@@ -34,7 +35,7 @@ describe('BusinessContext & RouteFactory', () => {
   describe('createSystemContext', () => {
     it('creates a system context with provided venue', () => {
       const ctx = createSystemContext('venue-123');
-      expect(ctx.userId).toBe('system');
+      expect(ctx.userId).toBe(SYSTEM_USER_ID);
       expect(ctx.role).toBe('system_admin');
       expect(ctx.venueId).toBe('venue-123');
       expect(ctx.correlationId).toBeDefined();
@@ -115,7 +116,7 @@ describe('BusinessContext & RouteFactory', () => {
       expect(mockHandler).toHaveBeenCalledTimes(1);
       const passedContext = mockHandler.mock.calls[0]![1]!.bizContext!;
 
-      expect(passedContext.userId).toBe('system');
+      expect(passedContext.userId).toBe(SYSTEM_USER_ID);
       expect(passedContext.venueId).toBe('public');
     });
 

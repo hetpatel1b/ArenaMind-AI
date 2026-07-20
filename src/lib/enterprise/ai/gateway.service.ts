@@ -15,6 +15,7 @@ import { aiExecutiveSummaryService } from './executive-summary.service';
 import { aiConfidenceScoringService } from './confidence-scoring.service';
 import { aiAgentOrchestratorService } from './multi-agent/orchestrator.service';
 import { BusinessContext } from '@/lib/services/business.context';
+import { organizationResolver } from '@/lib/services/organization-resolver';
 import { AIFeature } from '@prisma/client';
 
 import { aiResponseCacheService } from './cache/response-cache.service';
@@ -233,8 +234,9 @@ Answer the user's questions strictly based on this context. Be concise and preci
     feature: AIFeature,
     userMessage?: string
   ) {
+    const resolvedOrgId = await organizationResolver.resolveOrganizationId(ctx.organizationId);
     const conversationId = await conversationService.getOrCreateConversation(
-      ctx.organizationId || 'system-org',
+      resolvedOrgId,
       matchId,
       ctx.userId
     );

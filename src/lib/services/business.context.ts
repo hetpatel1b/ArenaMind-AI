@@ -1,3 +1,5 @@
+import { isUUID, SYSTEM_ORGANIZATION_ID, SYSTEM_USER_ID } from '@/lib/validation/uuid';
+
 /**
  * Context injected into Service layer operations.
  * Contains user session information, correlation IDs for logging, and multi-tenant scopes.
@@ -28,7 +30,8 @@ export interface BusinessContext {
 export function createSystemContext(venueId: string): BusinessContext {
   return {
     correlationId: crypto.randomUUID(),
-    userId: 'system',
+    userId: SYSTEM_USER_ID,
+    organizationId: isUUID(venueId) ? venueId : SYSTEM_ORGANIZATION_ID,
     role: 'system_admin',
     venueId,
   };
