@@ -7,6 +7,7 @@ import { AuthorizationError, AuthenticationError } from '../errors/http.errors';
 import { logger } from '../observability/logger';
 import { enforceRateLimit, RateLimitOptions } from './rate-limiter';
 import { generateETag, checkConditionalCache } from './caching';
+import { isUUID, SYSTEM_ORGANIZATION_ID, SYSTEM_USER_ID } from '../validation/uuid';
 
 export interface RouteConfig {
   requireAuth?: boolean;

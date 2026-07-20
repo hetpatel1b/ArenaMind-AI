@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 import { AIFeature } from '@prisma/client';
 import { SchemaType, Schema } from '@google/generative-ai';
+import { isUUID } from '@/lib/validation/uuid';
 
 export class PromptRegistryService {
   async getSystemPrompt(
@@ -17,9 +18,10 @@ export class PromptRegistryService {
     const { organizationId, role, matchPhase, incidentSeverity, riskLevel } = contextParams || {};
 
     // Base search criteria
+    const validOrgId = isUUID(organizationId) ? organizationId : null;
     const whereClause: Prisma.AiPromptWhereInput = {
       featureName: feature,
-      organizationId: organizationId || null,
+      organizationId: validOrgId,
     };
 
     // Attempt to find the most specific prompt
