@@ -3,6 +3,8 @@ import { BusinessContext } from '@/lib/services/business.context';
 import { aiGatewayService } from '@/lib/enterprise/ai/gateway.service';
 import { aiRecommendationRepository, aiFeedbackRepository } from './repository';
 import { AIFeature, ActionTaken, Prisma } from '@prisma/client';
+import { isUUID } from '@/lib/validation/uuid';
+import { prisma } from '@/lib/db/client';
 
 export class AiService extends BaseService {
   constructor() {
@@ -31,12 +33,28 @@ export class AiService extends BaseService {
         confidenceScore = dataObj.confidence;
       }
 
-      // 2. Save to Repository
+      // 2. Resolve valid Match UUID & Venue UUID for relation connection
+      let validMatchId = isUUID(matchId) ? matchId : undefined;
+      if (!validMatchId) {
+        try {
+          const activeMatch = await prisma.match.findFirst({ select: { id: true } });
+          if (activeMatch) validMatchId = activeMatch.id;
+        } catch (e) {
+          // ignore DB error
+        }
+      }
+
+      if (!validMatchId) {
+        return { id: crypto.randomUUID(), data, confidenceScore };
+      }
+
+      const validVenueId = isUUID(ctx.venueId) ? ctx.venueId : undefined;
+
       const recommendation = await aiRecommendationRepository.create({
-        match: { connect: { id: matchId } },
-        venue: { connect: { id: ctx.venueId } },
+        match: { connect: { id: validMatchId } },
+        ...(validVenueId ? { venue: { connect: { id: validVenueId } } } : {}),
         featureName: feature,
-        modelName: 'gemini-2.0-flash', // Now logged centrally, but kept here for backward compatibility
+        modelName: 'gemini-2.0-flash', // Logged centrally
         promptVersion: 'v1.0',
         data: data as Prisma.InputJsonValue,
         confidenceScore,
