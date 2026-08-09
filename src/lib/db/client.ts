@@ -7,11 +7,16 @@ import { config } from '@/lib/platform/config/ConfigurationService';
 import { LoggerService } from '@/lib/platform/observability/LoggerService';
 
 const prismaClientSingleton = () => {
+  const connectionString = process.env.DATABASE_URL || config.databaseUrl;
+  const isProduction =
+    process.env.NODE_ENV === 'production' || connectionString?.includes('supabase.com');
+
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || config.databaseUrl,
+    connectionString,
     max: 10, // Lowered per-instance pool limit to prevent Vercel from exhausting global Supabase connections
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000, // Increased to prevent false connection drops on cold starts
+    ssl: isProduction ? { rejectUnauthorized: false } : undefined,
   });
 
   const adapter = new PrismaPg(pool);

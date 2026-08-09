@@ -37,7 +37,7 @@ jobs:
 
     - name: npm audit
       # Using npm audit via pnpm to check vulnerabilities
-      run: pnpm audit --audit-level=high
+      run: pnpm run audit
 
     - name: Dependency Review
       uses: actions/dependency-review-action@v4

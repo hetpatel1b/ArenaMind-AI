@@ -9,7 +9,7 @@ export const authConfig = {
   trustHost: true,
   pages: {
     signIn: '/login',
-    error: '/login',
+    error: '/auth/error',
   },
   session: { strategy: 'jwt', maxAge: 24 * 60 * 60 },
   callbacks: {
