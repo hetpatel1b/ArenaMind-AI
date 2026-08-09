@@ -4,7 +4,7 @@ import { authConfig } from '@/server/auth/auth.config';
 
 const { auth } = NextAuth(authConfig);
 
-export default auth(async (request) => {
+const proxyHandler = auth(async (request) => {
   const session = request.auth;
   const isLoggedIn = !!session;
   const { pathname } = request.nextUrl;
@@ -80,6 +80,10 @@ export default auth(async (request) => {
 
   return response;
 });
+
+export default proxyHandler;
+export const proxy = proxyHandler;
+export const middleware = proxyHandler;
 
 export const config = {
   // Protect all routes by default, except internal Next.js paths and static assets

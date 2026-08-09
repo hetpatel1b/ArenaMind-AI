@@ -100,10 +100,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const metadata = parsedMetadata.success ? parsedMetadata.data : {};
           const activeTokens = Array.isArray(metadata.activeTokens) ? metadata.activeTokens : [];
           const now = Date.now();
-
           // Lazy cleanup of expired tokens
           const validTokens = activeTokens.filter((t) => t.exp > now);
 
+          // Auto-prune oldest tokens if concurrent limit is reached to prevent lockout loop
           if (validTokens.length >= 5) {
             await AuditService.log({
               tableName: 'User',
@@ -111,11 +111,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               action: 'ACCESS',
               userId: user.id,
               organizationId: user.organizationId || undefined,
-              newData: { status: 'CONCURRENT_SESSION_LIMIT_REACHED' },
+              newData: { status: 'CONCURRENT_SESSION_PRUNED' },
             });
-            throw new CustomAuthError(
-              'Maximum concurrent sessions reached. Please log out from other devices.'
-            );
+            validTokens.sort((a, b) => b.exp - a.exp);
+            validTokens.splice(4); // Keep most recent 4 sessions, making room for new session
           }
 
           // Generate new token ID and explicitly set 24h expiration
