@@ -9,6 +9,17 @@ const proxyHandler = auth(async (request) => {
   const isLoggedIn = !!session;
   const { pathname } = request.nextUrl;
 
+  // Top-Level Edge Interceptor: Never allow raw NextAuth default error page to display
+  if (pathname === '/api/auth/error' || pathname.startsWith('/api/auth/error')) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    const errorReason = request.nextUrl.searchParams.get('error');
+    if (errorReason) {
+      loginUrl.searchParams.set('reason', errorReason);
+    }
+    return NextResponse.redirect(loginUrl);
+  }
+
   const isApiAuthRoute = pathname.startsWith('/api/auth');
   const isPublicRoute =
     pathname === '/login' || pathname === '/demo-register' || pathname === '/' || isApiAuthRoute;
